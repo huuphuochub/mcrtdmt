@@ -7,12 +7,39 @@
             return{success:true,data:result.data}
         } catch (error:any) {
              const errRes = error.response?.data;
-    return {
-      success: false,
-      code: errRes?.code || 'UNKNOWN_ERROR',
-      message: errRes?.message || 'Đã xảy ra lỗi',
-    };
+    return errRes;
+        }
+    }
+    const getAllproduct = async() =>{
+        try {
+            const result = await axiosClient.get('/product/getallproduct');
+            // console.log(result);
+            
+            return result;
+        } catch (error:any) {
+            const errRes = error.response?.data;
+            return errRes;
         }
     }
 
-    export {Addproduct}
+    const getBesellerproduct = async() =>{
+        try {
+            const result = await axiosClient.get('/product/bestseller');
+            // console.log(result);
+            
+            return result;
+        } catch (error:any) {
+            const errRes = error.response?.data;
+            return errRes;
+        }
+    }
+    const getproductdetail = async(id:number)=>{
+        try {
+            const result = await axiosClient.get(`/product/productdetail/${id}`)
+            return result;
+        } catch (error:any) {
+            const errRes = error.response?.data;
+            return errRes; 
+        }
+    }
+    export {Addproduct,getAllproduct,getBesellerproduct,getproductdetail}

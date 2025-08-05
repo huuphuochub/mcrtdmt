@@ -1,0 +1,28 @@
+export interface interfaceuser{
+    id:number,
+    username:string,
+    password:string,
+    isActive:boolean,
+    avatarUrl:string,
+    role:number,
+    districtId:number,
+    provinceId:number,
+    wardsId:number,
+    address:string,
+    createdAt:Date,
+    phone:number,
+}
+export interface interfaceSeller{
+    id:number,
+    usernameseller:string,
+    districtId:number,
+    provinceId:number,
+    wardsId:number,
+    address:number,
+    urlfb:string,
+    urltiktok:string,
+    describe:string,
+    createdAt:Date,
+    status:number,
+    user_id:number,
+}

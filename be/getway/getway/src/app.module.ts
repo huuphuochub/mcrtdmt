@@ -7,6 +7,7 @@ import { HttpModule } from '@nestjs/axios';
 import { Categorycontroller } from './controller/category.controller';
 import { Subcategorycontroller } from './controller/subcategory.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
+import { AuthModule } from './auth/auth.module';
 
 @Module({
    imports: [
@@ -30,7 +31,7 @@ import { ClientsModule, Transport } from '@nestjs/microservices';
         },
       },
     ]),
-    HttpModule
+    HttpModule,AuthModule
   ],
   controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller],
 })

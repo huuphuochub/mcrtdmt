@@ -17,12 +17,13 @@ interface FormErrors {
   visibility?: string;
   mainImage?: string;
   subImage?: string;
+  quantity?:string;
 }
 
 export default function Addproduct() {
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [previewMain, setPreviewMain] = useState<string | null>(null);
-
+  const [quantity,setQuantity] = useState<number>(0)
   const [subImage, setSubImage] = useState<File[]>([]);
   const [previewSub, setPreviewSub] = useState<string[]>([]);
   const [categorys, setCategorys] = useState<Category[]>([]);
@@ -121,6 +122,11 @@ export default function Addproduct() {
       errors.subcategory = 'Vui lòng chọn danh mục con';
     }
 
+    // validate quantity
+    const quantity = formData.get('quantity' ) as string;
+    if(!quantity || parseFloat(quantity) <=0){
+      errors.quantity = "vui long nhap so luong"
+    }
     // Validate origin
     const origin = formData.get('origin') as string;
     if (!origin || origin.trim().length < 2) {
@@ -269,6 +275,21 @@ export default function Addproduct() {
             onChange={() => setErrors(prev => ({ ...prev, discountprice: undefined }))}
           />
           {errors.discountprice && <p className="text-red-500 text-sm mt-1">{errors.discountprice}</p>}
+        </div>
+
+        {/* so luong */}
+        <div>
+          <label className="block text-sm font-semibold mb-1">So luong</label>
+          <input
+            type="number"
+            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.quantity ? 'border-red-500' : ''
+            }`}
+            name="quantity"
+            min="0"
+            onChange={() => setErrors(prev => ({ ...prev, quantity: undefined }))}
+          />
+          {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>}
         </div>
 
         {/* Mô tả */}
@@ -421,7 +442,7 @@ export default function Addproduct() {
               <input 
                 type="radio" 
                 name="visibility" 
-                value="hidden"
+                value="1"
                 className="accent-blue-600" 
                 onChange={() => setErrors(prev => ({ ...prev, visibility: undefined }))}
               />
@@ -431,7 +452,7 @@ export default function Addproduct() {
               <input 
                 type="radio" 
                 name="visibility" 
-                value="visible"
+                value="0"
                 className="accent-blue-600" 
                 onChange={() => setErrors(prev => ({ ...prev, visibility: undefined }))}
               />

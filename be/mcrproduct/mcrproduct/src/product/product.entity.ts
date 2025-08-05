@@ -1,4 +1,5 @@
-import { Entity, PrimaryGeneratedColumn, Column } from "typeorm";
+import { Subimg } from "src/subimg/subimg.entity";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 
 
 @Entity('product')
@@ -42,7 +43,17 @@ export class Product {
     @Column({default:0})
     averageRating:number;
 
+    @OneToMany(() => Subimg, (Subimg) => Subimg.product)
+    subImages: Subimg[];
     
+    @Column({default:0,nullable:true})
+    discountprice:number;
+
+    @Column({default:0,nullable:true})
+    quantity:number;
+
+    @Column({default:0,nullable:true})
+    totalsold:number;
 
 
 }

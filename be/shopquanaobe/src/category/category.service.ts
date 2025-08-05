@@ -19,11 +19,55 @@ export class CategoryService {
             return({success:true,result})
         }
     }
-
-    async Getsubcatebyid(id:number){
+    async Getcategorybyid(id:number){
+        try {
+            const result = await this.cateRepo.findOne({where:{id:id}})
+        if(!result){
+            return{
+                success:false,
+                message:"khon tim thay dam=nh muc",
+                data:null
+            }
+        }
+        return{
+            success:true,
+            data:result,
+        }
+        } catch (error) {
+            return{
+                success:false,
+                message:'loi server',
+                data:null,
+            }
+        }
+    }
+    async Getsubcatebyidcategory(id:number){
         const result = await this.SubcateRepo.find({where:{categoryId:id}});
         if(result){
             return({success:true,result})
         }
+    }
+    async getsubcategorybyid(id:number){
+        try {
+            const result = await this.SubcateRepo.findOne({where:{id:id}});
+        if(!result){
+            return {
+                success:false,
+                message:"khong tim thay danh muc con",
+                data:null
+            }
+        }
+        return {
+        success:true,
+        data:result,
+      }
+        } catch (error) {
+                return {
+                    success:false,
+                    message:'loi',
+                    data:null,
+                }
+        }
+        
     }
 }

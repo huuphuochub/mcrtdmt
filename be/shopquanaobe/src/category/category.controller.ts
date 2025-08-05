@@ -11,6 +11,10 @@ export class CategoryController {
     async Getall(){
         return await this.categoryservice.GetAllCate();
     }
+    @Get("getbyid/:id")
+    async getcategorybyid(@Param('id')id:number){
+        return await  this.categoryservice.Getcategorybyid(id);
+    }
 
 }
 @Controller('subcategory')
@@ -23,7 +27,12 @@ export class Subcategorycontroller {
     }
 
     @Get(':id')
-    async getsubcategorybyid(@Param('id') id: number){
-        return this.categoryservice.Getsubcatebyid(+id);
+    async getsubcategorybyidcategory(@Param('id') id: number){
+        return this.categoryservice.Getsubcatebyidcategory(+id);
     }
+    @Get('getsubcategorybyid/:id')
+    async getsubcategorybyid(@Param('id')id:number){
+        return  this.categoryservice.getsubcategorybyid(id);
+    }
+
 }

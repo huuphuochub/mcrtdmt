@@ -1,4 +1,18 @@
-export interface Product{
+export interface interfaceProduct{
     id:number;
-    
+    name:string;
+    image:string;
+    idSeller:number;
+    describe:string;
+    price:number;
+    idCategory:number;
+    date:Date;
+    status:number;
+    ratingSum:number;
+    ratingCount:number;
+    averageRating:number;
+    subcategory:number;
+    discountprice:number;
+    quantity:number;
+    totalsold:number;
 }

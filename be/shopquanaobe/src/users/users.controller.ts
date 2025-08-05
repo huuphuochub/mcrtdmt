@@ -64,7 +64,16 @@ export class UsersController {
     console.log(result);
     
   // Set cookie
-     const token = this.authService.generateToken({ id: result.user.id });
+     const token = this.authService.generateToken({ 
+      id: result.user.id ,
+      username:result.user.username,
+      isActive:result.user.isActive,
+      avatarUrl:result.user.avatarUrl,
+      role:result.user.role,
+      districtId:result.user.districtId,
+      wardsId:result.user.wardsId,
+      provinceId:result.user.provinceId,
+      phone:result.user.phone});
     // res.cookie('access_token', token, {
     //   httpOnly: true,
     //   maxAge: 1000 * 60 * 60 *24 * 7,
@@ -76,7 +85,7 @@ export class UsersController {
  return { success: true, message: 'Đăng nhập thành công',token };
 
 
-  }
+  } 
 
  @UseGuards(JwtAuthGuardFromCookie)
   @Get('me')
@@ -101,5 +110,9 @@ logout(@Res({ passthrough: true }) res: Response) {
     message: 'Đăng xuất thành công',
   };
 }
+  @Get('getuser/:id')
+  async getuserbyid(@Param('id')id:number){
+    return this.usersService.GetuserById(id);
+  }
   
 }

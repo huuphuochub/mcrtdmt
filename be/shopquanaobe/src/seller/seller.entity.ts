@@ -6,9 +6,14 @@ export class Seller {
   @PrimaryGeneratedColumn()
   id: number;
 
+  @Column()
+  user_id: number; // Để query nhanh
+
   @OneToOne(() => User)
   @JoinColumn({ name: 'user_id' }) // 👈 khóa ngoại
   user: User;
+
+  
 
   @Column()
   usernameseller: string;

@@ -1,11 +1,129 @@
-import React from "react";
+"use client"
+
+import React,{useEffect,useState} from "react";
 import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import Image from "next/image";
 import Button from "@/component/ui/button";
+import { interfaceProduct } from "@/interface/product.interface";
 import { Star,Heart,EllipsisVertical } from "lucide-react";
-export default function Productdetailpage(){
+import { interfaceSeller } from "@/interface/user.interface";
+import { interfaceuser } from "@/interface/user.interface";
+import { interfacesubimg } from "@/interface/subimg.interface";
+import { Category,Subcategory } from "@/interface/category.interface";
+import { getproductdetail } from "@/service/product.service";
+interface ProductResponse<T> {
+  success: boolean;
+  data: T | null;
+  message?: string;
+}
+
+interface ProductDetailData {
+   product:{
+      success:boolean,
+      data:interfaceProduct | null,
+   }
+   images:{
+      success:boolean,
+      data:interfacesubimg[]
+   };
+   category:{
+      success:boolean,
+      data:Category | null,  
+   }
+   subcategory:{
+      success:boolean,
+
+      data:Subcategory | null,
+   }
+   user:{
+      success:boolean,
+      data:interfaceuser | null,
+   }
+   seller:{
+      success:boolean,
+      data:interfaceSeller | null,
+   }
+
+}
+interface ProductDetailProps {
+   itemid: number;
+  shopid: number;
+  productprop: ProductResponse<ProductDetailData>;
+}
+// interface productprop {
+//    success:Bollen;
+//    data:Object
+
+// }
+export default function Productdetailpage({itemid,shopid,productprop} :ProductDetailProps){
+   const [product,setProduct] = useState<interfaceProduct | null >(null)
+   const [category,setCategory] = useState<Category | null >(null);
+   const [subcategory,setSubcategory] = useState<Subcategory |null>(null);
+   const [subimg, setSubimg] = useState<interfacesubimg[] | null>(null);
+   const [userseler,setUserseller] = useState<interfaceuser | null>(null);
+   const [seller,setSeller] = useState<interfaceSeller | null>(null);
+   // console.log(itemid,shopid);
+   // console.log(productprop);
+   useEffect(() => {
+      console.log(productprop);
+      // console.log(productprop.data?.product.success);
+      // console.log(productprop.data.product.data);
+      
+      
+      
+    if (productprop.success && productprop.data?.product.success) {
+      setProduct(productprop.data.product.data);
+      setCategory(productprop.data.category.data);
+      setSubcategory(productprop.data.subcategory.data)
+      setUserseller(productprop.data.user.data);
+      setSubimg(productprop.data.images.data);
+      setSeller(productprop.data.seller.data);
+      // console.log(product);
+      
+
+    }
+  }, [productprop]); 
+   if(productprop.success === false){
+      return <div>{productprop.message ?? "Không tìm thấy sản phẩm"}</div>
+   }
+   
+//      if (!productprop.success || !productprop.data) {
+//     return <div>{productprop.message ?? "Không tìm thấy sản phẩm"}</div>;
+//   }else{
+//    console.log(productprop.data);
+//    // lay danh muc
+//    // lay danh muc con
+//    // lay anh phu
+//    // lay chi tiet nguoi ban
+//   }
+   
+//    const [product,setProduct] = useState<interfaceProduct | null> ( null)
+//    useEffect(() =>{
+//       getproduct()
+//       console.log(product);
+      
+//    },[])
+//    const getproduct = async() =>{
+//       try {
+//          const res = await getproductdetail(itemid);
+//          if(res.data.success === true){
+//             setProduct(res.data.data as interfaceProduct)
+//          }
+            
+//       } catch (error)    {
+         
+//       }
+//    }
+//   if(product){
+//    console.log(product);
+//       //  lấy danh mục
+//       // lấy danh mục com
+//       // lấy hình phụ
+//       // lấy size và màu
+//       // lấy seller
+//   }
 return(
 <div>
      <div id="Particles">
@@ -14,12 +132,12 @@ return(
           </div>
    <Header/>
    <div className="mt-[100px] max-w-[1200px] mx-auto ">
-      <div className="flex py-2 px-1">
-         <p>san pham 1</p>
+      <div className="flex py-2 px-1 ">
+         <p>trang chu</p>
          &gt;
-         <p>san pham 2</p>
+         <p>{category?.name}</p>
          &gt;
-         <p>san pham 3</p>
+         <p>{subcategory?.name}</p>
       </div>
       <div className="flex shadow">
          <div className="max-w-[500px] p-2 ">
@@ -27,49 +145,35 @@ return(
                <Image
                   width={500}
                   height={500}
-                  src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188419/images__1_-removebg-preview_x6duym.png"
-                  alt=""
+                  src={product?.image || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
+                  alt={product?.name || 'product'}
                   ></Image>
                <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl">
                   <p className="text-white">-25%</p>
                </div>
             </div>
             <div  className="flex gap-5 mt-2">
-               <div className="border">
+               {subimg && subimg.map((urlimg,index) =>(
+                  <div className="border" key={urlimg.url || index}>
                   <Image
                      width={150}
                      height={150}
-                     src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188419/images__1_-removebg-preview_x6duym.png"
+                     src={urlimg.url}
                      alt=""
                      ></Image>
                </div>
-               <div className="border">
-                  <Image
-                     width={150}
-                     height={150}
-                     src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188419/images__1_-removebg-preview_x6duym.png"
-                     alt=""
-                     ></Image>
-               </div>
-               <div className="border">
-                  <Image
-                     width={150}
-                     height={150}
-                     src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188419/images__1_-removebg-preview_x6duym.png"
-                     alt=""
-                     ></Image>
-               </div>
+               ))}
             </div>
          </div>
          <div className="flex-1  p-4 bg-white rounded-xl ">
             <div className="space-y-4">
                {/* Tên sản phẩm */}
                <p className="text-2xl font-bold leading-snug">
-                  Chiếc áo nam nữ có thể mặc cả nam cả nữ và có size là freestyle
+                  {product?.name}
                </p>
                {/* Đánh giá */}
                <div className="flex items-center gap-2">
-                  <p className="text-yellow-600 font-medium">3.0</p>
+                  <p className="text-yellow-600 font-medium">{product?.averageRating}</p>
                   <ul className="flex gap-1">
                      <li>
                         <Star size={20} className="text-yellow-500 fill-yellow-500" />
@@ -87,12 +191,12 @@ return(
                         <Star size={20} className="text-yellow-500" />
                      </li>
                   </ul>
-                  <p className="text-sm text-gray-600">(100 lượt đánh giá)</p>
+                  <p className="text-sm text-gray-600">({product?.ratingCount} lượt đánh giá)</p>
                </div>
                {/* Giá */}
                <div className="flex items-baseline gap-4">
-                  <p className="text-lg text-gray-500 line-through">140.000đ</p>
-                  <p className="text-2xl text-red-600 font-bold">120.000đ</p>
+                  <p className="text-lg text-gray-500 line-through">{product?.price}</p>
+                  <p className="text-2xl text-red-600 font-bold">{product?.discountprice}</p>
                </div>
                {/* Thời gian khuyến mãi */}
                <div className="bg-yellow-100 p-3 rounded-md text-sm">
@@ -128,8 +232,8 @@ return(
                   <Heart className="text-red-500 hover:scale-110 transition" />
                </div>
                <div className="flex gap-4">
-                  <p>2,4k da ban</p>
-                  <p>109 con lai</p>
+                  <p>{product?.totalsold} da ban</p>
+                  <p>{product?.quantity} con lai</p>
                </div>
             </div>
          </div>
@@ -150,7 +254,7 @@ return(
             </div>
             <div className="">
                <div className="">
-                  <p className="text-xl font-semibold">ten shop</p>
+                  <p className="text-xl font-semibold">{userseler?.username}</p>
                   <div className="flex items-center gap-1">
                      <ul className="flex">
                         <li>
@@ -182,7 +286,7 @@ return(
          <div className="flex-1 flex items-center justify-between p-2">
             <div className="">
                <p className="mb-2">san pham: 100</p>
-               <p>dia chi: HCM</p>
+               <p>dia chi: {seller?.address}</p>
             </div>
             <div>
                <p className="mb-2">san pham da ban: 10k</p>
@@ -201,19 +305,19 @@ return(
             </div>
             <div className="grid grid-cols-[200px_1fr] gap-y-2 bg-white p-4 rounded-md border-b border-gray-200">
                <p className="font-medium text-gray-700">Tên sản phẩm:</p>
-               <p>san pham xin vcl haha haha haha</p>
+               <p>{product?.name}</p>
                <p className="font-medium text-gray-700">Danh mục:</p>
-               <p>quần áo</p>
+               <p>{category?.name}</p>
                <p className="font-medium text-gray-700">Xuất xứ:</p>
                <p>Trung Quốc</p>
                <p className="font-medium text-gray-700">Ngày sản xuất:</p>
-               <p>10/20/2020</p>
+               <p>{}</p>
             </div>
             <div>
                <h1 className="text-2xl font-semibold">mo ta san pham</h1>
             </div>
             <div className="">
-               <p className="p-4">a lkns asjkh askjdh aslkj sdljj adlha sdlaiidh iudu addihas aosijdhoi hdahd adshaiod hadh a lkns asjkh askjdh aslkj sdljj adlha sdlaiidh iudu addihas aosijdhoi hdahd adshaiod hadh a lkns asjkh askjdh aslkj sdljj adlha sdlaiidh iudu addihas aosijdhoi hdahd adshaiod hadh a lkns asjkh askjdh aslkj sdljj adlha sdlaiidh iudu addihas aosijdhoi hdahd adshaiod hadh a lkns asjkh askjdh aslkj sdljj adlha sdlaiidh iudu addihas aosijdhoi hdahd adshaiod hadh asdj </p>
+               <p className="p-4">{product?.describe} </p>
             </div>
          </div>
       </div>

@@ -39,6 +39,6 @@ export class User {
   @Column({ default: true })
   isActive: boolean;
 
-  @OneToOne(() => Seller, seller => seller.user)
-  seller: Seller;
+  @OneToOne(() => Seller, seller => seller.user, { nullable: true })
+  seller?: Seller; // optional
 } 

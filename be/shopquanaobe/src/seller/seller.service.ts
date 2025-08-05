@@ -20,4 +20,28 @@ export class SellerService {
     return result;
     
   }
+  async Getsellerbyiduser(id:number){
+    try {
+      const seller = await this.sellerRepo.findOne({where:{user_id:id}});
+      if (!seller) {
+      return {
+        success: false,
+        message: 'Người dùng này chưa là seller',
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      data: seller,
+    };
+
+    } catch (error) {
+      return {
+      success: false,
+      message: 'Lỗi khi lấy thông tin seller',
+      data: null,
+    };
+    }
+  }
 }

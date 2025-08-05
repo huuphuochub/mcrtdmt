@@ -5,7 +5,7 @@ interface Props {
     slug: string;
   };
 }
-export default function Page({params}:Props){
+export default async function Page({params}:Props){
     const {slug} = params;
 
   const isProduct = slug.includes('-i.');
@@ -13,7 +13,19 @@ export default function Page({params}:Props){
   if(isProduct){
     const [_, idPart] = slug.split('-i.');
     const [shopid, itemid] = idPart.split('.'); 
-    return(<Productdetailpage/>)
+    const res = await fetch(
+    `http://localhost:3001/product/productdetail/${itemid}`,
+    { cache: "no-store" } // để luôn fetch mới
+  );
+  const json = await res.json();
+  // console.log(json);
+  
+    return(<Productdetailpage
+
+      itemid = {Number(itemid)}
+      shopid = {Number(shopid)}
+      productprop={json}
+    />)
 
 }else{
         const username = slug.replace('shop-', '');

@@ -16,10 +16,7 @@ const Registrationuser = async(data:RegisterInput) =>{
     try {
         const result = await axiosClient.post(`/users/register`, data);
         // console.log(reponse);
-         return {
-      success: true,
-      data: result.data,
-    };
+         return result;
         
     } catch (error:any) {
         const errRes = error.response?.data;
@@ -33,10 +30,8 @@ const Registrationuser = async(data:RegisterInput) =>{
 const Postloginuser = async(data:Loginuser)=>{
     try {
         const result = await axiosClient.post(`/users/login`,data);
-        return {
-      success: true,
-      data: result.data,
-    };
+        return result
+        ;
     } catch (error:any) {
         const errRes = error.response?.data;
     return {
@@ -67,10 +62,7 @@ const Getuserbyid = async() =>{
 const Logout = async() =>{
     try {
         const result = await axiosClient.post(`/users/logout`);
-        return {
-      success: true,
-      data: result.data,
-    };
+        return result;
 
     } catch (error:any) {
         //  console.error("loi lay user");

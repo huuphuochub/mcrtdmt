@@ -9,12 +9,14 @@ export class UploadController {
   // Handler cho upload 1 ảnh
   @MessagePattern('upload_queue')
   async handleUploadImage(@Payload() data: { file: { buffer: Buffer; mimetype: string; originalname: string } }) {
+    console.log("da gọi message queue");
+    
     if (!data?.file) {
       return { success: false, message: 'No file provided' };
     }
     // Tạo object giả lập Express.Multer.File
     const file: Express.Multer.File = {
-      ...data.file,
+      ...data.file, 
       fieldname: 'file',
       size: data.file.buffer.length,
       encoding: '7bit',
@@ -28,6 +30,7 @@ export class UploadController {
       const url = await this.uploadService.uploadImage(file);
       return { success: true, url };
     } catch (err) {
+      console.error('Upload Error:', err);
       return { success: false, message: err?.message || 'Upload failed' };
     }
   }
@@ -57,6 +60,7 @@ export class UploadController {
       );
       return { success: true, urls };
     } catch (err) {
+      console.error('Upload Error:', err);
       return { success: false, message: err?.message || 'Upload failed' };
     }
   }

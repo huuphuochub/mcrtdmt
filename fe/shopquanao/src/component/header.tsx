@@ -22,7 +22,7 @@ useEffect(() =>{
 },[])
 useEffect(() => {
   if (users) {
-    console.log(users);
+   //  console.log(users);
   }
 }, [users]);
 const Getuser = async() =>{
@@ -31,7 +31,7 @@ const Getuser = async() =>{
    
    if( user.success){
       setUsers(user.data[0]);
-      console.log(user.data);
+      // console.log(user.data);
 
       // console.log(users);
 
