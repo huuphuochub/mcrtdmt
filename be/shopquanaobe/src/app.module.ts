@@ -19,11 +19,12 @@ import { Subcategory } from './category/subcategory.entity';
   imports: [
     TypeOrmModule.forRoot({
       type:'postgres',
-      host:'localhost',
-      port:5432,
-      username:'postgres',
-      password:'123456',
-      database:'shopquanao',
+      // host:process.env.DB_HOST,
+      host:"localhost",
+      port: 5432,
+      username:"postgres",
+      password:"123456",
+      database:"shopquanao",
       entities:[User,Seller,Category,Subcategory],
       synchronize:true,
     }),

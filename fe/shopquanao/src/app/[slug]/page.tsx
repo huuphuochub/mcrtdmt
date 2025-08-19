@@ -1,5 +1,6 @@
 import Categorypage from "../page/Category/categorypage";
 import Productdetailpage from "../page/productdetail/productdetailpage";
+import SubCategorypage from "../page/Category/subcategorypage";
 interface Props {
   params: {
     slug: string;
@@ -27,11 +28,54 @@ export default async function Page({params}:Props){
       productprop={json}
     />)
 
-}else{
-        const username = slug.replace('shop-', '');
+}else if(slug.includes('-shop.')){
+        const username = slug.replace('-shop.', '');
         return(
-            <Categorypage/>
+            // <Categorypage/>
+            <div>day la trang gio hang</div>
         )
+}else if(slug.includes('-cat.')){
+  
+  const catId = slug.split(".").pop();
+  // console.log(catId);
+  
+  const res = await fetch(`http://localhost:3001/category/getjsoncategory/${catId}`,
+    { cache: "no-store" }
+  )  
+  const json = await res.json();
+// console.log(json);
+  
+  return(
+    <Categorypage
+    categoryprop={json}
+    
+    />
+  ) 
+}else if(slug.includes('-subcat.')){
+    const subcatid = slug.split('.').pop();
+     const res = await fetch(`http://localhost:3001/category/getjsonsubcategory/${subcatid}`,
+    { cache: "no-store" }
+  )  
+  const json = await res.json();
+console.log(json);
+  
+  return(
+    <SubCategorypage
+    categoryprop={json}
+    
+    />
+
+  ) 
+    
+}
+
+
+else {
+  return(
+    <div>
+      dd tahy trang nao
+    </div>
+  )
 }
 
 

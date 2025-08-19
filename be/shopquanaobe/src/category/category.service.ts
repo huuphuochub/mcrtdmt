@@ -15,11 +15,19 @@ export class CategoryService {
 
     async GetAllCate(){
         const result = await this.cateRepo.find();
-        if(result){
-            return({success:true,result})
+        if(!result){
+            return({success:false,data:null,message:"khong co danh muc"})
         }
+        console.log(result);
+        
+        return {
+            success:true,
+            data:result
+        };
     }
     async Getcategorybyid(id:number){
+        console.log(id);
+        
         try {
             const result = await this.cateRepo.findOne({where:{id:id}})
         if(!result){
@@ -41,10 +49,13 @@ export class CategoryService {
             }
         }
     }
+
+
+
     async Getsubcatebyidcategory(id:number){
         const result = await this.SubcateRepo.find({where:{categoryId:id}});
         if(result){
-            return({success:true,result})
+            return({success:true,data:result})
         }
     }
     async getsubcategorybyid(id:number){
@@ -70,4 +81,27 @@ export class CategoryService {
         }
         
     }
+
+    // async getallcategory() {
+    //     try {
+    //         const result = await this.SubcateRepo.find();
+    //         if(!result){
+    //             return{
+    //                 success:false,
+    //                 message:'khong co danh muc nao',
+    //                 data:null,
+    //             }
+    //         }
+    //         return{
+    //             success:true,
+    //             data:result,
+    //         }
+    //     } catch (error) {
+    //         return{
+    //             success:false,
+    //             message:'loi',
+    //             data:null,
+    //         }
+    //     }
+    // }
 }

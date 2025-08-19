@@ -42,4 +42,13 @@
             return errRes; 
         }
     }
-    export {Addproduct,getAllproduct,getBesellerproduct,getproductdetail}
+    const getsizebyidproduct = async(id:number)=>{
+        try {
+            const result = await axiosClient.get(`/product/getsizebyproduct/${id}`);
+            return result;
+        } catch (error) {
+            return error;
+            
+        }
+    }
+    export {Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct}

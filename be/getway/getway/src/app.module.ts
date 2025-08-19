@@ -17,6 +17,8 @@ import { AuthModule } from './auth/auth.module';
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://localhost:5672'],
+            //  urls: ['amqp://rabbitmq:5672'],
+
           queue: 'upload_queue',
           queueOptions: { durable: false },
         },
@@ -26,6 +28,8 @@ import { AuthModule } from './auth/auth.module';
         transport: Transport.RMQ,
         options: {
           urls: ['amqp://localhost:5672'],
+          //  urls: ['amqp://rabbitmq:5672'],
+
           queue: 'subimg_queue',
           queueOptions: { durable: false },
         },

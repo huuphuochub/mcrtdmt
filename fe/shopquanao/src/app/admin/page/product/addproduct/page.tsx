@@ -69,9 +69,11 @@ export default function Addproduct() {
 
   const getallcategory = async () => {
     const allcate = await Getallcategory();
-    if (allcate.success) {
+    console.log(allcate.data);
+    
+    if (allcate.data.success) {
       console.log(allcate.data.result);
-      setCategorys(allcate.data.result);
+      setCategorys(allcate.data.data);
     }
   };
 

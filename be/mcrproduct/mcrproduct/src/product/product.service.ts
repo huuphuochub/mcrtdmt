@@ -58,7 +58,7 @@ export class ProductService {
       
     }
   }
-
+// lay san pham theeo nguoi ban
   async getBeseller(option:PaginationOptions){
     try {
       const [products, total]  = await this.productRepo.findAndCount({
@@ -74,6 +74,7 @@ export class ProductService {
       
     }
   }
+  // lay chi tiet san pham
   async getProductdetail(id:number){
     try {
       const product=  await this.productRepo.findOneBy({id:id});
@@ -97,4 +98,53 @@ export class ProductService {
     }
   }
 
+  // lay san pham thoe danh muc
+  async getProductbycategory(id:number) {
+    try {
+      const products = await this.productRepo.find({where:{idCategory:id}})
+      if(!products){
+        return{
+          success:false,
+          message:'khong tim thay san pham nao',
+          data:null,
+        }
+       
+      }
+      return{
+        success:true,
+        data:products,
+      }
+    } catch (error) {
+      return{
+        success:false,
+        message:error,
+        data:null,
+      }
+    }
+  }
+
+// lay tat ca san pham theo subcate
+  async getProductbysubcate(id:number){
+    try {
+      const products = await this.productRepo.find({where:{subcategory:id}})
+      if(!products){
+        return{
+          success:false,
+          data:null,
+          message:'khong tim thays san pham nao'
+        }
+
+      }
+      return{
+        success:true,
+        data:products
+      }
+    } catch (error) {
+      return{
+        message:'loi',
+        success:false,
+        data:null
+      }
+    }
+  }
 }

@@ -1,6 +1,8 @@
 import { Subimg } from "src/subimg/subimg.entity";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
-
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from "typeorm";
+import { Color } from "src/size/color.entity";
+import { Size } from "src/size/size.entity";
+import { ProductVariants } from "src/size/product_variants.entity";
 
 @Entity('product')
 export class Product {
@@ -54,6 +56,17 @@ export class Product {
 
     @Column({default:0,nullable:true})
     totalsold:number;
+
+
+    @OneToMany(() => ProductVariants, variant => variant.product)
+  variants: ProductVariants[];
+//    @OneToMany(() => Color, (color) => color.products)
+//   colors: Color[];
+
+
+//    @OneToMany(() => Size, (size) => size.products)
+//   sizes: Color[];
+
 
 
 }

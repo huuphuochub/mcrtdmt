@@ -37,7 +37,22 @@ export default function Cartheader({ onClose }: CartheaderProps) {
             <div className="flex-1">
               <p className="font-medium text-gray-800">Sản phẩm 1</p>
               <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 line-through">290.000₫</div>
-              <p className="text-red-500 font-semibold">250.000₫</p>
+              <div className="flex flex-col gap-1">
+                <p className="text-red-500 font-semibold text-base">250.000₫</p>
+                
+                <div className="flex items-center gap-4 text-sm text-gray-600">
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium text-gray-700">Size:</span>
+                    <span className="px-2 py-0.5 border rounded-lg bg-gray-50">{`L`}</span>
+                  </span>
+                  <span className="flex items-center gap-1">
+                    <span className="font-medium text-gray-700">Màu:</span>
+                    <span className="px-2 py-0.5 border rounded-lg bg-gray-50">{`Trắng`}</span>
+                  </span>
+                </div>
+              </div>
+
+              
 
               <div className="flex items-center gap-2 mt-3">
                 <button className="px-2 py-1 border rounded text-sm">-</button>

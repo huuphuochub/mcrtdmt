@@ -61,7 +61,7 @@ export class UsersController {
          if (!result.success || !result.user) {
     return result;
     }
-    console.log(result);
+    // console.log(result);
     
   // Set cookie
      const token = this.authService.generateToken({ 
@@ -80,7 +80,7 @@ export class UsersController {
     // });
 
   // Trả về thông tin người dùng (không bao gồm token)
-  console.log("da dang nhap va luu coookie");
+  // console.log("da dang nhap va luu coookie");
   
  return { success: true, message: 'Đăng nhập thành công',token };
 
@@ -91,7 +91,7 @@ export class UsersController {
   @Get('me')
   async getProfile(@GetUser() user: any) {
     // console.log('da goi me');
-    console.log(user);
+    // console.log(user);
     
     return await this.usersService.findById(user.id);
   }

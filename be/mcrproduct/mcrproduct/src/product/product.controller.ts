@@ -10,7 +10,7 @@ export class ProductController {
     ){
 
     }
-
+// them san pham
 
     @Post('add')
         async addProduct(@Body() dto: CreateProductDto) {
@@ -18,20 +18,31 @@ export class ProductController {
 
         return this.productservice.addProduct(dto);
         }
-    
+    // lay tat ca san pham
     @Get('getall')
         async getallproduct(){
             return await this.productservice.getAllproduct()
         }
+        // lay san pham theo nguoi ban
     @Get('bestseller')
         async getbeseller(@Query() paginationDto:PaginationDto){
             const limit = paginationDto.limit || 4;
             const page = paginationDto.page || 0;
             return await this.productservice.getBeseller({limit,page})
         }
+        // lay chi tiet san pham
     @Get('productdetail/:id')
         async getproductdetail(@Param('id') id:number){
-            return this.productservice.getProductdetail(id);
+            return await this.productservice.getProductdetail(id);
         }
-        
+    // lay nhieu san pham theo category
+    @Get('productsbycategory/:id')
+    async getproductbycate(@Param('id') id:number){
+        return await this.productservice.getProductbycategory(id);
+    }
+    // lay tat ca sn pham theo subcategory
+    @Get('allproductbysubcate/:id')
+    async getproductbysubcate(@Param('id') id:number){
+        return this.productservice.getProductbysubcate(id);
+    }
 }

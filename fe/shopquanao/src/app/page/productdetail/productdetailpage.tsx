@@ -1,6 +1,6 @@
 "use client"
 
-import React,{useEffect,useState} from "react";
+import React,{useEffect,useMemo,useState} from "react";
 import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
@@ -13,6 +13,9 @@ import { interfaceuser } from "@/interface/user.interface";
 import { interfacesubimg } from "@/interface/subimg.interface";
 import { Category,Subcategory } from "@/interface/category.interface";
 import { getproductdetail } from "@/service/product.service";
+import { getsizebyidproduct } from "@/service/product.service";
+import { interfacecolor } from "@/interface/interfacecolor";
+import { interfacesize } from "@/interface/interfacesize";
 interface ProductResponse<T> {
   success: boolean;
   data: T | null;
@@ -57,6 +60,16 @@ interface ProductDetailProps {
 //    data:Object
 
 // }
+interface ResponseSize {
+  data: Array<{
+    id: number;
+    color: interfacecolor;
+    size: interfacesize;
+    quantity: number;
+  }>,
+  status:number
+}
+
 export default function Productdetailpage({itemid,shopid,productprop} :ProductDetailProps){
    const [product,setProduct] = useState<interfaceProduct | null >(null)
    const [category,setCategory] = useState<Category | null >(null);
@@ -64,10 +77,25 @@ export default function Productdetailpage({itemid,shopid,productprop} :ProductDe
    const [subimg, setSubimg] = useState<interfacesubimg[] | null>(null);
    const [userseler,setUserseller] = useState<interfaceuser | null>(null);
    const [seller,setSeller] = useState<interfaceSeller | null>(null);
-   // console.log(itemid,shopid);
+   const [responsesize ,setResponsesize] = useState<any[] | []>([])
+   const [arrsize,setArrsize] = useState<interfacesize[]>([])
+   const [arrcolor,setArrColor] = useState<interfacecolor[]>([])
+   const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
+   const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
+
+    // console.log(itemid,shopid);
    // console.log(productprop);
+   // tính số ngày
+   const ddate = (date:Date)=>{
+      const pasdate:Date = new Date(date);
+      const now :Date= new Date();
+      const s:number = now.getTime() - pasdate.getTime();
+      const day:number = Math.floor(s/(1000*60*60*24))
+      return day
+
+   }
    useEffect(() => {
-      console.log(productprop);
+      // console.log(productprop);
       // console.log(productprop.data?.product.success);
       // console.log(productprop.data.product.data);
       
@@ -80,11 +108,78 @@ export default function Productdetailpage({itemid,shopid,productprop} :ProductDe
       setUserseller(productprop.data.user.data);
       setSubimg(productprop.data.images.data);
       setSeller(productprop.data.seller.data);
-      // console.log(product);
       
-
+      // console.log(product);
+      // const sizesize = await 
+      
     }
   }, [productprop]); 
+         useEffect(()=>{
+               if(product){
+                  size(product.id)
+               }
+         },[product])
+  const size =async(id:number) =>{
+   // console.log(id);
+   
+      const sizes:any =  await  getsizebyidproduct(id)
+      // console.log(sizes.data);
+      
+      setResponsesize(sizes.data)
+      // console.log(responsesize);
+      
+      
+      
+  } 
+  function getcolorbysize(sizeId:number){
+         return Array.from(
+            new Map(
+               responsesize.filter(item=>item.size.id === sizeId)
+               .map(item=> [ item.color.id,item.color])
+            ).values()
+         )
+  }
+  const handlechangesize =(e:number) =>{
+   setSelectedSizeId(e);
+      const ARcolor = getcolorbysize(e)
+      // console.log(ARcolor);
+      setArrColor(ARcolor);
+      
+  }
+
+  const selectedQuantity = useMemo(() => {
+  if (selectedSizeId && selectedColorId) {
+    const found = responsesize.find(
+      item => item.size.id === selectedSizeId && item.color.id === selectedColorId
+    );
+    return found?.quantity || 0;
+  }
+  return 0;
+}, [selectedSizeId, selectedColorId, responsesize]);
+
+
+//   function getquantityproduct(sizeId:number,colorID:number){
+//          const quantity = Array.from(
+//             new Map(
+//                responsesize.filter(item => item.size.id === sizeId)
+//                .filter(item => item.color.id === colorID)
+//             ).values()
+//          )
+//          console.log(quantity);
+         
+//   }
+  useEffect(() =>{
+   if(responsesize?.length >=1){
+      // console.log(responsesize);
+      const arsize = Array.from(
+         new Map(responsesize.map(item =>[item.size.id,item.size])).values()
+      );
+      setArrsize(arsize);
+      console.log("size:",arsize);
+      
+      
+  }
+  },[responsesize])
    if(productprop.success === false){
       return <div>{productprop.message ?? "Không tìm thấy sản phẩm"}</div>
    }
@@ -147,96 +242,183 @@ return(
                   height={500}
                   src={product?.image || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
                   alt={product?.name || 'product'}
+                  className="max-h-[500px]"
                   ></Image>
                <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl">
                   <p className="text-white">-25%</p>
                </div>
             </div>
             <div  className="flex gap-5 mt-2">
-               {subimg && subimg.map((urlimg,index) =>(
-                  <div className="border" key={urlimg.url || index}>
+               {subimg ? subimg.map((urlimg,index) =>(
+                  <div className="border relative" key={urlimg.url || index}>
                   <Image
                      width={150}
                      height={150}
-                     src={urlimg.url}
+                     src={urlimg?.url || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
                      alt=""
+                     className="max-h-[150px]"
                      ></Image>
                </div>
-               ))}
-            </div>
-         </div>
-         <div className="flex-1  p-4 bg-white rounded-xl ">
-            <div className="space-y-4">
-               {/* Tên sản phẩm */}
-               <p className="text-2xl font-bold leading-snug">
-                  {product?.name}
-               </p>
-               {/* Đánh giá */}
-               <div className="flex items-center gap-2">
-                  <p className="text-yellow-600 font-medium">{product?.averageRating}</p>
-                  <ul className="flex gap-1">
-                     <li>
-                        <Star size={20} className="text-yellow-500 fill-yellow-500" />
-                     </li>
-                     <li>
-                        <Star size={20} className="text-yellow-500 fill-yellow-500" />
-                     </li>
-                     <li>
-                        <Star size={20} className="text-yellow-500 fill-yellow-500" />
-                     </li>
-                     <li>
-                        <Star size={20} className="text-yellow-500" />
-                     </li>
-                     <li>
-                        <Star size={20} className="text-yellow-500" />
-                     </li>
-                  </ul>
-                  <p className="text-sm text-gray-600">({product?.ratingCount} lượt đánh giá)</p>
+               )) : (
+                  <div className="flex gap-5">
+                        <div className="border relative">
+                  <Image
+                     width={150}
+                     height={150}
+                     src={ 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
+                     alt=""
+                     className="max-h-[150px]"
+                     ></Image>
                </div>
-               {/* Giá */}
-               <div className="flex items-baseline gap-4">
-                  <p className="text-lg text-gray-500 line-through">{product?.price}</p>
-                  <p className="text-2xl text-red-600 font-bold">{product?.discountprice}</p>
+               <div className="border relative">
+                  <Image
+                     width={150}
+                     height={150}
+                     src={ 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
+                     alt=""
+                     className="max-h-[150px]"
+                     ></Image>
                </div>
-               {/* Thời gian khuyến mãi */}
-               <div className="bg-yellow-100 p-3 rounded-md text-sm">
-                  <p>Thời gian khuyến mãi: <span className="font-medium">17/10 - 27/10</span></p>
-                  <p className="text-red-600">Còn lại: <span className="font-semibold">10 ngày 16 giờ 10 phút 6 giây</span></p>
+               <div className="border relative">
+                  <Image
+                     width={150}
+                     height={150}
+                     src={ 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
+                     alt=""
+                     className="max-h-[150px]"
+                     ></Image>
                </div>
-               {/* Chọn size/màu */}
-               <div className="flex gap-4">
-                  <select className="border rounded-md px-3 py-2 w-1/2">
-                     <option>Chọn size</option>
-                     <option>S</option>
-                     <option>L</option>
-                  </select>
-                  <select className="border rounded-md px-3 py-2 w-1/2">
-                     <option>Chọn màu</option>
-                     <option>Đỏ</option>
-                     <option>Trắng</option>
-                  </select>
-               </div>
-               {/* Số lượng */}
-               <div>
-                  <label className="block mb-1 font-medium">Số lượng</label>
-                  <div className="flex items-center border w-fit rounded-md overflow-hidden">
-                     <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200">-</button>
-                     <span className="px-4">10</span>
-                     <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200">+</button>
                   </div>
-               </div>
-               {/* Hành động */}
-               <div className="flex items-center gap-4 mt-4">
-                  <Button variant="primary">Them vao gio hang</Button>
-                  <Button variant="secondary">mua ngay</Button>
-                  <Heart className="text-red-500 hover:scale-110 transition" />
-               </div>
-               <div className="flex gap-4">
-                  <p>{product?.totalsold} da ban</p>
-                  <p>{product?.quantity} con lai</p>
-               </div>
+               
+               )}
             </div>
          </div>
+         <div className="flex-1 p-4 bg-white rounded-xl">
+  <div className="space-y-4">
+    {/* Tên sản phẩm */}
+    {!product ? (
+      <div className="h-8 w-2/3 bg-gray-200 rounded animate-pulse"></div>
+    ) : (
+      <p className="text-2xl font-bold leading-snug">{product.name}</p>
+    )}
+
+    {/* Đánh giá */}
+    {!product ? (
+      <div className="flex items-center gap-2">
+        <div className="h-5 w-10 bg-gray-200 rounded animate-pulse"></div>
+        <div className="flex gap-1">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="h-5 w-5 bg-gray-200 rounded animate-pulse"></div>
+          ))}
+        </div>
+        <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    ) : (
+      <div className="flex items-center gap-2">
+        <p className="text-yellow-600 font-medium">{product.averageRating}</p>
+        <ul className="flex gap-1">
+          <li><Star size={20} className="text-yellow-500 fill-yellow-500" /></li>
+          <li><Star size={20} className="text-yellow-500 fill-yellow-500" /></li>
+          <li><Star size={20} className="text-yellow-500 fill-yellow-500" /></li>
+          <li><Star size={20} className="text-yellow-500" /></li>
+          <li><Star size={20} className="text-yellow-500" /></li>
+        </ul>
+        <p className="text-sm text-gray-600">({product.ratingCount} lượt đánh giá)</p>
+      </div>
+    )}
+
+    {/* Giá */}
+    {!product ? (
+      <div className="flex gap-4">
+        <div className="h-5 w-20 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-7 w-24 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    ) : (
+      <div className="flex items-baseline gap-4">
+        <p className="text-lg text-gray-500 line-through">{product.price}</p>
+        <p className="text-2xl text-red-600 font-bold">{product.discountprice}</p>
+      </div>
+    )}
+
+    {/* Thời gian khuyến mãi */}
+    {!product ? (
+      <div className="h-14 w-full bg-gray-200 rounded animate-pulse"></div>
+    ) : (
+      <div className="bg-yellow-100 p-3 rounded-md text-sm">
+        <p>Thời gian khuyến mãi: <span className="font-medium">17/10 - 27/10</span></p>
+        <p className="text-red-600">Còn lại: <span className="font-semibold">10 ngày 16 giờ 10 phút 6 giây</span></p>
+      </div>
+    )}
+
+    {/* Select size/màu */}
+    {!product ? (
+      <div className="flex gap-4">
+        <div className="h-10 w-1/2 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-10 w-1/2 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    ) : (
+      <div className="flex gap-4">
+        {/* Select size */}
+        <select
+          className="border rounded-md relative px-3 py-2 w-1/2"
+          onChange={(e) => handlechangesize(Number(e.target.value))}
+        >
+          <option>Chọn size</option>
+          {arrsize.map((size) => (
+            <option key={size.id} value={size.id}>{size.name}</option>
+          ))}
+        </select>
+        {/* Select màu */}
+        <select
+          className="border rounded-md px-3 py-2 relative w-1/2"
+          onChange={(e) => setSelectedColorId(Number(e.target.value))}
+        >
+          <option>Chọn màu</option>
+          {arrcolor.length > 0
+            ? arrcolor.map((color) => (
+                <option key={color.id} value={color.id}>{color.name}</option>
+              ))
+            : <option value="">vui lòng chọn size</option>}
+        </select>
+      </div>
+    )}
+
+    {/* Số lượng */}
+    {!product ? (
+      <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+    ) : (
+      <div>
+        <label className="block mb-1 font-medium">Số lượng</label>
+        <div className="flex items-center border w-fit rounded-md overflow-hidden">
+          <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200">-</button>
+          <span className="px-4">10</span>
+          <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200">+</button>
+        </div>
+      </div>
+    )}
+
+    {/* Hành động */}
+    {!product ? (
+      <div className="flex gap-4">
+        <div className="h-10 w-40 bg-gray-200 rounded animate-pulse"></div>
+        <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    ) : (
+      <div className="flex items-center gap-4 mt-4">
+        {!selectedColorId || !selectedSizeId ? (
+          <Button variant="danger">Chọn size và màu</Button>
+        ) : selectedQuantity < 1 ? (
+          <Button variant="danger">Hết hàng</Button>
+        ) : (
+          <Button variant="primary">Thêm vào giỏ hàng</Button>
+        )}
+        <Button variant="secondary">Mua ngay</Button>
+        <Heart className="text-red-500 hover:scale-110 transition" />
+      </div>
+    )}
+  </div>
+</div>
+
       </div>
       {/* nguoi ban */}
       <div className="shadow mt-4 p-2 flex">
@@ -290,7 +472,7 @@ return(
             </div>
             <div>
                <p className="mb-2">san pham da ban: 10k</p>
-               <p>ngay tham gia: 6 thang truoc</p>
+               <p>ngay tham gia: {ddate(seller?.createdAt)} ngay truoc</p>
             </div>
             <div>
                <EllipsisVertical/>

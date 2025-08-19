@@ -24,7 +24,7 @@ interface Categorydata{
     success:boolean
     data:interfaceProduct[] | null
   }
-  subcate:{
+  allsubcate:{
     success:boolean,
     data:Subcategory[] | null
   }
@@ -32,7 +32,8 @@ interface Categorydata{
     success:boolean,
     data:Category[] | null
   }
-  category:Category,
+  categorydetail:Category,
+  subcatedetail:Subcategory,
 }
 
 interface propDetailCategoryPage{
@@ -40,13 +41,15 @@ interface propDetailCategoryPage{
 }
 
 export default function Categorypage({categoryprop} : propDetailCategoryPage) {
-  // console.log(categoryprop);
+  console.log(categoryprop);
     const router = useRouter();
 
   const [subcates,setSubcates] = useState<Subcategory[] | null>(null)
   const [allcates,setAllcates] = useState<Category[] | null>(null);
   const [productss, setProductss] = useState<interfaceProduct[] |null>(null);
   const [cate,setCate] = useState<Category | null>(null);
+    const [subcatedetail,setsubCatedetail] = useState<Subcategory | null>(null);
+
 //  hàm tạo slug
 function toSlug(name: string) {
   return name
@@ -60,9 +63,11 @@ function toSlug(name: string) {
     // console.log(categoryprop);
     
     setAllcates(categoryprop.data?.allcate.data ?? []);
-    setCate(categoryprop.data?.category ?? null);
+    setCate(categoryprop.data?.categorydetail ?? null);
+    setsubCatedetail(categoryprop.data?.subcatedetail ?? null);
+
     setProductss(categoryprop.data?.products.data ?? []);
-    setSubcates(categoryprop.data?.subcate.data ?? []);
+    setSubcates(categoryprop.data?.allsubcate.data ?? []);
   },[categoryprop])
   const selectcate=(e:React.ChangeEvent<HTMLSelectElement>) =>{
     const id = Number(e.target.value);
@@ -89,7 +94,7 @@ function toSlug(name: string) {
          &gt;
          <p className="hover:cursor-pointer hover:text-red-300">{cate?.name} </p>
          &gt;
-         {/* <p className="hover:cursor-pointer hover:text-red-300">ok </p> */}
+         <p className="hover:cursor-pointer hover:text-red-300">{subcatedetail?.name} </p>
       </div>
         {/* Bộ lọc */}
         <div className="bg-white p-6 rounded-xl shadow mb-8">
@@ -126,7 +131,12 @@ function toSlug(name: string) {
         <div className="mb-12 flex gap-4 ">
           <div className="max-w-[300px] w-[300px] shadow rounded-xl p-2">
               <div>
-                <h3 className="text-xl font-semibold mb-1 border-b border-gray-200 pb-2">{cate?.name}</h3>
+                <div className="flex  gap-2 border-b border-gray-200 pb-2" >
+                    <h3 className="text-xl font-semibold ">{cate?.name}</h3>
+                         &gt;
+
+                <h3 className="text-xl  ">{subcatedetail?.name}</h3>
+                </div>
                 <div>
                   <ul>
                      {subcates && subcates.map((cate) =>{

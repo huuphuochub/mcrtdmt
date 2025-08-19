@@ -20,6 +20,8 @@ export class UserController {
       // Forward request đến user-service
       const response = await firstValueFrom(
         this.httpService.post('http://localhost:3004/users/login', body, {
+                  // this.httpService.post('http://user:3004/users/login', body, {
+
           withCredentials: true, // Gửi và nhận cookie
         }),
       );
@@ -59,6 +61,8 @@ async getProfile(@Req() req: RequestWithCookies) {
   try {
     const { data } = await firstValueFrom(
       this.httpService.get('http://localhost:3004/users/me', {
+              // this.httpService.get('http://user:3004/users/me', {
+
         headers: {
           Authorization: `Bearer ${token}`,
         },

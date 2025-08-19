@@ -186,6 +186,24 @@ async getproductdatil(@Param('id') id:number){
     this.httpservice
       .get(`http://localhost:3004/seller/getseller/${response.data.data.idSeller}`)
       .toPromise(),
+    
+    // this.httpservice
+    //   .get(`http://product:3002/subimg/subimgbyid/${id}`)
+    //   .toPromise(),
+    // this.httpservice
+    //   .get(`http://user:3004/category/getbyid/${response.data.data.idCategory}`)
+    //   .toPromise(),
+    // this.httpservice
+    //   .get(`http://user:3004/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
+    //   .toPromise(),
+    // this.httpservice
+    //   .get(`http://user:3004/users/getuser/${response.data.data.idSeller}`)
+    //   .toPromise(),
+    // this.httpservice
+    //   .get(`http://user:3004/seller/getseller/${response.data.data.idSeller}`)
+    //   .toPromise(),
+
+
   ]);
   // console.log(images,category,subcategory,user,seller);
   
@@ -208,6 +226,15 @@ return {
 };
 
 }
+// lay size theo id product
+@Get('getsizebyproduct/:id')
+async getSizebyidprd(@Param('id') id:number){
+  const response = await this.httpservice
+  .get(`http://localhost:3002/size/getsizebyidprd/${id}`)
+  .toPromise();
+
+  return response!.data;
+}
 
 }
- 
+  

@@ -18,7 +18,6 @@ export class SellerService {
     const result =  await this.sellerRepo.save(newUser);
     console.log("nha ban hang" + result);
     return result;
-    
   }
   async Getsellerbyiduser(id:number){
     try {

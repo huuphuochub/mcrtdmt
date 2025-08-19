@@ -4,21 +4,31 @@ import {
   ArgumentsHost,
   HttpException,
 } from '@nestjs/common';
-import { Response } from 'express';
+import { Response, Request } from 'express';
 
 @Catch(HttpException)
 export class HttpExceptionFilter implements ExceptionFilter {
   catch(exception: HttpException, host: ArgumentsHost) {
     const ctx = host.switchToHttp();
     const response = ctx.getResponse<Response>();
+    const request = ctx.getRequest<Request>();
 
     const status = exception.getStatus();
-    const res: any = exception.getResponse();
+    const exceptionResponse = exception.getResponse();
+
+    // Nếu là object -> lấy message từ object
+    const message =
+      typeof exceptionResponse === 'object' && exceptionResponse !== null
+        ? (exceptionResponse as any).message || 'Đã xảy ra lỗi'
+        : exceptionResponse;
 
     response.status(status).json({
+      data: null,
       success: false,
-      code: res.code || 'UNKNOWN_ERROR',
-      message: res.message || 'Đã xảy ra lỗi',
+      message,
+      status,
+      path: request.url,
+      timestamp: new Date().toISOString(),
     });
   }
 }
