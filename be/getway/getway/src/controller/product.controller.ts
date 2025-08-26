@@ -175,10 +175,10 @@ async getproductdatil(@Param('id') id:number){
       .get(`http://localhost:3002/subimg/subimgbyid/${id}`)
       .toPromise(),
     this.httpservice
-      .get(`http://localhost:3004/category/getbyid/${response.data.data.idCategory}`)
+      .get(`http://localhost:3002/category/getbyid/${response.data.data.idCategory}`)
       .toPromise(),
     this.httpservice
-      .get(`http://localhost:3004/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
+      .get(`http://localhost:3002/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
       .toPromise(),
     this.httpservice
       .get(`http://localhost:3004/users/getuser/${response.data.data.idSeller}`)

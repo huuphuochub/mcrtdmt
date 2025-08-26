@@ -12,10 +12,14 @@ import { interfaceSeller } from "@/interface/user.interface";
 import { interfaceuser } from "@/interface/user.interface";
 import { interfacesubimg } from "@/interface/subimg.interface";
 import { Category,Subcategory } from "@/interface/category.interface";
-import { getproductdetail } from "@/service/product.service";
+// import { getproductdetail } from "@/service/product.service";
 import { getsizebyidproduct } from "@/service/product.service";
 import { interfacecolor } from "@/interface/interfacecolor";
 import { interfacesize } from "@/interface/interfacesize";
+import { addcart } from "@/service/cartservice";
+import { Getuserbyid } from "@/service/userservice";
+import { useCart } from "@/app/context/cartcontext";
+// import { interfacesize } from "@/interface/interfacesize";
 interface ProductResponse<T> {
   success: boolean;
   data: T | null;
@@ -55,52 +59,104 @@ interface ProductDetailProps {
   shopid: number;
   productprop: ProductResponse<ProductDetailData>;
 }
+// interface res {
+//    data:[],
+//    message:string,
+//    success:boolean,
+//    code:number
+// }
 // interface productprop {
 //    success:Bollen;
 //    data:Object
 
-// }
-interface ResponseSize {
-  data: Array<{
-    id: number;
-    color: interfacecolor;
-    size: interfacesize;
-    quantity: number;
-  }>,
-  status:number
+interface ResponseSizeItem {
+  color: interfacecolor;
+  size: interfacesize;
+  quantity: number;
+  id: number;
 }
 
-export default function Productdetailpage({itemid,shopid,productprop} :ProductDetailProps){
+type ResponseSize = ResponseSizeItem[]; 
+
+
+
+
+// }
+// interface ResponseSize {
+//   data: Array<{
+//     id: number;
+//     color: interfacecolor;
+//     size: interfacesize;
+//     quantity: number;
+//   }>,
+//   status:number
+// }
+
+export default function Productdetailpage({productprop} :ProductDetailProps){
+   const {  addToCart } = useCart();
+   
    const [product,setProduct] = useState<interfaceProduct | null >(null)
    const [category,setCategory] = useState<Category | null >(null);
    const [subcategory,setSubcategory] = useState<Subcategory |null>(null);
    const [subimg, setSubimg] = useState<interfacesubimg[] | null>(null);
    const [userseler,setUserseller] = useState<interfaceuser | null>(null);
    const [seller,setSeller] = useState<interfaceSeller | null>(null);
-   const [responsesize ,setResponsesize] = useState<any[] | []>([])
+const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const [arrsize,setArrsize] = useState<interfacesize[]>([])
    const [arrcolor,setArrColor] = useState<interfacecolor[]>([])
    const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
    const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
+   const [quantityitem,setQuantityitem] = useState<number | 1>(1);
 
     // console.log(itemid,shopid);
    // console.log(productprop);
    // tính số ngày
-   const ddate = (date:Date)=>{
-      const pasdate:Date = new Date(date);
-      const now :Date= new Date();
-      const s:number = now.getTime() - pasdate.getTime();
-      const day:number = Math.floor(s/(1000*60*60*24))
-      return day
+   // const ddate = (date:Date)=>{
+   //    const pasdate:Date = new Date(date);
+   //    const now :Date= new Date();
+   //    const s:number = now.getTime() - pasdate.getTime();
+   //    const day:number = Math.floor(s/(1000*60*60*24))
+   //    return day
 
+   // }
+
+   const CART_KEY = "cart";
+
+   interface CartItem {
+   product_id: number;
+   color_id: string | number;
+   size_id: string | number;
+   quantity: number;
    }
+
+
+
+      function saveCartToLocalStorage(item: CartItem) {
+  // Lấy cart hiện tại từ localStorage (nếu có)
+         const storedCart = localStorage.getItem(CART_KEY);
+         const cart: CartItem[] = storedCart ? JSON.parse(storedCart) : [];
+
+         // Kiểm tra sản phẩm cùng id_product + id_size + id_color đã có chưa
+         const existingItem = cart.find(
+            (cartItem) =>
+               cartItem.product_id === item.product_id &&
+               cartItem.size_id === item.size_id &&
+               cartItem.color_id === item.color_id
+         );
+
+         if (existingItem) {
+            // Nếu có rồi thì cộng dồn quantity
+            existingItem.quantity += item.quantity;
+         } else {
+            // Nếu chưa có thì push thêm
+            cart.push(item);
+         }
+
+         // Lưu lại vào localStorage
+         localStorage.setItem(CART_KEY, JSON.stringify(cart));
+         }
    useEffect(() => {
-      // console.log(productprop);
-      // console.log(productprop.data?.product.success);
-      // console.log(productprop.data.product.data);
-      
-      
-      
+  
     if (productprop.success && productprop.data?.product.success) {
       setProduct(productprop.data.product.data);
       setCategory(productprop.data.category.data);
@@ -108,10 +164,7 @@ export default function Productdetailpage({itemid,shopid,productprop} :ProductDe
       setUserseller(productprop.data.user.data);
       setSubimg(productprop.data.images.data);
       setSeller(productprop.data.seller.data);
-      
-      // console.log(product);
-      // const sizesize = await 
-      
+  
     }
   }, [productprop]); 
          useEffect(()=>{
@@ -122,7 +175,7 @@ export default function Productdetailpage({itemid,shopid,productprop} :ProductDe
   const size =async(id:number) =>{
    // console.log(id);
    
-      const sizes:any =  await  getsizebyidproduct(id)
+      const sizes =  await  getsizebyidproduct(id)
       // console.log(sizes.data);
       
       setResponsesize(sizes.data)
@@ -146,6 +199,59 @@ export default function Productdetailpage({itemid,shopid,productprop} :ProductDe
       setArrColor(ARcolor);
       
   }
+  const handleAddToCart =async() =>{
+   // console.log(product?.id);
+   // console.log(selectedColorId);
+   // console.log(selectedSizeId);
+   // console.log(quantityitem);
+   
+   const add = await Getuserbyid();
+
+   // console.log(add.data);
+   if(product && selectedSizeId && selectedColorId){
+       if(add.data.code === 404){
+      saveCartToLocalStorage({
+         product_id:product.id,
+         size_id:selectedSizeId!,
+         color_id:selectedColorId!,
+         quantity:quantityitem,
+
+      })
+      addToCart({
+         product_id:product.id,
+         size_id:selectedSizeId!,
+         color_id:selectedColorId!,
+         quantity:quantityitem,
+      })
+      // alert("chua dang nhap")
+   }else{
+      const add = {
+            product_id:product.id,
+            size_id:selectedSizeId,
+            color_id:selectedColorId,
+            quantity:quantityitem,
+      }
+      alert(quantityitem)
+      await addcart(add);
+      // console.log(adds);
+      
+   }
+   }
+   
+   
+   
+  }
+  const handleplusitem = () =>{
+   setQuantityitem(quantityitem + 1);
+  }
+  const handleminusitem = () =>{
+   setQuantityitem(quantityitem - 1)
+  }
+  const handleerrminusitem =() =>{
+   alert("k đủ số lượng size và màu, bui lòng chọn size hoặc màu khác")
+  }
+
+  const formatVN = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
 
   const selectedQuantity = useMemo(() => {
   if (selectedSizeId && selectedColorId) {
@@ -170,12 +276,12 @@ export default function Productdetailpage({itemid,shopid,productprop} :ProductDe
 //   }
   useEffect(() =>{
    if(responsesize?.length >=1){
-      // console.log(responsesize);
+      console.log(responsesize);
       const arsize = Array.from(
          new Map(responsesize.map(item =>[item.size.id,item.size])).values()
       );
       setArrsize(arsize);
-      console.log("size:",arsize);
+      // console.log("size:",arsize);
       
       
   }
@@ -221,10 +327,10 @@ export default function Productdetailpage({itemid,shopid,productprop} :ProductDe
 //   }
 return(
 <div>
-     <div id="Particles">
+     {/* <div id="Particles">
             <canvas id="fluid"></canvas>
               <FluidSimulation/>
-          </div>
+          </div> */}
    <Header/>
    <div className="mt-[100px] max-w-[1200px] mx-auto ">
       <div className="flex py-2 px-1 ">
@@ -335,8 +441,8 @@ return(
       </div>
     ) : (
       <div className="flex items-baseline gap-4">
-        <p className="text-lg text-gray-500 line-through">{product.price}</p>
-        <p className="text-2xl text-red-600 font-bold">{product.discountprice}</p>
+        <p className="text-lg text-gray-500 line-through">{formatVN(product.price)} đ</p>
+        <p className="text-2xl text-red-600 font-bold">{formatVN(product.discountprice)} đ</p>
       </div>
     )}
 
@@ -387,15 +493,56 @@ return(
     {!product ? (
       <div className="h-10 w-32 bg-gray-200 rounded animate-pulse"></div>
     ) : (
-      <div>
-        <label className="block mb-1 font-medium">Số lượng</label>
-        <div className="flex items-center border w-fit rounded-md overflow-hidden">
-          <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200">-</button>
-          <span className="px-4">10</span>
-          <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200">+</button>
-        </div>
+      <div className="flex gap-2">
+         <div>
+            <label className="block mb-1 font-medium">Số lượng</label>
+            <div className="flex items-center border w-fit rounded-md overflow-hidden">
+               {quantityitem >=2 ? (
+                  <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 relative hover:cursor-pointer" onClick={handleminusitem}>-</button>
+               ) : (
+                  <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 relative hover:cursor-not-allowed" >-</button>
+               )}
+               <span className="px-4">{quantityitem}</span>
+               {quantityitem >= selectedQuantity ? (
+                  <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 relative hover:cursor-not-allowed" onClick={handleerrminusitem}>+</button>
+               ) : (
+                  <button className="px-3 py-1 bg-gray-100 hover:bg-gray-200 relative hover:cursor-pointer" onClick={handleplusitem}>+</button>
+               )}
+            </div>
+         </div>
+         <div>
+            <label className="block mb-1 font-medium">Tồn kho</label>
+            <div className="flex items-center border w-fit rounded-md overflow-hidden">
+              
+               <span className="px-4 py-1">{product.quantity }</span>
+               
+            </div>
+         </div>
+         <div>
+            <label className="block mb-1 font-medium">Số lượng size và màu</label>
+            <div className="flex items-center border w-fit rounded-md overflow-hidden">
+              
+               <span className="px-4 py-1">{selectedQuantity }</span>
+               
+            </div>
+         </div>
+      </div>
+      
+    )}
+
+ {!product ? (
+      <div className="flex gap-4">
+        <div className="h-10 w-40 bg-gray-200 rounded animate-pulse"></div>
+      </div>
+    ) : ( 
+
+      <div className="flex gap-2 items-center">
+         <span className="">Tổng:</span>
+         <span className="text-red-600 text-2xl font-bold">{formatVN(product.discountprice * quantityitem)} đ</span>
       </div>
     )}
+
+
 
     {/* Hành động */}
     {!product ? (
@@ -410,12 +557,15 @@ return(
         ) : selectedQuantity < 1 ? (
           <Button variant="danger">Hết hàng</Button>
         ) : (
-          <Button variant="primary">Thêm vào giỏ hàng</Button>
+          <Button variant="primary"  onClick={handleAddToCart}>Thêm vào giỏ hàng</Button>
+          
         )}
         <Button variant="secondary">Mua ngay</Button>
         <Heart className="text-red-500 hover:scale-110 transition" />
+        
       </div>
     )}
+    <div>Hãy đăng nhập để có thể truy cập giỏ hàng bất cứ đâu</div>
   </div>
 </div>
 
@@ -472,7 +622,7 @@ return(
             </div>
             <div>
                <p className="mb-2">san pham da ban: 10k</p>
-               <p>ngay tham gia: {ddate(seller?.createdAt)} ngay truoc</p>
+               <p>ngay tham gia: ngay truoc</p>
             </div>
             <div>
                <EllipsisVertical/>

@@ -76,10 +76,11 @@ function toSlug(name: string) {
   return (
     <div>
       {/* Background hiệu ứng */}
-      <div id="Particles">
+      
+      {/* <div id="Particles">
         <canvas id="fluid"></canvas>
         <FluidSimulation />
-      </div>
+      </div> */}
 
       <Header />
 

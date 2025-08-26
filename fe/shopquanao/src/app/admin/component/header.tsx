@@ -1,5 +1,5 @@
 import React from "react";
-import { AlignJustify,Search,Settings ,Box, ChevronDown,ChartArea,Bell,MessageCircleMore } from 'lucide-react';
+import { AlignJustify,Search,Settings ,Box,ChartArea,Bell,MessageCircleMore } from 'lucide-react';
 import Image from "next/image";
 import {
   Accordion,

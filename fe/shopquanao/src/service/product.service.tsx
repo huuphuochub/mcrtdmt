@@ -5,9 +5,13 @@
         try {
             const result = await axiosClient.post('/product/add',data);
             return{success:true,data:result.data}
-        } catch (error:any) {
-             const errRes = error.response?.data;
-    return errRes;
+        } catch (error) {
+    return {
+          success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+    };
         }
     }
     const getAllproduct = async() =>{
@@ -16,9 +20,13 @@
             // console.log(result);
             
             return result;
-        } catch (error:any) {
-            const errRes = error.response?.data;
-            return errRes;
+        } catch (error) {
+            return {
+             success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+            };
         }
     }
 
@@ -28,18 +36,26 @@
             // console.log(result);
             
             return result;
-        } catch (error:any) {
-            const errRes = error.response?.data;
-            return errRes;
+        } catch (error) {
+            return {
+             success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+            };
         }
     }
     const getproductdetail = async(id:number)=>{
         try {
             const result = await axiosClient.get(`/product/productdetail/${id}`)
             return result;
-        } catch (error:any) {
-            const errRes = error.response?.data;
-            return errRes; 
+        } catch (error) {
+            return {
+             success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+            }; 
         }
     }
     const getsizebyidproduct = async(id:number)=>{
@@ -47,7 +63,12 @@
             const result = await axiosClient.get(`/product/getsizebyproduct/${id}`);
             return result;
         } catch (error) {
-            return error;
+            return {
+              success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+            };
             
         }
     }

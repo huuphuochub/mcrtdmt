@@ -41,7 +41,7 @@ interface propDetailCategoryPage{
 }
 
 export default function Categorypage({categoryprop} : propDetailCategoryPage) {
-  console.log(categoryprop);
+  // console.log(categoryprop);
     const router = useRouter();
 
   const [subcates,setSubcates] = useState<Subcategory[] | null>(null)
@@ -81,10 +81,10 @@ function toSlug(name: string) {
   return (
     <div>
       {/* Background hiệu ứng */}
-      <div id="Particles">
+      {/* <div id="Particles">
         <canvas id="fluid"></canvas>
         <FluidSimulation />
-      </div>
+      </div> */}
 
       <Header />
 

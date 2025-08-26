@@ -6,13 +6,15 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Product } from './product/product.entity';
 import { SubimgModule } from './subimg/subimg.module';
 import { Subimg } from './subimg/subimg.entity';
-import { SizeController } from './size/size.controller';
-import { SizeService } from './size/size.service';
+
 import { SizeModule } from './size/size.module';
 import { Color } from './size/color.entity';
 import { Size } from './size/size.entity';
 import { ProductVariants } from './size/product_variants.entity';
 
+import { CategoryModule } from './category/category.module';
+import { Category } from './category/category.entity';
+import { Subcategory } from './category/subcategory.entity';
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -23,7 +25,7 @@ import { ProductVariants } from './size/product_variants.entity';
       username:"postgres",
       password:"123456",
       database:"shopquanao",
-      entities:[Product,Subimg,Color,Size,ProductVariants],
+      entities:[Product,Subimg,Color,Size,ProductVariants,Category,Subcategory],
       synchronize:true,
 
     }),
@@ -35,7 +37,10 @@ import { ProductVariants } from './size/product_variants.entity';
     SubimgModule,
     
     
-    SizeModule], 
+    SizeModule,
+    
+    
+    CategoryModule], 
   controllers: [AppController],
   providers: [AppService],
 })

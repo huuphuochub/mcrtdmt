@@ -8,6 +8,7 @@ import { Categorycontroller } from './controller/category.controller';
 import { Subcategorycontroller } from './controller/subcategory.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthModule } from './auth/auth.module';
+import { Cartcontroller } from './controller/cart.controller';
 
 @Module({
    imports: [
@@ -37,6 +38,6 @@ import { AuthModule } from './auth/auth.module';
     ]),
     HttpModule,AuthModule
   ],
-  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller],
+  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller],
 })
 export class AppModule {}

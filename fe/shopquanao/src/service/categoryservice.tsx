@@ -1,29 +1,28 @@
     import axiosClient from "@/lib/axiosclient";
 
 
-    type Category ={
-        id:number;
-        name:string;
-        imageurl:string;
+    // type Category ={
+    //     id:number;
+    //     name:string;
+    //     imageurl:string;
 
-    }
+    // }
 
-    type Subcategory = {
-        id:number;
-        name:string;
-        categoryId:number;
-    }
+    // type Subcategory = {
+    //     id:number;
+    //     name:string;
+    //     categoryId:number;
+    // }
 
     const Getallcategory = async() =>{
         try {
             const result = await axiosClient.get('/category/getall');
             return result
-        } catch (error:any) {
-             const errRes = error.response?.data;
+        } catch (error) {
             return {
             success: false,
-            code: errRes?.code || 'UNKNOWN_ERROR',
-            message: errRes?.message || 'Đã xảy ra lỗi',
+            code:  'UNKNOWN_ERROR',
+            message:  error,
             data:null,
             };
         }
@@ -31,16 +30,18 @@
     const Getsubcatygorybyid = async(id:number) =>{
         try {
             const result = await axiosClient.get(`/subcategory/${id}`);
+            // console.log(result.data);
+            
              return {
                 success: true,
                 data: result.data,
              }
-        } catch (error:any) {
-             const errRes = error.response?.data;
+        } catch (error) {
             return {
             success: false,
-            code: errRes?.code || 'UNKNOWN_ERROR',
-            message: errRes?.message || 'Đã xảy ra lỗi',
+            code:  'UNKNOWN_ERROR',
+            message:  error,
+            data:null,
             };
         }
     }

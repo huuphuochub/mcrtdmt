@@ -20,6 +20,32 @@ export class SizeController {
         return this.sizeService.getsizebyidprd(id);
     }
 
-   
+   @Post('batch')
+    async getbatch(
+        @Body('ids') ids:number[]
+    ){
+        if(!ids || ids.length === 0){
+            return{
+                success:false,
+                data:null,
+                message:'khong co mang id'
+            }
+        }
+        return await this.sizeService.Getbatch(ids);
+    }
+
+    @Post('batchcolor')
+    async getbatchcolor(
+        @Body('ids') ids:number[]
+    ){
+        if(!ids || ids.length === 0){
+            return{
+                success:false,
+                data:null,
+                message:'khong co mang id'
+            }
+        }
+        return await this.sizeService.Getbatchcolor(ids);
+    }
 }
  

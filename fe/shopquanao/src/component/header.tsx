@@ -1,43 +1,115 @@
+
+
 "use client";
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import Cartheader from "./cart/cart";
 import { Getuserbyid,Logout } from "@/service/userservice";
+import { Getallcartitem } from "@/service/cartservice";
+import Link from "next/link";
+import { useCart } from "@/app/context/cartcontext";
+import { useUser } from "@/app/context/usercontext";
+
 import { User,ShoppingCart,Heart,Search,ClockFading,X } from 'lucide-react';
+
+
+interface Carts{
+  product_id: number;
+  color_id:number;
+  size_id:number;
+  quantity:number;
+}
+interface CartItem {
+   product_id: number;
+   color_id: number;
+   size_id: number;
+   quantity: number;
+   cart_id:number;
+   id:number;
+}
+
 export default function Header(){
+     const { cart, addToCart } = useCart();
+   
 const [isOpen, setIsOpen] = useState(false);
+// const [added, setAdded] = useState(false);
+
 const [isOpenCartheader, setIsopencartheader] = useState(false);
 const [isOpenprofile, setIsopenprofile] = useState(false);
+const [cartitem,setCartitem] = useState<CartItem[]>([])
+const {user} = useUser();
+// const [fetched, setFetched] = useState(false);
+//   const [item,setItem] = useState<Carts[]>([]);
 
-const wrapperRef = useRef<HTMLDivElement>
-(null);
-interface Userheader  {
-   username:string,
-   image:string,
-   avatarUrl:string,
-}
-const [users, setUsers] = useState<Userheader | null>(null);
-useEffect(() =>{
-   Getuser()
-},[])
-useEffect(() => {
-  if (users) {
-   //  console.log(users);
-  }
-}, [users]);
-const Getuser = async() =>{
-   const user = await Getuserbyid()
-   // console.log(user);
+
+
+const wrapperRef = useRef<HTMLDivElement>(null);
+
+// interface Userheader  {
+//    username:string,
+//    image:string,
+//    avatarUrl:string,
+// }
+// const [users, setUsers] = useState<Userheader | null>(null);
+
+// useEffect(() =>{
+//    if (!users) {
+//     Getuser();
+//   }
    
-   if( user.success){
-      setUsers(user.data[0]);
-      // console.log(user.data);
+// },[users])
 
-      // console.log(users);
+// useEffect(() => {
+//   if (users) {
+//      const fetchCart = async () => {
+//       const data = await getallcartitem();
+//       setCartitem(data.data.data); 
+//       // console.log(data.data.data);
+      
+//     };
+//     fetchCart();
+//   }else{
+//     const cartStr = localStorage.getItem("cart");
+//     const localCart = cartStr ? JSON.parse(cartStr) : [];
+//     setCartitem(localCart);
+   
+//   }
+// }, [users]);
+useEffect(() => {
+  if (cartitem.length > 0) {
+    cartitem.forEach((element: Carts) => {
+      addToCart({
+        product_id: element.product_id,
+        size_id: element.size_id,
+        color_id: element.color_id,
+        quantity: element.quantity,
+      });
+    });
+  }
+}, [cartitem, addToCart]);
+
+
+
+
+const getallcartitem = async() =>{
+   return await Getallcartitem();
+   // console.log(cartitems.data.data);
+   
+   
+}
+// const Getuser = async() =>{
+//    const user = await Getuserbyid()
+//    // console.log(user);
+   
+//    if( user.success){
+//       setUsers(user.data[0]);
+//       // console.log(user.data);
+
+//       // console.log(users);
 
       
-   }
-}
+//    }
+// }
 const logoutsubmit = async() =>{
    Logout();
    window.location.href="/login"
@@ -72,14 +144,14 @@ return(
          <div>
             <ul className="flex gap-6 text-2xl font-semibold font-poppins ">
                <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300 py-[20px]">
-                  <a href="http://localhost:3000">Trang chủ</a>
+                  <Link href="http://localhost:3000">Trang chủ</Link>
                </li>
                <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300 py-[20px]">
-                  <a href="http://localhost:3000/Shop">Cửa hàng</a>
+                  <Link href="http://localhost:3000/Shop">Cửa hàng</Link>
                </li>
                <div className="relative group inline-block py-[20px]">
                   <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300">
-                  <a href="http://localhost:3000/Category">Danh mục</a>
+                  <Link href="http://localhost:3000/Category">Danh mục</Link>
                   </li>
                   <div className="fixed left-0 top-[80px] w-lvw  h-[300px] bg-white z-50 border  hidden group-hover:block">
                      <ul className="flex flex-wrap gap-4 p-4">
@@ -94,7 +166,7 @@ return(
                   </div>
                </div>
                <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300 py-[20px]">
-                  <a href="http://localhost:3000/sellerregistration">Đăng kí bán hàng</a>
+                  <Link href="http://localhost:3000/sellerregistration">Đăng kí bán hàng</Link>
                </li>
             </ul>
          </div>
@@ -131,8 +203,13 @@ return(
          </div>
          <div className="relative">
             <ShoppingCart className="size-7 hover:cursor-pointer" onClick={()=>Opencart()}/>
+               {cart.length > 0 ?(
+                  <div className="absolute top-[-10px] right-[-10px] bg-red-500 w-[15px] h-[15px] text-[15px] flex justify-center items-center text-white rounded-full"><span>{cart.length}</span></div>
+               ) : (
+                  <div ></div>
+               )}
             {isOpenCartheader && (
-                <Cartheader  onClose={Opencart}/>
+                <Cartheader  onClose={Opencart} />
             )}
          </div>
          <div>
@@ -140,12 +217,12 @@ return(
          </div>
          <div>
             {/* <User className="size-7 hover:cursor-pointer"/> */}
-            {users ? (
+            {user ? (
                <div className="relative">
                   <Image 
                      height={55}
                      width={55}
-                     src={users.avatarUrl}
+                     src={user.avatarUrl}
                      alt="avatar"
                      className="rounded-full"
                      onClick={() => Openprofile()}
@@ -159,7 +236,7 @@ return(
                   )}
                </div>
                ) : (
-               <a href="http://localhost:3000/login"><User className="size-7 hover:cursor-pointer" /></a>
+               <Link href="http://localhost:3000/login"><User className="size-7 hover:cursor-pointer" /></Link>
                )}
 
                

@@ -33,12 +33,13 @@ export default function Loginuser(){
             return
         }
         const response = await Postloginuser(formData);
-        console.log(response);
+        // console.log(response);
         
         if(response.data.success === false){
             setError(response.data.message);
         }else{
-            console.log(response);
+            // console.log(response);
+            localStorage.removeItem('cart');
             
             window.location.href ="/"
         }

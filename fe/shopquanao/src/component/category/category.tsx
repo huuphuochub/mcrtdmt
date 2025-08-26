@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { getcategory,Getallcategory } from "@/service/categoryservice";
+import { Getallcategory } from "@/service/categoryservice";
 import { Category } from "@/interface/category.interface";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation } from "swiper/modules";
@@ -33,22 +33,36 @@ export default function CategorySlider() {
 
     return () => clearTimeout(timer);
   }, []);
-  useEffect(() =>{
-    fetchcategory()
-  },[])
+
+
+useEffect(() => {
+  const fetchcategory = async () => {
+    const categoryss = await Getallcategory();
+    // console.log(imagesLoaded);
+    
+    if (categoryss.data.success) {
+      setCategorys(categoryss.data.data);
+    }
+  };
+
+  fetchcategory();
+}, []);
+
   const handleImageLoad = () => {
     setImagesLoaded(prev => prev + 1);
   };
   
-  const fetchcategory = async() =>{
-    const categoryss = await Getallcategory();
-    // console.log(categorys);
+  // const fetchcategory = async() =>{
+  //   const categoryss = await Getallcategory();
+  //   // console.log(categorys);
     
-    if(categoryss.data.success ){
-      setCategorys(categoryss.data.data)
-      // console.log(categoryss);
-    }  
-  }
+  //   if(categoryss.data.success ){
+  //     console.log(imagesLoaded);
+      
+  //     setCategorys(categoryss.data.data)
+  //     // console.log(categoryss);
+  //   }  
+  // }
 
   // ham tao slug
   function toSlug(name: string) {
@@ -104,8 +118,10 @@ export default function CategorySlider() {
               <SwiperSlide key={cat.id}>
             <Link href={`/${slug}`} >
 
+
             <div className="h-[200px] w-full hover:cursor-pointer flex flex-col items-center justify-center bg-gray-100 rounded-lg shadow-sm hover:shadow-lg transition-all duration-300 hover:scale-105 border border-gray-200">
               <div className="w-20 h-20 flex items-center justify-center mb-3">
+                {/* {imagesLoaded } */}
                 {cat.urlimage ? (
                   <Image
                   height={150}

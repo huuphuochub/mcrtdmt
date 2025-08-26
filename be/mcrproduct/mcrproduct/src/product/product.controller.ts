@@ -45,4 +45,17 @@ export class ProductController {
     async getproductbysubcate(@Param('id') id:number){
         return this.productservice.getProductbysubcate(id);
     }
+    @Post('batch')
+    async getbatch(
+        @Body('ids') ids:number[]
+    ){
+        if(!ids || ids.length === 0){
+            return{
+                success:false,
+                data:null,
+                message:'khong co mang id'
+            }
+        }
+        return await this.productservice.Getbatch(ids);
+    }
 }

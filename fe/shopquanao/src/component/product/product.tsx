@@ -2,9 +2,10 @@
 
 import React,{useEffect,useState} from "react";
 import Image from "next/image";
-import { getAllproduct,getBesellerproduct } from "@/service/product.service";
+import { getBesellerproduct } from "@/service/product.service";
 import Link from "next/link";
 // import { Star } from 'lucide-react';
+import { interfaceProduct } from "@/interface/product.interface";
 
 //  hàm tạo slug
 function toSlug(name: string) {
@@ -49,7 +50,7 @@ const Htmlload = () => {
 
 
 const BesellingProduct = () => {
-  const [prd, setPrd] = useState<any[]>([]);
+  const [prd, setPrd] = useState<interfaceProduct[]>([]);
   const [loading, setLoading] = useState(true); // Thêm state 'loading', mặc định là true khi component mount
 
   const getAllProductData = async () => {
@@ -58,7 +59,7 @@ const BesellingProduct = () => {
 
       const product = await getBesellerproduct();
       // const products = await getBesellerproduct()
-      console.log(product);
+      // console.log(product);
       // console.log(products);
       
       setPrd(product?.data?.data ?? []); // fallback mảng trống nếu không có data
@@ -89,7 +90,7 @@ const BesellingProduct = () => {
       </div>
 
       <div className="grid py-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-    {prd.map((prdd: any, index: number) => {
+    {prd.map((prdd: interfaceProduct, index: number) => {
       const slug = `${toSlug(prdd.name)}-i.${prdd.idSeller}.${prdd.id}`;
       return (
         <Link

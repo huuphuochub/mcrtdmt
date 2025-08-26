@@ -1,13 +1,13 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToMany } from "typeorm";
 
-import { Subcategory } from './subcategory.entity';
+import { Subcategory } from "./subcategory.entity";
 
 @Entity('category')
 export class Category {
     @PrimaryGeneratedColumn()
     id:number;
 
-    @Column()
+    @Column() 
     name:string;
 
     @Column()

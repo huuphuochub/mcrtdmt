@@ -1,7 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './product.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { CreateProductDto } from './product.dto';
 
 interface PaginationOptions{
@@ -145,6 +145,16 @@ export class ProductService {
         success:false,
         data:null
       }
+    }
+  }
+
+
+  async Getbatch(ids:number[]){
+    try {
+      const products = await this.productRepo.findBy({ id: In(ids)})
+      return products;
+    } catch (error) {
+      
     }
   }
 }

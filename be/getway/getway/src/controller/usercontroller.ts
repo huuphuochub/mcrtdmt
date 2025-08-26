@@ -55,7 +55,12 @@ async getProfile(@Req() req: RequestWithCookies) {
   const token = req.cookies?.access_token;
 
   if (!token) {
-    throw new UnauthorizedException('Chưa đăng nhập');
+     return {
+                success:false,
+                message:'chua dang nhap',
+                data:null,
+                code:404
+            }
   }
 
   try {
@@ -79,6 +84,52 @@ async getProfile(@Req() req: RequestWithCookies) {
       message: errRes?.message || 'Lỗi từ user-service',
     });
   }
+}
+
+@Post('logout')
+async logout(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Response) {
+  const token = req.cookies?.access_token;
+
+  // Nếu không có token thì coi như đã logout
+  if (!token) {
+    res.clearCookie('access_token', {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false, // true nếu deploy HTTPS
+    });
+
+    return {
+      success: true,
+      message: 'Đăng xuất thành công (không có token)',
+    };
+  }
+
+  try {
+    // Forward logout request tới user-service (nếu cần quản lý refresh token / blacklist)
+    await firstValueFrom(
+      this.httpService.post('http://localhost:3004/users/logout', {}, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      }),
+    );
+  } catch (error) {
+    // Nếu user-service báo lỗi thì vẫn clear cookie,
+    // vì mục đích chính là đăng xuất khỏi FE
+    console.error('Logout error:', error.response?.data || error.message);
+  }
+
+  // Xoá cookie tại gateway
+  res.clearCookie('access_token', {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: false, // true nếu deploy HTTPS
+  });
+
+  return {
+    success: true,
+    message: 'Đăng xuất thành công',
+  };
 }
 
 

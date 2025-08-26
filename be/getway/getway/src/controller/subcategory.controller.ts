@@ -14,7 +14,7 @@ export class Subcategorycontroller {
   
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get(`http://localhost:3004/subcategory/${id}`, {
+        this.httpService.get(`http://localhost:3002/subcategory/${id}`, {
                   // this.httpService.get(`http://user:3004/subcategory/${id}`, {
 
           

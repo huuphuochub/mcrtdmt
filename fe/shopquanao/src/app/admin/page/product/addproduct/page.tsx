@@ -4,6 +4,7 @@ import { Category } from "@/interface/category.interface";
 import { Getallcategory, Getsubcatygorybyid } from "@/service/categoryservice";
 import { Subcategory } from "@/interface/category.interface";
 import { Addproduct as AddProductService } from "@/service/product.service";
+import Image from "next/image";
 
 interface FormErrors {
   name?: string;
@@ -23,7 +24,7 @@ interface FormErrors {
 export default function Addproduct() {
   const [mainImage, setMainImage] = useState<File | null>(null);
   const [previewMain, setPreviewMain] = useState<string | null>(null);
-  const [quantity,setQuantity] = useState<number>(0)
+  // const [quantity,setQuantity] = useState<number>(0)
   const [subImage, setSubImage] = useState<File[]>([]);
   const [previewSub, setPreviewSub] = useState<string[]>([]);
   const [categorys, setCategorys] = useState<Category[]>([]);
@@ -49,11 +50,15 @@ export default function Addproduct() {
   };
 
   const getsubcategorybyid = async (id: number) => {
-    setIdcategory(id);
+    // console.log(id);
+    
+    // setIdcategory(id);
     const subcate = await Getsubcatygorybyid(id);
+    // console.log(subcate);
+    
     if (subcate.success) {
-      console.log(subcate.data.result);
-      setSubcates(subcate.data.result);
+      // console.log(subcate.data.result);
+      setSubcates(subcate.data.data);
     }
   };
 
@@ -69,10 +74,10 @@ export default function Addproduct() {
 
   const getallcategory = async () => {
     const allcate = await Getallcategory();
-    console.log(allcate.data);
+    // console.log(allcate.data);
     
     if (allcate.data.success) {
-      console.log(allcate.data.result);
+      // console.log(allcate.data.result);
       setCategorys(allcate.data.data);
     }
   };
@@ -209,7 +214,7 @@ export default function Addproduct() {
         setSubcates([]);
         setErrors({});
       } else {
-        setSubmitMessage({ type: 'error', message: result.message || 'Có lỗi xảy ra khi thêm sản phẩm' });
+        setSubmitMessage({ type: 'error', message: 'Có lỗi xảy ra khi thêm sản phẩm' });
       }
     } catch {
       setSubmitMessage({ type: 'error', message: 'Có lỗi xảy ra khi thêm sản phẩm' });
@@ -364,7 +369,9 @@ export default function Addproduct() {
           </label>
           {previewMain && (
             <div className="mt-3">
-              <img
+              <Image
+              height={128}
+              width={128}
                 src={previewMain}
                 alt="preview"
                 className="w-32 h-32 object-cover rounded border"
@@ -394,7 +401,9 @@ export default function Addproduct() {
             <div className="flex gap-3 mt-3 flex-wrap">
               {previewSub.map((src, idx) => (
                 <div key={idx} className="relative w-24 h-24">
-                  <img
+                  <Image
+                  height={96}
+                  width={96}
                     src={src}
                     alt={`sub-${idx}`}
                     className="w-full h-full object-cover rounded border"

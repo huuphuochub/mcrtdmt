@@ -7,10 +7,10 @@ import { Search } from "lucide-react";
 export default function Shop() {
   return (
     <div>
-      <div id="Particles ">
+      {/* <div id="Particles ">
         <canvas id="fluid"></canvas>
         <FluidSimulation />
-      </div>
+      </div> */}
 
       <Header />
 

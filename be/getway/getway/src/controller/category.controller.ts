@@ -10,7 +10,7 @@ export class Categorycontroller {
    @Get('getall')
   async getProfile() {
     const response = await this.httpService
-    .get('http://localhost:3004/category/getall')
+    .get('http://localhost:3002/category/getall')
     .toPromise();
   // console.log(response);
   
@@ -21,7 +21,7 @@ export class Categorycontroller {
   async getCategory(@Param('id') id:number){
     console.log(id);
     
-    const response = await this.httpService.get(`http://localhost:3004/category/getbyid/${id}`)
+    const response = await this.httpService.get(`http://localhost:3002/category/getbyid/${id}`)
     .toPromise()
     if(!response){
       return{
@@ -37,9 +37,9 @@ export class Categorycontroller {
     const [subcate,allcate,products] = 
     await Promise.allSettled([
       this.httpService
-      .get(`http://localhost:3004/subcategory/${id}`).toPromise(),
+      .get(`http://localhost:3002/subcategory/${id}`).toPromise(),
       this.httpService
-      .get(`http://localhost:3004/category/getall`).toPromise(),
+      .get(`http://localhost:3002/category/getall`).toPromise(),
       this.httpService
       .get(`http://localhost:3002/product/productsbycategory/${id}`).toPromise()
     ])
@@ -67,7 +67,7 @@ export class Categorycontroller {
   async getSubCategory(@Param('id') id:number){
     console.log(id);
     
-    const response = await this.httpService.get(`http://localhost:3004/subcategory/getsubcategorybyid/${id}`)
+    const response = await this.httpService.get(`http://localhost:3002/subcategory/getsubcategorybyid/${id}`)
     .toPromise()
     if(!response){
       return{
@@ -83,13 +83,13 @@ export class Categorycontroller {
     const [catedetail,allcate,products,allsubcate] = 
     await Promise.allSettled([
       this.httpService
-      .get(`http://localhost:3004/category/getbyid/${response.data.data.categoryId}`).toPromise(),
+      .get(`http://localhost:3002/category/getbyid/${response.data.data.categoryId}`).toPromise(),
       this.httpService
-      .get(`http://localhost:3004/category/getall`).toPromise(),
+      .get(`http://localhost:3002/category/getall`).toPromise(),
       this.httpService
       .get(`http://localhost:3002/product/allproductbysubcate/${id}`).toPromise(),
       this.httpService
-      .get(`http://localhost:3004/subcategory/${response.data.data.categoryId}`).toPromise(),
+      .get(`http://localhost:3002/subcategory/${response.data.data.categoryId}`).toPromise(),
     ])
 
     // console.log(subcate?.data);

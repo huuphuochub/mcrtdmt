@@ -18,12 +18,12 @@ const Registrationuser = async(data:RegisterInput) =>{
         // console.log(reponse);
          return result;
         
-    } catch (error:any) {
-        const errRes = error.response?.data;
+    } catch (error) {
     return {
       success: false,
-      code: errRes?.code || 'UNKNOWN_ERROR',
-      message: errRes?.message || 'Đã xảy ra lỗi',
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
     };
     }
 }
@@ -32,12 +32,12 @@ const Postloginuser = async(data:Loginuser)=>{
         const result = await axiosClient.post(`/users/login`,data);
         return result
         ;
-    } catch (error:any) {
-        const errRes = error.response?.data;
+    } catch (error) {
     return {
-      success: false,
-      code: errRes?.code || 'UNKNOWN_ERROR',
-      message: errRes?.message || 'Đã xảy ra lỗi',
+          success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
     };
     }
 }
@@ -49,13 +49,13 @@ const Getuserbyid = async() =>{
       data: result.data,
     };
 
-    } catch (error:any) {
+    } catch (error) {
         //  console.error("loi lay user");
-         const errRes = error.response?.data;
     return {
-      success: false,
-      code: errRes?.code || 'UNKNOWN_ERROR',
-      message: errRes?.message || 'Đã xảy ra lỗi',
+           success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
     };
     }
 }
@@ -64,13 +64,13 @@ const Logout = async() =>{
         const result = await axiosClient.post(`/users/logout`);
         return result;
 
-    } catch (error:any) {
+    } catch (error) {
         //  console.error("loi lay user");
-         const errRes = error.response?.data;
     return {
-      success: false,
-      code: errRes?.code || 'UNKNOWN_ERROR',
-      message: errRes?.message || 'Đã xảy ra lỗi',
+           success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
     };
     }
 }

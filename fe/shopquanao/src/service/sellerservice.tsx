@@ -17,8 +17,8 @@ const Registrationseller = async(data:RegisterInput) =>{
         // console.log(reponse);
         return(response)
         
-    } catch (error:any) {
-        console.error("API Error:", error.response?.data || error.message);
+    } catch (error) {
+        
     return Promise.reject(error);
     }
 }

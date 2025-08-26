@@ -1,8 +1,9 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Size } from './size.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { ProductVariants } from './product_variants.entity';
+import { Color } from './color.entity';
 // import { ProductVariants } from './product_variants.entity';
 
 @Injectable()
@@ -11,6 +12,9 @@ export class SizeService {
     constructor(
             @InjectRepository(Size)
             private sizeRepo:Repository<Size>,
+
+            @InjectRepository(Color)
+            private colorrepo:Repository<Color>,
             // private productVariantsrepo:Repository<ProductVariants>
     
 
@@ -42,4 +46,22 @@ export class SizeService {
             }
         }
     }
+
+    async Getbatch(ids:number[]){
+        try {
+          const products = await this.sizeRepo.findBy({ id: In(ids)})
+         return products
+        } catch (error) {
+          
+        }
+      }
+
+      async Getbatchcolor(ids:number[]){
+    try {
+      const products = await this.colorrepo.findBy({ id: In(ids)})
+      return products;
+    } catch (error) {
+      
+    }
+  }
 }
