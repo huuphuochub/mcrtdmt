@@ -58,6 +58,9 @@ export class Product {
     totalsold:number;
 
 
+    @Column({default:0,nullable:true})
+    wreigth:number;
+
     @OneToMany(() => ProductVariants, variant => variant.product)
   variants: ProductVariants[];
 //    @OneToMany(() => Color, (color) => color.products)

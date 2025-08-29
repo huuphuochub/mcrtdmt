@@ -91,12 +91,12 @@ useEffect(() => {
 
 
 
-const getallcartitem = async() =>{
-   return await Getallcartitem();
-   // console.log(cartitems.data.data);
+// const getallcartitem = async() =>{
+//    return await Getallcartitem();
+//    // console.log(cartitems.data.data);
    
    
-}
+// }
 // const Getuser = async() =>{
 //    const user = await Getuserbyid()
 //    // console.log(user);

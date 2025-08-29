@@ -231,7 +231,8 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
             color_id:selectedColorId,
             quantity:quantityitem,
       }
-      alert(quantityitem)
+      addToCart(add)
+      // alert(quantityitem)
       await addcart(add);
       // console.log(adds);
       

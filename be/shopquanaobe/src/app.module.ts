@@ -16,24 +16,30 @@ import { OrderController } from './order/order.controller';
 import { OrderModule } from './order/order.module';
 import { Cart } from './cart/cart.entity';
 import { CartItem } from './cart/cartItem.entity';
+import { OrderItem } from './order/orderitem.entity';
+import { Order } from './order/order.entity';
+import { ConfigModule } from '@nestjs/config';
 // import { CartController } from './cart/cart.controller';
 
 
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
     TypeOrmModule.forRoot({
       type:'postgres',
       // host:process.env.DB_HOST,
       host:"localhost",
       port: 5432,
-      username:"postgres",
-      password:"123456",
-      database:"shopquanao",
-      entities:[User,Seller,Cart,CartItem],
+      username: process.env.DB_USERNAME,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      entities:[User,Seller,Cart,CartItem,Order,OrderItem],
       synchronize:true,
     }),
-    UsersModule,
+    UsersModule, 
      
     SellerModule, AuthModule, CartModule, OrderModule
   
@@ -42,3 +48,4 @@ import { CartItem } from './cart/cartItem.entity';
   providers: [AppService],
 })
 export class AppModule {}
+ 

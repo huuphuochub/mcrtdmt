@@ -100,20 +100,20 @@ export class ProductController {
         averageRating:0,
         subcategory:body.subcategoryId
       }
-      console.log(data);
+      // console.log(data);
       
       const product = await this.httpservice.post('http://localhost:3002/product/add',data).toPromise();
-      console.log(product?.data.data.id);
+      // console.log(product?.data.data.id);
 
       const subimgdata = {
         id_product:product?.data.data.id,
         url :subImgUrls,
       }
-      console.log(subimgdata);
+      // console.log(subimgdata);
       
       const subimg = await this.httpservice.post('http://localhost:3002/subimg/add',subimgdata).toPromise();
 
-      console.log(subimg);
+      // console.log(subimg);
       
       
       
@@ -157,7 +157,7 @@ async getproductdatil(@Param('id') id:number){
       data:null
     }
   }
-  console.log(response.data);
+  // console.log(response.data);
 
   const product = response.data;
 

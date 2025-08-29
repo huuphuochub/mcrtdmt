@@ -39,7 +39,7 @@ export default function RootLayout({
           <div className="" >
           <div id="Particles">
             <canvas id="fluid"></canvas>
-              <FluidSimulation/>
+              <FluidSimulation/>  
           </div>
       </div>
         {children}

@@ -3,7 +3,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seller } from './seller.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 @Injectable()
 export class SellerService {
@@ -11,9 +11,9 @@ export class SellerService {
         @InjectRepository(Seller)
         private sellerRepo:Repository<Seller>,
     ){}
-  async Registerseller(usernameseller:string,  email:string, provinceId:number, districtId:number, wardsId:number, address:string){
+  async Registerseller(user_id:number,usernameseller:string,  email:string, provinceId:number, districtId:number, wardsId:number, address:string){
     const newUser = this.sellerRepo.create({
-        usernameseller,email,provinceId,districtId,wardsId,address,status:0
+        user_id,usernameseller,email,provinceId,districtId,wardsId,address,status:0
     });
     const result =  await this.sellerRepo.save(newUser);
     console.log("nha ban hang" + result);
@@ -42,5 +42,13 @@ export class SellerService {
       data: null,
     };
     }
+  }
+
+
+  async Inforseller(ids:number[]) :Promise<Seller[]>{  
+      return await this.sellerRepo.find({
+        where:{user_id:In(ids)}
+      });
+      
   }
 }

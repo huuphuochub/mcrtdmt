@@ -4,7 +4,7 @@ import { createContext, useContext, useEffect, useState, useCallback, ReactNode 
 import { interfacecolor } from "@/interface/interfacecolor";
 import { interfacesize } from "@/interface/interfacesize";
 import { interfaceProduct } from "@/interface/product.interface";
-import { Getdetailallcart, Getallcartitem } from "@/service/cartservice";
+import { Getdetailallcart, Getallcartitem,updateCartItem,deletecart } from "@/service/cartservice";
 import { useUser } from "./usercontext";
 
 export interface CartItem {
@@ -15,6 +15,7 @@ export interface CartItem {
 }
 
 export interface Cartdetail {
+  cart_id:number;
   product: interfaceProduct;
   size: interfacesize;
   color: interfacecolor;
@@ -30,6 +31,7 @@ interface CartContextType {
   updateQuantity: (product_id: number, size_id: number, color_id: number, quantity: number) => void;
   removeFromCart: (product_id: number, size_id: number, color_id: number) => void;
   clearCart: () => void;
+  deleteCart:()=>void;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
@@ -38,11 +40,13 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const { user } = useUser();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartdetail, setCartdetail] = useState<Cartdetail[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   // Fetch cart from API / localStorage once when user changes
   useEffect(() => {
     const fetchCart = async () => {
+      setLoading(true);
+      console.log('loading true');
       if (user) {
         try {
           const data = await Getallcartitem();
@@ -67,19 +71,25 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (cart.length === 0) {
       setCartdetail([]);
+      setLoading(false);
       return;
     }
 
     const fetchCartDetail = async () => {
-      setLoading(true);
+      
+      
       try {
         const data = await Getdetailallcart(cart);
+        // console.log(data.data.data.length);
+        
         setCartdetail(data.data.data || []);
       } catch (err) {
-        console.error("Fetch cart detail error:", err);
+        console.error("loi lay chi tiet gio hang:", err);
         setCartdetail([]);
       } finally {
         setLoading(false);
+        // console.log('loading false');
+        
       }
     };
 
@@ -116,13 +126,48 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   const removeFromCart = (product_id: number, size_id: number, color_id: number) => {
     setCart(prev => prev.filter(i => !(i.product_id === product_id && i.size_id === size_id && i.color_id === color_id)));
   };
+  const deleteCart = async() =>{
+    setCart([]);
+    setCartdetail([]);
+    await deletecart();
+  }
+
 
   const clearCart = () => setCart([]);
-  const savecart = () =>{
 
+
+  const savecart = async() =>{
+    // console.log(cart);
+    // console.log(cartdetail);
+
+    const updatedata = cartdetail.map((item) =>({
+       color_id: item.color.id,
+       product_id: item.product.id,
+       quantity: item.quantity,
+       size_id: item.size.id,
+       cart_id: item.cart_id,
+    }))
+    console.log(updatedata);
+    
+    if(user){
+          const data = await updateCartItem(updatedata);
+    // console.log(data.data);
+      if(data.data.success === false){
+        return{
+          error: data.data.message || "Cập nhật giỏ hàng thất bại"
+        }
+
+    }
+    }else{
+      localStorage.removeItem("cart");
+      localStorage.setItem("cart", JSON.stringify(updatedata));
+    }
+    
+    
+    
   }
   return (
-    <CartContext.Provider value={{ cart, cartdetail,savecart, loading, addToCart, updateQuantity, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{ cart, cartdetail,savecart, deleteCart,loading, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

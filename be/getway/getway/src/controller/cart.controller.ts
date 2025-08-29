@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, HttpStatus, Get, Req, UseGuards } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpStatus, Get, Req, UseGuards, Delete } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 // import { Response } from 'express';
 // import { UnauthorizedException } from '@nestjs/common';
@@ -77,7 +77,7 @@ export class Cartcontroller {
             size_id:number
         }]
     ){
-        console.log(body);
+        // console.log(body);
 
         const productIds = body.map(item => item.product_id);
         const sizeIds = body.map(item => item.size_id);
@@ -110,6 +110,49 @@ export class Cartcontroller {
        }
         
          
+    }
+
+    @Post('updatecartitem')
+    async Updatecart(@Req() req:RequestWithCookies, @Body() body:any){
+        // console.log(body);
+       const token = req.cookies.access_token;
+        if(!token){
+            return{
+                success:false,
+                message:'vui long dang nhap lai de xem gio hang',
+                data:null
+            }
+        }
+        const {data} = await firstValueFrom(
+            this.httpService.post(`http://localhost:3004/cart/updatecartdetail`,
+                body,
+                {headers:{
+                    Authorization:`Bearer ${token}`
+                }}
+            )
+        )
+        return data
+    }
+    @Post('deletecart')
+    async deletecartitem(@Req() req:RequestWithCookies){
+        const token = req.cookies.access_token;
+        if(!token){
+            return{
+                success:false,
+                message:'vui long dang nhap lai de xem gio hang',
+                data:null
+            }
+        }
+        const {data} = await firstValueFrom(
+            this.httpService.post(`http://localhost:3004/cart/deletecart`,
+                {},
+                {headers:{
+                    Authorization:`Bearer ${token}`
+                }}
+            )
+        )
+        return data
+    
     }
 
 }

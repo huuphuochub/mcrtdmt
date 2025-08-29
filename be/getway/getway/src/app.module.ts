@@ -2,16 +2,23 @@ import { Module } from '@nestjs/common';
 // import { AppController } from './app.controller';
 // import { AppService } from './app.service';
 import { ProductController } from './controller/product.controller';
-import { UserController } from './controller/usercontroller';
+import { sellerController, UserController } from './controller/usercontroller';
 import { HttpModule } from '@nestjs/axios';
 import { Categorycontroller } from './controller/category.controller';
 import { Subcategorycontroller } from './controller/subcategory.controller';
 import { ClientsModule, Transport } from '@nestjs/microservices';
 import { AuthModule } from './auth/auth.module';
 import { Cartcontroller } from './controller/cart.controller';
+import { OrderController } from './controller/order.controller';
+import { ViettelpostService } from './service/viettelpost.service';
+import { ConfigModule } from '@nestjs/config';
+
 
 @Module({
    imports: [
+     ConfigModule.forRoot({
+      isGlobal: true, // để toàn app dùng được
+    }),
     ClientsModule.register([
       {
         name: 'UPLOAD_SERVICE',
@@ -38,6 +45,10 @@ import { Cartcontroller } from './controller/cart.controller';
     ]),
     HttpModule,AuthModule
   ],
-  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller],
+    providers: [ViettelpostService],
+      exports: [ViettelpostService], // nếu muốn dùng ở chỗ khác
+
+
+  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController],
 })
 export class AppModule {}

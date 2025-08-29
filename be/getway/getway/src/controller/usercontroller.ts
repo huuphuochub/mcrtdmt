@@ -25,7 +25,7 @@ export class UserController {
           withCredentials: true, // Gửi và nhận cookie
         }),
       );
-      console.log(response);
+      // console.log(response);
       
       // 👇 Nhận token từ user-service (nếu bạn trả về token)
       const token = response.data.token;
@@ -116,7 +116,7 @@ async logout(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Re
   } catch (error) {
     // Nếu user-service báo lỗi thì vẫn clear cookie,
     // vì mục đích chính là đăng xuất khỏi FE
-    console.error('Logout error:', error.response?.data || error.message);
+    // console.error('Logout error:', error.response?.data || error.message);
   }
 
   // Xoá cookie tại gateway
@@ -133,7 +133,114 @@ async logout(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Re
 }
 
 
+@Post('register')
+async registration(@Body() body:any){
+    // console.log(body);
+    const {data} = await firstValueFrom(
+        this.httpService.post(`http://localhost:3004/users/register`,body)
+    )
+            return data
+
+  }
 
 }
 
+@Controller('seller')
+export class sellerController {
+    constructor(private readonly httpService: HttpService) {}
 
+    @Post('register')
+    async registerSeller(
+      @Req() req: RequestWithCookies,
+      
+      @Body() body:any){
+      // console.log(body);
+        const token = req.cookies?.access_token;
+
+        // console.log(body);
+      if(!token){
+        return {
+          success: false,
+          message: 'Unauthorized',
+          code: 401, 
+        };
+      }else{
+         const {data} = await firstValueFrom(
+            this.httpService.post(`http://localhost:3004/seller/register`,body,
+            {
+                headers: {
+                    Authorization: token ? `Bearer ${token}` : '',
+                },
+            }
+              
+            )
+        )
+                return data
+
+      }
+    }
+
+    @Post('login')
+    async loginSeller(@Body() body:any, @Res({ passthrough: true }) res: Response){
+        // console.log(body);
+       const {data} = await firstValueFrom(
+            this.httpService.post(`http://localhost:3004/seller/login`,body,{
+                withCredentials:true
+            })
+        )
+        const token = data.token;
+        if(token){
+            res.cookie('access_token',token,{
+                httpOnly:true,
+                maxAge:1000*60*60*24*7 //7 ngay
+            })
+        }
+        return data
+    }
+
+    @Post('logout')
+    async logoutSeller(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Response) {
+        const token = req.cookies?.access_token;
+
+        // Nếu không có token thì coi như đã logout
+        if (!token) {
+            res.clearCookie('access_token', {
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: false, // true nếu deploy HTTPS
+            });
+
+            return {
+                success: true,
+                message: 'Đăng xuất thành công (không có token)',
+            };
+        }
+
+        try {
+            // Forward logout request tới user-service (nếu cần quản lý refresh token / blacklist)
+            await firstValueFrom(
+                this.httpService.post('http://localhost:3004/seller/logout', {}, {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                }),
+            );
+        } catch (error) {
+            // Nếu user-service báo lỗi thì vẫn clear cookie,
+            // vì mục đích chính là đăng xuất khỏi FE
+            // console.error('Logout error:', error.response?.data || error.message);
+        }
+
+        // Xoá cookie tại gateway
+        res.clearCookie('access_token', {
+            httpOnly: true,
+            sameSite: 'lax',
+            secure: false, // true nếu deploy HTTPS
+        });
+
+        return {
+            success: true,
+            message: 'Đăng xuất thành công',
+        };
+    }
+}

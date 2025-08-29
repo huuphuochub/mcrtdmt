@@ -188,7 +188,7 @@ useEffect(() => {
         required
         value={formData[key]}
         onChange={handleChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+        className="w-full px-4 py-2 border relative border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
       />
     </div>
   ))}
@@ -208,7 +208,7 @@ useEffect(() => {
         required
         value={formData.provinceId}
         onChange={handleChange}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+        className="w-full px-4 py-2 border relative border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
       >
         <option value="">
           {loadingProv ? "Đang tải..." : "Chọn Tỉnh/Thành"}
@@ -229,7 +229,7 @@ useEffect(() => {
         value={formData.districtId}
         onChange={handleChange}
         disabled={!formData.provinceId || loadingDist}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+        className="w-full px-4 py-2 border relative border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
       >
         <option>{loadingDist ? "Đang tải..." : "Chọn Quận/Huyện"}</option>
         {districts.map((d: District) => (
@@ -248,7 +248,7 @@ useEffect(() => {
         value={formData.wardId}
         onChange={handleChange}
         disabled={!formData.districtId || loadingWard}
-        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
+        className="w-full px-4 py-2 border relative border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
       >
         <option>{loadingWard ? "Đang tải..." : "Chọn Xã/Phường"}</option>
         {wards.map((w: Ward) => (
@@ -267,7 +267,7 @@ useEffect(() => {
       required
       value={formData.streetAddress}
       onChange={handleChange}
-      className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+      className="w-full px-4 py-2 border relative border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
     />
   </div>
   
@@ -281,7 +281,7 @@ useEffect(() => {
   {/* Nút submit */}
   <button
     type="submit"
-    className="w-full bg-blue-600 text-white py-2 rounded-lg hover:bg-blue-700 transition"
+    className="w-full bg-blue-600 relative text-white py-2 rounded-lg hover:bg-blue-700 transition"
   >
     Đăng ký
   </button>

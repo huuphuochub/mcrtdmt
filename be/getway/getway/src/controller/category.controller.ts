@@ -19,7 +19,7 @@ export class Categorycontroller {
   
   @Get('getjsoncategory/:id')
   async getCategory(@Param('id') id:number){
-    console.log(id);
+    // console.log(id);
     
     const response = await this.httpService.get(`http://localhost:3002/category/getbyid/${id}`)
     .toPromise()
@@ -65,7 +65,7 @@ export class Categorycontroller {
 
   @Get('getjsonsubcategory/:id')
   async getSubCategory(@Param('id') id:number){
-    console.log(id);
+    // console.log(id);
     
     const response = await this.httpService.get(`http://localhost:3002/subcategory/getsubcategorybyid/${id}`)
     .toPromise()
@@ -77,7 +77,7 @@ export class Categorycontroller {
       }
     }
     // return response!.data;
-    console.log(response.data);
+    // console.log(response.data);
     // const product = response.data;
 
     const [catedetail,allcate,products,allsubcate] = 

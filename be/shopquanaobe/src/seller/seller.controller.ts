@@ -1,12 +1,17 @@
-import { Body, Controller, Get, Param, Post } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { SellerService } from './seller.service';
+import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
 
 @Controller('seller')
 export class SellerController {
 constructor( private sellerservice:SellerService){}
 
+
+@UseGuards(JwtAuthGuardFromCookie)
 @Post('register')
 async Registerseller(
+    @GetUser() user:any,
     @Body()
     body:{
         usernameseller:string;
@@ -17,10 +22,19 @@ async Registerseller(
         address:string,
     },
 ){
-    return this.sellerservice.Registerseller(body.usernameseller,body.email,body.provinceId,body.districtId,body.wardId,body.address);
+    console.log(body);
+    
+    return this.sellerservice.Registerseller(user.id,body.usernameseller,body.email,body.provinceId,body.districtId,body.wardId,body.address);
 }
     @Get('getseller/:id')
       async getuserbyid(@Param('id')id:number){
         return this.sellerservice.Getsellerbyiduser(id);
       } 
+
+    @Post('inforseller')
+    async inforseller(@Body() ids:{sellerIds:number[]}){
+        console.log(ids);
+        
+        return this.sellerservice.Inforseller(ids.sellerIds);
+    }
 }

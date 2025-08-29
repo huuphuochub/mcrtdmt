@@ -52,5 +52,31 @@ const Getdetailallcart = async(data:body[]) =>{
         }
     }
 }
+const updateCartItem = async (data: body[]) => {
+    try {
+        const result = await axiosClient.post('/cart/updatecartitem', data);
+        return result;
+    } catch (error) {
+        return {
+            success: false,
+            code: 'UNKNOWN_ERROR',
+            message: error,
+            data: null,
+        };
+    }
+};
+const deletecart = async() =>{
+    try {
+        const result = await axiosClient.post('/cart/deletecart');
+        return result
+    } catch (error) {
+        return{
+            success: false,
+            code: 'UNKNOWN_ERROR',
+            message: error,
+            data: null,
+        }
+    }
+}
 
-export{addcart,Getallcartitem,Getdetailallcart}
+export{addcart,Getallcartitem,Getdetailallcart,updateCartItem,deletecart}

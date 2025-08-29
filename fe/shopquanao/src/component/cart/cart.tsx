@@ -1,6 +1,6 @@
 "use client"
 
-import React from "react";
+import React, { useState } from "react";
 import Image from "next/image";
 import { X } from 'lucide-react';
 // import { Getdetailallcart } from "@/service/cartservice";
@@ -19,7 +19,35 @@ interface CartheaderProps {
 
 
 export default function Cartheader({ onClose }: CartheaderProps) {
-  const { cart,savecart, cartdetail, updateQuantity, removeFromCart } = useCart();
+  const { cart,savecart, cartdetail,deleteCart, updateQuantity, removeFromCart } = useCart();
+  const [loading,setLoading] = useState(false);
+
+  const clicksavecart= async() =>{
+
+    try {
+      setLoading(true);
+    await savecart();
+    } catch (error) {
+      
+    }finally{
+      setLoading(false);
+    }
+    
+  }
+  const deletecart=async(product_id:number,size_id:number,color_id:number)=>{
+    if(cartdetail.length === 1){
+         const xacnhan = confirm('ban co muon xoa san pham khoi gio hang k');
+         if(xacnhan){
+                   removeFromCart(product_id,size_id,color_id);
+           
+            deleteCart();
+         }else{
+            return;
+         }
+      }else{
+         removeFromCart(product_id,size_id,color_id);
+      }
+  }
 
   return (
     <div>
@@ -30,7 +58,32 @@ export default function Cartheader({ onClose }: CartheaderProps) {
       ></div>
 
       {/* Giỏ hàng */}
-      {((cartdetail  && cartdetail.length >0)) ? (
+      {
+      loading ? (
+
+
+        <div className="fixed right-0 top-0 z-50 w-[400px] h-full bg-white shadow-xl overflow-y-auto">
+            <div className="w-full h-full flex justify-center items-center">
+                <p>loading...</p>
+            </div>
+        </div>
+
+
+
+
+      ) : cartdetail.length ===0 ? (
+        <div>
+         <div>
+          <div className="fixed right-0 top-0 z-50 w-[400px] h-full bg-white shadow-xl overflow-y-auto">
+            <div className="w-full h-full flex justify-center items-center">
+                <p>giỏ hàng của bạn đang trống</p>
+            </div>
+        </div>
+        </div>        
+        </div>
+      ) :
+      
+      (
              <div className="fixed right-0 top-0 z-50 w-[400px] h-full bg-white shadow-xl overflow-y-auto">
         {/* Header */}
         <div className="sticky top-0 bg-white z-50 p-4 border-b border-gray-200 flex items-center justify-between">
@@ -92,7 +145,7 @@ export default function Cartheader({ onClose }: CartheaderProps) {
             </div>
             <X 
               className="cursor-pointer text-gray-400 hover:text-red-500 transition" 
-              onClick={() => removeFromCart(cat.product.id, cat.size.id, cat.color.id)}
+              onClick={() => deletecart(cat.product.id, cat.size.id, cat.color.id)}
             />
           </div>
          ))) }
@@ -122,26 +175,16 @@ export default function Cartheader({ onClose }: CartheaderProps) {
           {/* <button className="mt-4 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition">
             Thanh toán
           </button> */}
-          <Button className="w-full rounded-2xl"  variant="primary" onClick={savecart}>Cập nhật giỏ hàng</Button>
+          <Button className="w-full rounded-2xl"  variant="primary" onClick={clicksavecart} disabled={loading}>{loading ? "Đang lưu..." : "Cập nhật giỏ hàng"}</Button>
+          
+
 
           <Link href='/cart' className="block mt-4 w-full bg-blue-600 text-white py-2 rounded-xl hover:bg-blue-700 transition text-center">
             Trang giỏ hàng
           </Link>
         </div>
       </div>
-      ) : (
-
-
-        <div className="fixed right-0 top-0 z-50 w-[400px] h-full bg-white shadow-xl overflow-y-auto">
-            <div className="w-full h-full flex justify-center items-center">
-                <p>loading...</p>
-            </div>
-        </div>
-
-
-
-
-      )}
+      ) }
     </div>
 
 

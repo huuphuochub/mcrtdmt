@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { CartService } from './cart.service';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
@@ -17,7 +17,6 @@ export class CartController {
     async Add(@GetUser() user:any,
         @Body()
         body:{
-            cart_id:number,
             size_id:number,
             product_id:number,
             color_id:number,
@@ -44,4 +43,32 @@ export class CartController {
         return await this.cartservice.Getallcartitem(user.id)
     }
     
+
+    @UseGuards(JwtAuthGuardFromCookie)
+    @Post('updatecartdetail')
+    async Update(
+        @GetUser() user:any,
+        
+        @Body() body:any){
+            console.log(body);
+            
+        return await this.cartservice.Updatecartitem(user.id,body);
+        // return await this.cartservice.Deletecartitem()
+        // console.log(body);
+        
+    }
+
+    @UseGuards(JwtAuthGuardFromCookie)
+    @Post('deletecart')
+    async Delete(
+        @GetUser() user:any,
+        
+       ){
+            
+        return await this.cartservice.Deletecart(user.id);
+        // return await this.cartservice.Deletecartitem()
+        // console.log(body);
+        
+    }
+
 }

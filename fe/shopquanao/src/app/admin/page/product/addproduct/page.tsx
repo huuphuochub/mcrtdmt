@@ -52,7 +52,7 @@ export default function Addproduct() {
   const getsubcategorybyid = async (id: number) => {
     // console.log(id);
     
-    // setIdcategory(id);
+    setIdcategory(id);
     const subcate = await Getsubcatygorybyid(id);
     // console.log(subcate);
     

@@ -15,4 +15,5 @@ export interface interfaceProduct{
     discountprice:number;
     quantity:number;
     totalsold:number;
+    weigth:number;
 }
