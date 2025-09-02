@@ -1,26 +1,47 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { OrderItem } from "./orderitem.entity";
 
 @Entity("order")
 export class Order {
-    @PrimaryGeneratedColumn()
-    id:number;
+  @PrimaryGeneratedColumn()
+  id: number;
+
+  @Column()
+  user_id: number;
+
+  @Column({ unique: true })
+  ordercode:number;
+
+  @Column()
+  total_amount: number;
+
+  @Column()
+  phone:string;
+
+  @Column({default:""})
+  note:string; 
+
+  @Column()
+  address:string;
+
+  @Column()
+  status: number;
+
+  @Column({default:null})
+  email:string;
+ 
+  @CreateDateColumn()
+  created_at: Date;
+
+  @UpdateDateColumn()
+  updated_at: Date;
+
+  @Column()
+  payment_method: number;
 
     @Column()
-    user_id:number;
+    ship_fee:number;
 
-    @Column()
-    total_amount:number;
-
-    @Column()
-    status:string;
-
-    @Column()
-    created_at: Date;
-
-    @Column()
-    updated_at: Date;
-
-    @Column()
-    payment_method:number;
-
+  @OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: true })
+  items: OrderItem[];
 }

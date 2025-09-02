@@ -79,4 +79,5 @@ const deletecart = async() =>{
     }
 }
 
+
 export{addcart,Getallcartitem,Getdetailallcart,updateCartItem,deletecart}

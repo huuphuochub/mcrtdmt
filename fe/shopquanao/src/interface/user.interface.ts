@@ -11,6 +11,7 @@ export interface interfaceuser{
     address:string,
     createdAt:Date,
     phone:number,
+    phoneorder:string,
 }
 export interface interfaceSeller{
     id:number,

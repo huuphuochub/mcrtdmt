@@ -67,31 +67,35 @@ export class CartService {
         }
         }
 
-    async Getallcartitem(id_user:number){
+        async Getallcartitem(id_user: number) {
         try {
-            const cart = await this.cartrepo.findOneBy({id_user:id_user})
-            if(!cart){
-                return{
-                    success:false,
-                    message:'loi khi lay gio hang',
-                    data:null
-                }
-            }else{
-                const cartitem = await this.cartitemrepo.findBy({cart_id:cart.id})
-                return{
-                    success:true,
-                    message:'',
-                    data:cartitem
-                }
+            const cart = await this.cartrepo.findOne({
+            where: { id_user },
+            relations: ["cartItems"], // lấy luôn cartItems
+            });
+
+            if (!cart) {
+            return {
+                success: false,
+                message: "Không tìm thấy giỏ hàng",
+                data: null,
+            };
             }
+
+            return {
+            success: true,
+            message: "Lấy giỏ hàng thành công",
+            data: cart.cartItems, // có sẵn ở đây
+            };
         } catch (error) {
-            return{
-                success:false,
-                message:'loi k lay dc gio hang',
-                data:null,
-            }
+            return {
+            success: false,
+            message: "Lỗi khi lấy giỏ hàng",
+            data: null,
+            };
         }
-    }
+        }
+
     // async Deletecartitem(id:number) {
     //     try {
     //         const deleteitem = await this.cartitemrepo.delete({cart_id:id})

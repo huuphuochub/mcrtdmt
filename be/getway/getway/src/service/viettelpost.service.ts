@@ -12,6 +12,7 @@ export class ViettelpostService {
   constructor(private readonly httpService: HttpService) {
 
   }
+  // lấy tokn của viettel
   async getTokenviettel (){
     const url = 'https://partner.viettelpost.vn/v2/user/Login';
 
@@ -29,19 +30,20 @@ export class ViettelpostService {
     );
             // console.log(response);
 
-    if (response.status === 200) {
-        // console.log(response.data.token);
+        // console.log(response.data);
         
         const tokendata = {
             token:response.data.data.token,
-            create:new Date().toDateString(),
+            create: Date.now()
         }
 
         fs.writeFileSync(this.filePath, JSON.stringify(tokendata, null, 2));
 
-        return response.data.token;
-    }    
+        return response.data.data.token; 
     } catch (error) {
+        console.log(
+          'Lỗi khi lấy token Viettel:', error.message
+        );
         
     }
   }

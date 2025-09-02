@@ -1,6 +1,6 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
-import { UploadService } from './cloundinary/cloundinay.upload';
+import { UploadService } from 'src/cloundinary/cloundinay.upload';
 
 @Controller()
 export class UploadController {

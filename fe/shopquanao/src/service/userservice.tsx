@@ -1,5 +1,5 @@
     import axiosClient from "@/lib/axiosclient";
-
+// import { interfaceuser } from "@/interface/user.interface";
 
 type RegisterInput = {
   username: string;
@@ -7,6 +7,16 @@ type RegisterInput = {
   password: string;
   confirmPassword: string;
 };
+interface inforuser {
+    // username: string;
+    email: string;
+    // phone: string;
+    phoneorder:string;
+    address: string;
+    provinceId: number;
+    districtId: number;
+    wardsId: number;
+}
 type Loginuser = {
     phone:string;
     password:string;
@@ -59,6 +69,21 @@ const Getuserbyid = async() =>{
     };
     }
 }
+const updateuser=async(data:inforuser)=>{
+    try {
+        const result = await axiosClient.post(`/users/updateinfor`,data);
+        return result;
+    } catch (error) {
+        //  console.error("loi lay user");
+    return {
+           success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+    };
+    }
+
+}
 const Logout = async() =>{
     try {
         const result = await axiosClient.post(`/users/logout`);
@@ -74,4 +99,4 @@ const Logout = async() =>{
     };
     }
 }
-export {Registrationuser, Postloginuser,Getuserbyid,Logout};
+export {Registrationuser, Postloginuser,Getuserbyid,Logout,updateuser};

@@ -1,12 +1,16 @@
 import { HttpService } from "@nestjs/axios";
-import { Body, Controller, Get, Post } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, Req, UnauthorizedException } from "@nestjs/common";
+import { response } from "express";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 import { ViettelpostService } from "src/service/viettelpost.service";
-
+interface RequestWithCookies extends Request {
+  cookies: Record<string, string>;
+}
 @Controller('order')
 export class OrderController {
   constructor(private readonly httpService: HttpService,
-                private readonly ViettelpostService: ViettelpostService
+                private readonly ViettelpostService: ViettelpostService,
+                
 
   ) {}
 
@@ -44,29 +48,18 @@ const results  = sellers.data.map(seller =>{
 })
 
 // console.log(results[0].product);
-
-
+//  lấy token ở file
     const tokenfile =await this.ViettelpostService.getToken();
     let token=''
     // console.log(tokenfile);
     if(!tokenfile){
          token = await this.ViettelpostService.getTokenviettel();
         // console.log(token);
+    }else{
+      token = tokenfile.token;
     }
     
-    const create = new Date(tokenfile.create).getTime();
-    const now = Date.now();
-    const twoday = 24*60*60*1000
-
-    if(now - create > twoday){
-         token = await this.ViettelpostService.getTokenviettel();
-        // console.log(token);
-        
-    }else{
-         token = tokenfile.token;
-        // console.log(token);
-    }
-
+//  nếu có token tạo body theo fomat của viettepost
     if(token){
         // console.log('hahahahahah');
 const orderforviettel = results.map(seller => {
@@ -76,6 +69,8 @@ const orderforviettel = results.map(seller => {
     PRODUCT_WEIGHT: 200,
     PRODUCT_QUANTITY: p.quantity
   }));
+
+  
 
   const totalWeight = seller.product.reduce(
     (sum, p) => sum + p.weight * p.quantity,
@@ -131,31 +126,11 @@ const orderforviettel = results.map(seller => {
     LIST_ITEM: listproduct
   };
 });
-
-
-
-
-
-
-
-
-      
-
         const url =`https://partner.viettelpost.vn/v2/order/createOrder`
 
-        try {
-            // console.log(token);
-            
-            // const response = await lastValueFrom(
-            //       this.httpService.post(url, orderforviettel, {
-            //          headers: {
-            //             'Content-Type': 'application/json',
-            //             'Token': token, // giống bên PHP
-            //         },
-            //       }),
-            //     );
-
-             const responses = await Promise.all(
+        // gọi api viettelpost
+    const callapi = async(token) =>{
+         return await Promise.all(
               orderforviettel.map(order =>
                 lastValueFrom(
                   this.httpService.post(url, order, {
@@ -167,28 +142,56 @@ const orderforviettel = results.map(seller => {
                 )
               )
             );
-            // console.log(responses.map(res => res.data)); 
-            
-            return responses.map(res => res.data);
-                
-        } catch (error) {
-           if (error.response) {
-                console.error("❌ API Error:", error.response.data);   // server trả gì in hết
-                console.error("❌ Status:", error.response.status);
-                console.error("❌ Headers:", error.response.headers);
-            } else {
-                console.error("❌ Unknown Error:", error.message);
-            }
-            throw error;
-            
-        }
     }
+
+  let responses = await callapi(token);
+//  nếu toekn k hợp lệ thì gọi lại để lấy token mới
+  if (responses.some(res => res.data.error === true)) {
+    console.log('Token sai, lấy lại token mới...');
+
+    token = await this.ViettelpostService.getTokenviettel(); // refresh token
+    responses = await callapi(token);
+  }
+
+  return responses.map(res => res.data);
+        // try {
+        //      const responses = await Promise.all(
+        //       orderforviettel.map(order =>
+        //         lastValueFrom(
+        //           this.httpService.post(url, order, {
+        //             headers: {
+        //               'Content-Type': 'application/json',
+        //               'Token': token
+        //             }
+        //           })
+        //         )
+        //       )
+        //     );
+        //     return responses.map(res => res.data);
+
+            
+            
+                
+        // } catch (error) {
+        //    if (error.response) {
+        //         console.error("❌ API Error:", error.response.data);   // server trả gì in hết
+        //         console.error("❌ Status:", error.response.status);
+        //         console.error("❌ Headers:", error.response.headers);
+        //     } else {
+        //         console.error("❌ Unknown Error:", error.message);
+        //     }
+        //     throw error;
+            
+        // }
+    }
+
+    
     
   }
 
 
   @Post('createqrpayos')
-  async createOrder(@Body() orderData: any) {
+  async createpayos(@Body() orderData: any) {
     // Xử lý dữ liệu đơn hàng và gọi API tạo đơn hàng
     const response = await firstValueFrom(
             this.httpService.post('http://localhost:3004/order/createpaymentlink', orderData, {
@@ -204,6 +207,8 @@ const orderforviettel = results.map(seller => {
 
   @Post('checkordercode')
   async checkOrderCode(@Body() body: any) {
+    // console.log(body.ordercode);
+    
     const response = await firstValueFrom(
       this.httpService.post('http://localhost:3004/order/checkordercode', body, {
         // this.httpService.post('http://user:3004/users/login', body, {
@@ -212,10 +217,192 @@ const orderforviettel = results.map(seller => {
       }),
     );
     // console.log(body);
+    console.log(response.data.result);
     
-    // console.log(response.data);
+    if(response.data.result.success){
+      if(response.data.result.data.status === 'PAID'){
+        await firstValueFrom(
+          this.httpService.post('http://localhost:3004/order/updatestatus',{
+            ordercode:body.ordercode,
+            status:1
+          })
+        )
+      }
+    }
+    // console.log(response.data.result);
 
     return response.data;
   // return { message: 'OK', data: body };  // trả về để Nest không lỗi
+  } 
+
+  @Post('createorder')
+  async createOrder(@Body() body:any,@Req() req: RequestWithCookies ){
+  const token = req.cookies?.access_token;
+
+      if (!token) {
+     return {
+                success:false,
+                message:'chua dang nhap',
+                data:null,
+                code:404
+            }
   }
+        try {
+          const { data } = await firstValueFrom(
+            this.httpService.post('http://localhost:3004/order/createorder',body, {
+                    // this.httpService.get('http://user:3004/users/me', {
+
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }),
+          );
+          return data;
+        } catch (error: any) {
+          const errRes = error.response?.data;
+
+          // Log hoặc ném lại lỗi tùy ý
+          throw new UnauthorizedException({
+            success: false,
+            code: errRes?.code || 'SERVICE_ERROR',
+            message: errRes?.message || 'Lỗi từ user-service',
+          });
+        }
+
+  }
+
+  @Get('getorderitem/:ordercode')
+  async getorderdetail(@Req() req:RequestWithCookies,@Param('ordercode') ordercode:string){
+      const token = req.cookies?.access_token;
+      console.log('da gọi oáodjasjdksal');
+      
+
+      if (!token) {
+     return {
+                success:false,
+                message:'chua dang nhap',
+                data:null,
+                code:404
+            }
+      }
+
+              try {
+          const { data } = await firstValueFrom(
+            this.httpService.get(`http://localhost:3004/order/getorderitem/${ordercode}`, {
+                    // this.httpService.get('http://user:3004/users/me', {
+
+              headers: {
+                Authorization: `Bearer ${token}`,
+              },
+            }),
+          );
+          return data;
+        } catch (error: any) {
+          const errRes = error.response?.data;
+
+          // Log hoặc ném lại lỗi tùy ý
+          throw new UnauthorizedException({
+            success: false,
+            code: errRes?.code || 'SERVICE_ERROR',
+            message: errRes?.message || 'Lỗi từ user-service',
+          });
+        }
+
+  }
+
+
+    @Post('updatestatus')
+    async updatestatus(@Body() body: any) {
+      try {
+        const response = await firstValueFrom(
+          this.httpService.post('http://localhost:3004/order/updatestatus', body)
+        );
+
+        // chỉ trả về data cho FE
+        return {
+          success: true,
+          data: response.data,
+        };
+      } catch (error) {
+        console.error(error);
+
+        return {
+          success: false,
+          message: error.response?.data?.message || error.message,
+          code: error.response?.status || 500,
+        };
+      }
+    }
+
+    @Get('getorderitembyid/:id')
+    async Getorderitembyid(@Param('id') id:number, @Req() req:RequestWithCookies){
+      const token = req.cookies?.access_token;
+      if(!token){
+        return{
+          success:false,
+          data:null,
+          message:"vui lòng đăng nhập"
+        }
+      }
+      try {
+        const response = await firstValueFrom(
+          this.httpService.get(`http://localhost:3004/order/getorderitembyid/${id}`,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
+          })
+        );
+
+        // chỉ trả về data cho FE
+        return {
+          success: response.data.success,
+          data: response.data,
+        };
+      } catch (error) {
+        console.error(error);
+
+        return {
+          success: false,
+          message: error.response?.data?.message || error.message,
+          code: error.response?.status || 500,
+        };
+      }
+    }
+
+    @Get('getallorder')
+    async Ggetallorder(@Req() req:RequestWithCookies){
+
+      const token = req.cookies?.access_token;
+      if(!token){
+        return{
+          success:false,
+          data:null,
+          message:"vui lòng đăng nhập"
+        }
+      }
+            try {
+        const response = await firstValueFrom(
+          this.httpService.get(`http://localhost:3004/order/getallorder/`,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
+          })
+        );
+
+        // chỉ trả về data cho FE
+        return {
+          success: response.data.success,
+          data: response.data,
+        };
+      } catch (error) {
+        console.error(error);
+
+        return {
+          success: false,
+          message: error.response?.data?.message || error.message,
+          code: error.response?.status || 500,
+        };
+      }
+    }
+
 }

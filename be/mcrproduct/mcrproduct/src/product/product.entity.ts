@@ -42,7 +42,7 @@ export class Product {
     @Column({default:0})
     ratingCount:number;
 
-    @Column({default:0})
+    @Column({default:0,type: 'decimal'})
     averageRating:number;
 
     @OneToMany(() => Subimg, (Subimg) => Subimg.product)

@@ -5,8 +5,9 @@ import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import {getprovince,getDistrict, getWards} from "@/service/getlocation";
 import { useCart } from "../context/cartcontext";
-import { getshipfee,creatqrpayos } from "@/service/order.service";
+import { getshipfee,creatqrpayos,createorderservice } from "@/service/order.service";
 import Button from "@/component/ui/button";
+import { useUser } from "../context/usercontext";
 
 
 interface Province {
@@ -25,6 +26,7 @@ interface Ward {
 }
 export default function CheckoutPage() {
   const { cartdetail,loading } = useCart();
+  const {user,Updateuser,setnote} = useUser();
 
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
@@ -34,28 +36,50 @@ export default function CheckoutPage() {
     const [loadingProv, setLoadingProv] = useState(false);
     const [loadingDist, setLoadingDist] = useState(false);
     const [loadingWard, setLoadingWard] = useState(false);
+    const [error,setError] = useState<string | null>(null);
 
 const [formData, setFormData] = useState<{
   username: string;
   email: string;
   address: string,
-  phone:string,
+  // phone:string,
   streetAddress: string,
   provinceId: number;
   districtId: number;
-  wardId: number;
+  wardsId: number;
   note:string,
+  phoneorder:string,
+  paymentmethod:number,
 }>({
-  username: "",
-  email: "",
-  address: "",
-  phone:'',
+  username:  '',
+  email:  '',
+  address:  '',
+  // phone: '',
   streetAddress: "",
   provinceId: 0,
   districtId: 0,
-  wardId: 0,
-  note:''
+  wardsId: 0,
+  note:'',
+  phoneorder:'',
+  paymentmethod:0
 });
+
+useEffect(() => {
+  if (user) {
+    // console.log(user);
+    
+    setFormData((prev) => ({
+      ...prev,
+      username: user.username || "",
+      email: user.email || "",
+      phoneorder: user.phoneorder || "",
+      address: user.address || "",
+      provinceId: user.provinceId || 0,
+      districtId: user.districtId || 0,
+      wardsId: user.wardsId || 0,
+    }));
+  }
+}, [user]);
 
   type FormKeys = keyof typeof formData;
 
@@ -80,7 +104,7 @@ useEffect(() => {
     async function loadProvinces() {
       setLoadingProv(true);
       const res = await getprovince();
-      console.log(res);
+      // console.log(res);
       
       const data = await res.data;
       setProvinces(data);
@@ -115,7 +139,9 @@ useEffect(() => {
 }, [formData.provinceId]);
 
 useEffect(() => {
-  if (formData.wardId !== 0) {
+  // console.log(formData.wardsId);
+  
+  if (formData.wardsId !== 0) {
     const sendData = async () => {
       const productdata = cartdetail.map((item) => ({
         id: item.product.id,
@@ -133,21 +159,22 @@ useEffect(() => {
         username: formData.username,
         email: formData.email,
         address: formData.address,
-        phone: formData.phone,
+        // phone: formData.phone,
+        phoneorder: formData.phoneorder,
         streetAddress: formData.streetAddress,
         provinceId: formData.provinceId,
         districtId: formData.districtId,
-        wardsId: formData.wardId,
+        wardsId: formData.wardsId,
         note: formData.note,
         product: productdata,
       };
-      console.log(bodydata);
+      // console.log(bodydata);
       
       try {
         const response = await ok(bodydata);
-        console.log(response.data);
+        // console.log(response);
           const allData = response.map((item:any) => item.data);
-          console.log(allData);
+          // console.log(allData);
 
           const shipfee = (allData.reduce((total:any,item:any) => total + item.MONEY_TOTAL_FEE,0));
           
@@ -161,7 +188,7 @@ useEffect(() => {
 
     sendData();
   }
-}, [formData.wardId]);
+}, [formData.wardsId,cartdetail]);
 
 
 const ok = async (bodydata: any ) => {
@@ -194,12 +221,12 @@ useEffect(() => {
 }, [formData.districtId]);
 
   // Hàm tạo địa chỉ đầy đủ
-  const buildFullAddress = (streetAddress: string, provinceId: number, districtId: number, wardId: number) => {
+  const buildFullAddress = (streetAddress: string, provinceId: number, districtId: number, wardsId: number) => {
     // console.log(typeof provinceId,typeof districtId,typeof wardId);
     
     const province = provinces.find((p: Province) => p.PROVINCE_ID === provinceId);
     const district = districts.find((d: District) => d.DISTRICT_ID === districtId);
-    const ward = wards.find((w: Ward) => w.WARDS_ID === wardId);
+    const ward = wards.find((w: Ward) => w.WARDS_ID === wardsId);
     
     const parts = [streetAddress];
     
@@ -211,34 +238,132 @@ useEffect(() => {
     
     return parts.filter(Boolean).join(", ");
   };
+  // lưu địa chỉ khi có dữ liệu từ context
 
   const createorder = async() =>{
       const amount = (cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees
-      console.log(cartdetail);
-      const pr = cartdetail.map((item) =>{
-        return{
-          name:item.product.name,
-          quantity:item.quantity,
-          price:item.product.discountprice
-        }
-      });
-      
-      const orderdata = {
-        orderCode: generateOrderCode(),
-        amount:amount,
-        description:"thanh toan don hang",
-        items:pr,
-        cancelUrl: "http://localhost:3000/thanhkyou",
-        returnUrl: "http://localhost:3000/thanhkyou",
+      const username = formData.username;
+      const email = formData.email;
+      // const phone = formData.phone;
+      const orderCode= generateOrderCode()
+      const phoneorder = formData.phoneorder;
+      const note = formData.note;
+      const addresss = formData.address;
+      const provinceId = formData.provinceId;
+      const districtId = formData.districtId;
+      const wardsId = formData.wardsId;
+      const paymentmethod = formData.paymentmethod;
 
-      }
-      const o  = await creatqrpayos(orderdata);
-      const url = o.data.paymentLink.checkoutUrl;
-      if(url){
-        window.location.href = url;
-      }
+                if(!phoneorder){
+            setError("Vui lòng nhập số điện thoại");
+            return
+          }
+          else if(!addresss){
+            setError("Vui lòng nhập địa chỉ");
+            return
+          }else if(!provinceId || !districtId || !wardsId){
+            setError("Vui lòng chọn đầy đủ thông tin địa chỉ");
+            return
+          }else if(paymentmethod === 0){
+            setError("Vui lòng chọn phuongw thuwcs thanh toans");
+            return
+
+          }else{
+
+               const pr = cartdetail.map((item) =>{
+                return{
+                  name:item.product.name,
+                  quantity:item.quantity,
+                  price:item.product.discountprice
+                }
+              });
+
+
+                  const update = {
+              username,
+              email,
+              // phone,
+              address:addresss,
+              provinceId,
+              districtId,
+              wardsId,
+              phoneorder,
+              avatarUrl:user?.avatarUrl || "",
+            }
+            await Updateuser(update)
+            setnote(note);
+            // console.log(paymentmethod);
+            const itemproduct = cartdetail.map(item =>{
+              return{
+                id_product:item.product.id,
+                quantity:item.quantity,
+                unitprice:item.product.discountprice,
+                productname:item.product.name,
+                color_id:item.color.id,
+                size_id:item.size.id,
+
+              }
+            })
+
+            const bodyorder = {
+              total_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
+              phone:phoneorder,
+              ordercode:orderCode,
+              note:formData.note,
+              address:addresss,
+              status:0,
+              ship_fee:shipfees,
+              payment_method:paymentmethod,
+              items:itemproduct
+            }
+
+            // console.log(bodyorder);
+            const orders =await createorderservice(bodyorder);
+            console.log(orders);
+            
+
+            
+
+            const orderdata = {
+                  orderCode: orderCode,
+                  amount:amount,
+                  description:"thanh toan don hang",
+                  items:pr,
+                  cancelUrl: "http://localhost:3000/thanhkyou",
+                  returnUrl: "http://localhost:3000/thanhkyou",
+
+                }
+                const o  = await creatqrpayos(orderdata);
+                const url = o.data.paymentLink.checkoutUrl;
+                if(url){
+                  window.location.href = url;
+                }
+          }
+
+      // console.log(cartdetail);
+     
+        // console.log(formData.phoneorder);
+        
+      
+      
+      // 
+
+
+            // console.log(username, email, phone, note, addresss, provinceId, districtId, wardsId);
+            // console.log(pr);
+            // console.log(user);
+            // Updateuser
+            
+
+
+            
+
       
   }
+
+  // const updateuser =()=>{
+
+  // }
 
 
   function generateOrderCode(): number {
@@ -253,17 +378,17 @@ useEffect(() => {
       const newData = {
         ...s,
         [name]: value,
-        ...(name === "provinceId" ? { districtId: 0, wardId: 0 } : {}),
-        ...(name === "districtId" ? { wardId: 0 } : {}),
+        ...(name === "provinceId" ? { districtId: 0, wardsId: 0 } : {}),
+        ...(name === "districtId" ? { wardsId: 0 } : {}),
       };
       
       // Tự động cập nhật địa chỉ đầy đủ khi thay đổi tên đường hoặc địa chỉ hành chính
-      if (name === "streetAddress" || name === "provinceId" || name === "districtId" || name === "wardId") {
+      if (name === "streetAddress" || name === "provinceId" || name === "districtId" || name === "wardsId") {
         newData.address = buildFullAddress(
           name === "streetAddress" ? value : newData.streetAddress,
           name === "provinceId" ? Number(value) : Number(newData.provinceId),
           name === "districtId" ? Number(value) : Number(newData.districtId),
-          name === "wardId" ? Number(value) : Number(newData.wardId)
+          name === "wardsId" ? Number(value) : Number(newData.wardsId)
         );
       }
       // console.log(Number(value));
@@ -288,36 +413,37 @@ useEffect(() => {
               <div>
                 <label className="block text-sm font-medium mb-1">Họ và tên</label>
                 <input
+                disabled
                   name="username"  
                   onChange={handlechange}
                   value={formData.username}
                   type="text"
                   className="w-full border relative rounded-xl p-2 focus:ring focus:ring-blue-400"
-                  placeholder="Nguyễn Văn A"
+                  placeholder={user?.username}
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Số điện thoại</label>
                 <input
-                name="phone"  
+                name="phoneorder"  
                 onChange={handlechange}
-                value={formData.phone}
+                value={formData.phoneorder}
                   type="text"
                   className="w-full border relative rounded-xl p-2 focus:ring focus:ring-blue-400"
-                  placeholder="0123 456 789"
+                  placeholder={user?.phoneorder}
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-sm font-medium mb-1">Email</label>
+              <label className="block text-sm font-medium mb-1">Email (không bắt buộc)</label>
               <input
                 name="email"
                 onChange={handlechange}
                 value={formData.email}
                 type="email"
                 className="w-full border relative rounded-xl p-2 focus:ring focus:ring-blue-400"
-                placeholder="example@gmail.com"
+                placeholder={user?.email || 'email để nhận hóa đơn'}
               />
             </div>
             <div>
@@ -373,9 +499,9 @@ useEffect(() => {
               <div>
                 <label className="block text-sm font-medium mb-1">Xã/Phường</label>
                 <select
-                  name="wardId"
+                  name="wardsId"
                   required
-                  value={formData.wardId}
+                  value={formData.wardsId}
                   onChange={handleChange}
                   disabled={!formData.districtId || loadingWard}
                   className="w-full px-4 py-2 border relative border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 disabled:opacity-60"
@@ -409,28 +535,36 @@ useEffect(() => {
                   Lưu thông tin
                   </label>
               </div>
+              <span>{error && <p className="text-red-500">{error}</p>}</span>
             <h2 className="text-xl font-semibold border-b pb-2">Phương thức thanh toán</h2>
             <div className="space-y-2">
               <label className="flex items-center gap-2">
-                <input type="radio" name="payment" className="accent-blue-500" />
+                <input type="radio" name="paymentmethod" className="accent-blue-500 relative" value={1}
+                onChange={handlechange}
+                />
                 Thanh toán khi nhận hàng (COD)
               </label>
               <label className="flex items-center gap-2">
-                <input type="radio" name="payment" className="accent-blue-500" />
+                <input type="radio" name="paymentmethod" className="accent-blue-500 relative" value={2}
+                onChange={handlechange}
+                />
                 Chuyển khoản ngân hàng
               </label>
               <label className="flex items-center gap-2">
-                <input type="radio" name="payment" className="accent-blue-500" />
+                <input type="radio" name="paymentmethod" className="accent-blue-500 relative" value={3}
+                onChange={handlechange}
+                />
                 Thanh toán qua ví điện tử
               </label>
             </div>
 
             {cartdetail.length > 0 ? (
               <Button variant="primary" className="w-full  " onClick={createorder}>
+                
               Đặt hàng
             </Button>
             ) : (
-              <Button variant="danger" className="w-full  " onClick={createorder}>
+              <Button variant="danger" className="w-full  " >
                             Giỏ hàng trống
               </Button>
             )}

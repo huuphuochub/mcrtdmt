@@ -27,6 +27,12 @@ export class User {
   @Column({default:0})
   provinceId:number;
 
+  @Column({default:""})
+  email:string;
+
+  @Column({default:null})
+  phoneorder:string;
+
   @Column({default:0})
   wardsId:number;
 

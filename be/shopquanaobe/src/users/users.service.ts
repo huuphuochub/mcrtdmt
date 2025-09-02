@@ -48,7 +48,21 @@ export class UsersService {
 
 
     async GetuserById(id:number){
-        const result = await this.userRepo.findOne({where:{id}});
+        const result = await this.userRepo.findOne({where:{id},
+        
+        select: [
+      "id",
+      "username",
+      "email",
+      "phone",
+      "phoneorder",
+      "address",
+      "provinceId",
+      "districtId",
+      "wardsId",
+      "avatarUrl",
+    ],
+        });
         if(!result){
             return({success:false,message:"khong tim thay nguoi dung"})
         }
@@ -60,4 +74,13 @@ export class UsersService {
         // relations:[seller]
     });
   }
+
+        async updateProfile(id:number,updateData){
+            try {
+                await this.userRepo.update(id, updateData);
+                return { success: true, message: "Cập nhật thông tin thành công" ,data:null};
+            } catch (error) {
+                return { success: false, message: "Cập nhật thông tin thất bại" ,data:null};
+            }
+        }
 }

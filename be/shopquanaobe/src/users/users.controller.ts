@@ -93,9 +93,17 @@ export class UsersController {
     // console.log('da goi me');
     // console.log(user);
     
-    return await this.usersService.findById(user.id);
+    return await this.usersService.GetuserById(user.id);
   }
+
+//  @UseGuards(JwtAuthGuardFromCookie)
+//   @Get('user')
+//   async getProfleuser(@GetUser() user: any) {
+//     console.log('da goi me');
+//     console.log(user);
     
+//     return await this.usersService.findById(user.id);
+//   }    
 
   @Post('logout')
 logout(@Res({ passthrough: true }) res: Response) {
@@ -114,5 +122,15 @@ logout(@Res({ passthrough: true }) res: Response) {
   async getuserbyid(@Param('id')id:number){
     return this.usersService.GetuserById(id);
   }
-  
+
+
+   @UseGuards(JwtAuthGuardFromCookie)
+  @Post('updateprofile')
+  async updateProfile(
+    @GetUser() user: any,
+    @Body() updateData: any
+  ) {
+    return this.usersService.updateProfile(user.id, updateData);
+  }
+
 }

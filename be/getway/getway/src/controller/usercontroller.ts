@@ -143,7 +143,40 @@ async registration(@Body() body:any){
 
   }
 
+
+  @Post('updateinfor')
+  async updateinfor(@Req() req: RequestWithCookies, @Body() body:any){
+      const token = req.cookies?.access_token;
+
+      if (!token) {
+          return {
+              success: false,
+              message: 'Unauthorized',
+              code: 401,
+          };
+      }
+
+      try {
+          const { data } = await firstValueFrom(
+              this.httpService.post(`http://localhost:3004/users/updateprofile`, body, {
+                  headers: {
+                      Authorization: `Bearer ${token}`,
+                  },
+              })
+          );
+          return data;
+      } catch (error) {
+          const errRes = error.response?.data || {};
+          return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+  }
+
 }
+
 
 @Controller('seller')
 export class sellerController {
