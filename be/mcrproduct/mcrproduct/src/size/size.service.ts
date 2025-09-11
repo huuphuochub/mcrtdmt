@@ -37,7 +37,11 @@ export class SizeService {
                         data:null,
                     }
                 }
-                return variants
+                return {
+                  success:true,
+                  data:variants,
+                  message:'ok'
+                }
         } catch (error) {
             return{
                 message: error instanceof Error ? error.message : String(error),

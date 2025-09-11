@@ -1,5 +1,6 @@
 import { HttpService } from "@nestjs/axios";
-import { Body, Controller, Get, Param, Post, Req, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Post, Req, UnauthorizedException } from "@nestjs/common";
+import { ClientProxy } from "@nestjs/microservices";
 import { response } from "express";
 import { firstValueFrom, lastValueFrom } from "rxjs";
 import { ViettelpostService } from "src/service/viettelpost.service";
@@ -10,6 +11,7 @@ interface RequestWithCookies extends Request {
 export class OrderController {
   constructor(private readonly httpService: HttpService,
                 private readonly ViettelpostService: ViettelpostService,
+            @Inject('SEND_MAIL_ORDER') private readonly sendMailOrder: ClientProxy,
                 
 
   ) {}
@@ -18,8 +20,7 @@ export class OrderController {
   async GetViettelpost(
     @Body() bodys:any
     
-  ){
-    // console.log(bodys);
+  ){ 
     const grouped = bodys.product.reduce((acc, item) => {
   if (!acc[item.id_seller]) {
     acc[item.id_seller] = [];
@@ -28,15 +29,12 @@ export class OrderController {
   return acc;
 }, {});
 
-// console.log(grouped);
 // lấy các mảng của id seller
 const sellerIds = Object.keys(grouped).map(id => parseInt(id));
 
-// console.log(sellerIds);
 
 // lấy thông tin chi tiết các seller từ id_user
 const sellers:any = await this.httpService.post('http://localhost:3004/seller/inforseller', { sellerIds }).toPromise();
-// console.log(sellers.data);
 
 
 // gom product và seller thành các mảng dựa theo id_seller
@@ -47,21 +45,17 @@ const results  = sellers.data.map(seller =>{
   }
 })
 
-// console.log(results[0].product);
 //  lấy token ở file
     const tokenfile =await this.ViettelpostService.getToken();
     let token=''
-    // console.log(tokenfile);
     if(!tokenfile){
          token = await this.ViettelpostService.getTokenviettel();
-        // console.log(token);
     }else{
       token = tokenfile.token;
     }
     
 //  nếu có token tạo body theo fomat của viettepost
     if(token){
-        // console.log('hahahahahah');
 const orderforviettel = results.map(seller => {
   const listproduct = seller.product.map(p => ({
     PRODUCT_NAME: p.name,
@@ -126,12 +120,16 @@ const orderforviettel = results.map(seller => {
     LIST_ITEM: listproduct
   };
 });
+
+
+
         const url =`https://partner.viettelpost.vn/v2/order/createOrder`
 
         // gọi api viettelpost
     const callapi = async(token) =>{
          return await Promise.all(
               orderforviettel.map(order =>
+                
                 lastValueFrom(
                   this.httpService.post(url, order, {
                     headers: {
@@ -140,6 +138,7 @@ const orderforviettel = results.map(seller => {
                     }
                   })
                 )
+                
               )
             );
     }
@@ -147,7 +146,6 @@ const orderforviettel = results.map(seller => {
   let responses = await callapi(token);
 //  nếu toekn k hợp lệ thì gọi lại để lấy token mới
   if (responses.some(res => res.data.error === true)) {
-    console.log('Token sai, lấy lại token mới...');
 
     token = await this.ViettelpostService.getTokenviettel(); // refresh token
     responses = await callapi(token);
@@ -173,12 +171,7 @@ const orderforviettel = results.map(seller => {
             
                 
         // } catch (error) {
-        //    if (error.response) {
-        //         console.error("❌ API Error:", error.response.data);   // server trả gì in hết
-        //         console.error("❌ Status:", error.response.status);
-        //         console.error("❌ Headers:", error.response.headers);
-        //     } else {
-        //         console.error("❌ Unknown Error:", error.message);
+
         //     }
         //     throw error;
             
@@ -200,14 +193,12 @@ const orderforviettel = results.map(seller => {
               // withCredentials: true, // Gửi và nhận cookie
             }),
           );
-          // console.log(response.data);
           
           return response.data 
   }
 
   @Post('checkordercode')
   async checkOrderCode(@Body() body: any) {
-    // console.log(body.ordercode);
     
     const response = await firstValueFrom(
       this.httpService.post('http://localhost:3004/order/checkordercode', body, {
@@ -216,8 +207,7 @@ const orderforviettel = results.map(seller => {
         // withCredentials: true, // Gửi và nhận cookie
       }),
     );
-    // console.log(body);
-    console.log(response.data.result);
+
     
     if(response.data.result.success){
       if(response.data.result.data.status === 'PAID'){
@@ -229,7 +219,6 @@ const orderforviettel = results.map(seller => {
         )
       }
     }
-    // console.log(response.data.result);
 
     return response.data;
   // return { message: 'OK', data: body };  // trả về để Nest không lỗi
@@ -274,7 +263,6 @@ const orderforviettel = results.map(seller => {
   @Get('getorderitem/:ordercode')
   async getorderdetail(@Req() req:RequestWithCookies,@Param('ordercode') ordercode:string){
       const token = req.cookies?.access_token;
-      console.log('da gọi oáodjasjdksal');
       
 
       if (!token) {
@@ -324,7 +312,6 @@ const orderforviettel = results.map(seller => {
           data: response.data,
         };
       } catch (error) {
-        console.error(error);
 
         return {
           success: false,
@@ -359,7 +346,6 @@ const orderforviettel = results.map(seller => {
           data: response.data,
         };
       } catch (error) {
-        console.error(error);
 
         return {
           success: false,
@@ -395,7 +381,6 @@ const orderforviettel = results.map(seller => {
           data: response.data,
         };
       } catch (error) {
-        console.error(error);
 
         return {
           success: false,
@@ -405,4 +390,77 @@ const orderforviettel = results.map(seller => {
       }
     }
 
+    // @Post('sendemailorder')
+    // async senmailorder(@Body() body:any) {
+    //   return await this.sendMailOrder.send('mailer_order' ,{
+    //     body
+    //   }).toPromise();
+    // }
+
+    @Post('sendemailorder')
+    async senmailorder(@Body() body: any) {
+      this.sendMailOrder.emit('mailer_order', { body }); // không await
+      return { success: true, message: 'Email job queued' };
+    }
+
+
+    @Post('updateordermail')
+    async updateordermail(@Body() body:any){ 
+    try {
+            const response:any =   await this.httpService.post('http://localhost:3004/order/updateordermail',body)
+      return{
+        success:true,
+        data:response.data,
+        message:false
+      }
+    } catch (error) {
+      return{
+        success:false,
+        message:error,
+        data:null,
+      }
+    }       
+    }
+
+    @Get('checkhasbought/:product_id')
+    async CheckHasBought(@Param('product_id') product_id:number, @Req() req:RequestWithCookies){
+      
+         const token = req.cookies?.access_token;
+      if(!token){
+        
+        return{
+          success:false,
+          data:null,
+          message:"vui lòng đăng nhập"
+        }
+      }
+            try {
+        const response = await firstValueFrom(
+          this.httpService.get(`http://localhost:3004/order/hasbought/${product_id}`,{
+            headers: {
+                Authorization: `Bearer ${token}`,
+              },
+          })
+        );
+        
+        return{
+        success:true,
+        data:response.data.data,
+        message:false
+      }
+
+    }catch(error){
+            console.log(error);
+
+       return{
+        success:false,
+        message:error,
+        data:null,
+      }
+      
+    }
+    
+  
+
+  }  
 }

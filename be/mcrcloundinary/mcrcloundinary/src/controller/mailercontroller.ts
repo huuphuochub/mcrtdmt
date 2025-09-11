@@ -1,4 +1,4 @@
-import { Controller } from '@nestjs/common';
+import { Body, Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { MailService } from 'src/service/mailerservice';
 @Controller()
@@ -7,8 +7,12 @@ export class MailerController {
 
   // Handler cho upload 1 ảnh
   @MessagePattern('mailer_order')
-  async handleUploadImage(@Payload() data: { file: { buffer: Buffer; mimetype: string; originalname: string } }) {
-
+  async handleUploadImage(@Body() body:any) {
+    console.log(process.env.userMailer);
+    console.log(process.env.passMailer);
+    
+    
+    return await this.mailservice.sendConfirmationEmail(body);
 
   }
   

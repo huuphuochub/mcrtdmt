@@ -7,7 +7,9 @@ import {
   Body,
   UseGuards,
   Get,
-  Param
+  Param,
+  Req,
+  UnauthorizedException
 } from '@nestjs/common';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 import { HttpService } from '@nestjs/axios';
@@ -15,7 +17,10 @@ import { HttpService } from '@nestjs/axios';
 import { ClientProxy } from '@nestjs/microservices';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
-
+import { firstValueFrom } from 'rxjs';
+interface RequestWithCookies extends Request {
+  cookies: Record<string, string>;
+}
 @Controller('product')
 export class ProductController {
   constructor(
@@ -36,11 +41,19 @@ export class ProductController {
       subImages?: Express.Multer.File[]
     }
   ) {
-//     console.log("user" , user);
     
-//     console.log('FILES:', body);
-// console.log('MAIN IMAGE:', files.mainImage);
-// console.log('SUB IMAGES:', files.subImages);
+
+          const seller = await this.httpservice.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
+          
+
+          if(!seller?.data.success){
+            return{
+              success:false,
+              data:null,
+              message:'khong co thong tin seller da dang ki'
+            }
+          }
+
     let subImgUrls: string[] = [];
     let mainImgUrl=''
     const mainImage = files.mainImage?.[0];
@@ -72,22 +85,18 @@ export class ProductController {
       })),
     })
     .toPromise();
-    // console.log(subimg);
     
     subImgUrls = subimg.urls
 }
 
-  // console.log(mainImgUrl);
-  // console.log(subImgUrls);
   
   
     if(mainImgUrl && subImgUrls){
-      // console.log("da luu vao database");
       
       const data = {
         name:body.name,
         image:mainImgUrl,
-        idSeller:user.id,
+        idSeller:seller.data.data.id,
         describe:body.describe,
         price:body.price,
         idCategory:body.categoryId,
@@ -100,21 +109,16 @@ export class ProductController {
         averageRating:0,
         subcategory:body.subcategoryId
       }
-      // console.log(data);
       
       const product = await this.httpservice.post('http://localhost:3002/product/add',data).toPromise();
-      // console.log(product?.data.data.id);
 
       const subimgdata = {
         id_product:product?.data.data.id,
         url :subImgUrls,
       }
-      // console.log(subimgdata);
       
       const subimg = await this.httpservice.post('http://localhost:3002/subimg/add',subimgdata).toPromise();
 
-      // console.log(subimg);
-      
       
       
     }
@@ -132,7 +136,6 @@ async getAllProduct() {
   const response = await this.httpservice
     .get('http://localhost:3002/product/getall')
     .toPromise();
-  // console.log(response);
   
   return response!.data; // ✅ chỉ return phần data
 }
@@ -142,22 +145,22 @@ async getbeseller() {
   const response = await this.httpservice
     .get('http://localhost:3002/product/bestseller')
     .toPromise();
-  // console.log(response);
   
   return response!.data; // ✅ chỉ return phần data
 }
 @Get('productdetail/:id')
 async getproductdatil(@Param('id') id:number){
-  const response = await this.httpservice.get(`http://localhost:3002/product/productdetail/${id}`)
+  const response:any = await this.httpservice.get(`http://localhost:3002/product/productdetail/${id}`)
   .toPromise()
-  if(!response){
+  // console.log(response.data);
+  
+  if(!response.data.success){
     return {
       success:false,
       message:'khong ti thay san pham',
       data:null
     }
   }
-  // console.log(response.data);
 
   const product = response.data;
 
@@ -169,7 +172,7 @@ async getproductdatil(@Param('id') id:number){
 //   };
 // }
 
-  const [imagesRes, categoryRes, subcategoryRes, userRes, sellerRes] =
+  const [imagesRes, categoryRes, subcategoryRes,countproductRes, sellerRes] =
   await Promise.allSettled([
     this.httpservice
       .get(`http://localhost:3002/subimg/subimgbyid/${id}`)
@@ -181,7 +184,7 @@ async getproductdatil(@Param('id') id:number){
       .get(`http://localhost:3002/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
       .toPromise(),
     this.httpservice
-      .get(`http://localhost:3004/users/getuser/${response.data.data.idSeller}`)
+      .get(`http://localhost:3002/product/countproductseller/${response.data.data.idSeller}`)
       .toPromise(),
     this.httpservice
       .get(`http://localhost:3004/seller/getseller/${response.data.data.idSeller}`)
@@ -205,7 +208,8 @@ async getproductdatil(@Param('id') id:number){
 
 
   ]);
-  // console.log(images,category,subcategory,user,seller);
+
+  
   
  
 return {
@@ -218,8 +222,8 @@ return {
       categoryRes.status === "fulfilled" ? categoryRes.value?.data ?? null : null,
     subcategory:
       subcategoryRes.status === "fulfilled" ? subcategoryRes.value?.data ?? null : null,
-    user:
-      userRes.status === "fulfilled" ? userRes.value?.data ?? null : null,
+    countlproduct:
+      countproductRes.status === "fulfilled" ? countproductRes.value?.data ?? null : null,
     seller:
       sellerRes.status === "fulfilled" ? sellerRes.value?.data ?? null : null,
   },
@@ -236,5 +240,58 @@ async getSizebyidprd(@Param('id') id:number){
   return response!.data;
 }
 
+
+    @Post('searchproductkeypage')
+    async searchproduct(@Body() body:any){
+      
+      try {
+            const response:any =   await this.httpservice.post('http://localhost:3002/product/searchkeypage',body).toPromise();
+          
+      return{
+        success:true,
+        data:response.data.data,
+        message:false
+      }
+    } catch (error) {
+      return{
+        success:false,
+        message:error,
+        data:null,
+      }
+    } 
+    }
+
+       @UseGuards(JwtAuthGuardFromCookie)
+    @Post('addserch')
+    async addSearch(@Body() body:any, @Req() req:RequestWithCookies){
+      const token = req.cookies?.access_token;
+
+      if (!token) {
+        return {
+                    success:false,
+                    message:'chua dang nhap',
+                    data:null,
+                    code:404
+                }
+      }
+
+        try {
+          const { data } = await firstValueFrom(
+              this.httpservice.post(`http://localhost:3004/historysearch/add`, body, {
+                  headers: {
+                      Authorization: `Bearer ${token}`,
+                  },
+              })
+          );
+          return data;
+      } catch (error) {
+          const errRes = error.response?.data || {};
+          return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+    }
 }
   

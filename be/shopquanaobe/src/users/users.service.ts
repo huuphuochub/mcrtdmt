@@ -3,7 +3,7 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { User } from './user.entity';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 import { JwtService } from '@nestjs/jwt';
 
 
@@ -82,5 +82,11 @@ export class UsersService {
             } catch (error) {
                 return { success: false, message: "Cập nhật thông tin thất bại" ,data:null};
             }
+        }
+
+        async InForUsers(ids:number[]){
+            return await this.userRepo.find({
+                where:{id:In(ids)}
+            })
         }
 }

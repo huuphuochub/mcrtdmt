@@ -5,8 +5,11 @@ import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { CheckCircle, XCircle } from "lucide-react";
 import { useCart } from "../context/cartcontext";
+import { useUser } from "../context/usercontext";
 import { checkordercode,getorderdetail,updatestatus } from "@/service/order.service";
 import { deletecart } from "@/service/cartservice";
+import { sendmailorder } from "@/service/mail.service";
+import { updateordermail } from "@/service/order.service";
 
 interface bodyupdate {
   ordercode:number,
@@ -14,6 +17,7 @@ interface bodyupdate {
 }
 
 export default function ThanhKyouPage() {
+  const {user} = useUser()
      const searchParams = useSearchParams();
      const [loading,setLoading] = useState<boolean>(true);
      const [success,setSuccess] = useState<boolean | null>(null);
@@ -26,7 +30,7 @@ export default function ThanhKyouPage() {
 //   const status = searchParams.get("status");
   const orderCode = searchParams.get("orderCode");
     //  console.log(cartdetail);
-    console.log(orderCode);
+    // console.log(orderCode);
     
      
 useEffect(() => {
@@ -39,8 +43,9 @@ useEffect(() => {
       const res = await checkordercode(orderCode);
       // const order = await  getorderdetail(Number(orderCode));
       // console.log(order);
-      
       // console.log(res);
+      
+      console.log(res.data.result);
       if(res.data.result.success){
         if(res.data.result.data.status === "PAID"){
           const body = {
@@ -54,7 +59,33 @@ useEffect(() => {
       console.log(order);
       
           if(order.data.success){
-            console.log(order);
+            console.log(order.data.order);
+            if(order.data.order.email && !order.data.order.emailsend){
+              const arrayproduct = order.data.order.items.map((pr:any) =>{
+                return {
+                  name:pr.productname,
+                  price:pr.unitprice,
+                  quantity:pr.quantity,
+                }
+              })
+              const  body = {
+                customerName:user?.username,
+                customerEmail:order.data.order.email,
+                orderDate:order.data.order.created_at,
+                products:arrayproduct,
+                totalPrice:order.data.order.total_amount,
+                redirectUrl:`http://localhost:3000/order/orderdetail/?id=${order.data.order.id}`,
+              }
+              const ok = await sendmailorder(body);
+              console.log(ok);
+              const akjdskja = {
+                id:order.data.order.id
+              }
+              await updateordermail(akjdskja);
+              
+              
+
+            }
             
             setOrder(order.data.order)
           }else{
@@ -183,6 +214,7 @@ useEffect(() =>{
                 <h1 className="text-xl font-semibold text-gray-700 mb-2">
                 {error}
                 </h1>
+                <Link href='cart' className="bg-red-500 text-white px-4 py-2 rounded-2xl mt-4 ">hủy</Link>
                 
             </div>
             </div>

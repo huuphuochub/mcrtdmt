@@ -5,6 +5,7 @@ import { CartProvider } from "./context/cartcontext";
 import { UserProvider } from "./context/usercontext";
 import Script from "next/script";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
+import { Toaster } from "react-hot-toast";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,13 +37,15 @@ export default function RootLayout({
        >
         <UserProvider>
         <CartProvider>
-          <div className="" >
+          {/* <div className="" >
           <div id="Particles">
             <canvas id="fluid"></canvas>
               <FluidSimulation/>  
           </div>
-      </div>
+      </div> */}
         {children}
+        <Toaster position="top-right" reverseOrder={false} />
+
         </CartProvider>
         </UserProvider>
       </body>

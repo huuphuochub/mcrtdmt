@@ -1,6 +1,6 @@
-import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn } from 'typeorm';
+import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from 'src/users/user.entity';
-
+import { CommentSeller } from './commentseller.entity';
 @Entity('sellers') // 👈 bảng tên là 'users'
 export class Seller {
   @PrimaryGeneratedColumn()
@@ -12,6 +12,9 @@ export class Seller {
   @OneToOne(() => User)
   @JoinColumn({ name: 'user_id' }) // 👈 khóa ngoại
   user: User;
+
+  @Column({default:null})
+  avatar:string
 
   
 
@@ -43,6 +46,9 @@ export class Seller {
   @Column({default:null})
   describe:string;
 
+  @Column({default:null})
+  phone:string
+
     
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
@@ -51,4 +57,21 @@ export class Seller {
   
   @Column()
   status:number;
+
+    // tổng số lượt đánh giá
+  @Column({default:0})
+  ratingCount:number;
+
+
+    //tổng số sao đánh giá
+  @Column({default:0})
+  ratingSum:number;
+
+  @Column({ default: 0 })
+  soldCount: number;
+
+
+  @OneToMany(() => CommentSeller,commentseller => commentseller.id)
+  comments:CommentSeller[];
+
 }

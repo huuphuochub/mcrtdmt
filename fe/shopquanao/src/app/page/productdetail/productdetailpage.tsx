@@ -19,6 +19,14 @@ import { interfacesize } from "@/interface/interfacesize";
 import { addcart } from "@/service/cartservice";
 import { Getuserbyid } from "@/service/userservice";
 import { useCart } from "@/app/context/cartcontext";
+import { useUser } from "@/app/context/usercontext";
+import { CheckHasBought } from "@/service/order.service";
+import { addComment } from "@/service/comment.service";
+   import { GetallCommentByProduct } from "@/service/comment.service";
+   import { Comment } from "@/interface/comment.interface";
+import toast from "react-hot-toast";
+import { ImagePreview } from "@/components/ui/enlargeimg";
+
 // import { interfacesize } from "@/interface/interfacesize";
 interface ProductResponse<T> {
   success: boolean;
@@ -44,10 +52,8 @@ interface ProductDetailData {
 
       data:Subcategory | null,
    }
-   user:{
-      success:boolean,
-      data:interfaceuser | null,
-   }
+   countlproduct:number,
+
    seller:{
       success:boolean,
       data:interfaceSeller | null,
@@ -58,6 +64,11 @@ interface ProductDetailProps {
    itemid: number;
   shopid: number;
   productprop: ProductResponse<ProductDetailData>;
+}
+
+interface RatingStarsProps {
+  ratingSum: number;
+  ratingCount: number;
 }
 // interface res {
 //    data:[],
@@ -75,7 +86,9 @@ interface ResponseSizeItem {
   quantity: number;
   id: number;
 }
-
+interface commentdetail extends Comment{
+   user:interfaceuser;
+}
 type ResponseSize = ResponseSizeItem[]; 
 
 
@@ -99,7 +112,7 @@ export default function Productdetailpage({productprop} :ProductDetailProps){
    const [category,setCategory] = useState<Category | null >(null);
    const [subcategory,setSubcategory] = useState<Subcategory |null>(null);
    const [subimg, setSubimg] = useState<interfacesubimg[] | null>(null);
-   const [userseler,setUserseller] = useState<interfaceuser | null>(null);
+   // const [userseler,setUserseller] = useState<interfaceuser | null>(null);
    const [seller,setSeller] = useState<interfaceSeller | null>(null);
 const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const [arrsize,setArrsize] = useState<interfacesize[]>([])
@@ -107,7 +120,59 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const [selectedSizeId, setSelectedSizeId] = useState<number | null>(null);
    const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
    const [quantityitem,setQuantityitem] = useState<number | 1>(1);
+   const [countlproduct,setCountlproduct] = useState<number|0>(0);
+   const {user} =useUser();
+   const [hasbought,setHasbought] = useState(false);
+   const [rating,setRating] = useState(0);
+   const [contencomment,setContetncomment] = useState<string | null >(null)
+   const [pagecomment,setPagecomment] = useState(1);
+   const [cmts,setCmts] = useState<commentdetail[] >([])
+   const [loadingcmt,setLoadingcmt] = useState(true);
+   // const average = ratingCount > 0 ? ratingSum / ratingCount : 0;
 
+
+
+   const GetallCmt = async() =>{
+      if(!product) return null;
+      console.log(pagecomment);
+      
+      try {
+         const cmt = await GetallCommentByProduct(product.id,pagecomment)
+         console.log(cmt.data.data);
+         
+         if(cmt){
+            setCmts(cmt.data.data);
+         }
+      } catch (error) {
+         setLoadingcmt(false);
+      } finally{
+         setLoadingcmt(false);
+      }
+
+   }
+      const PageCmt = async () => {
+      if (!product) return null;
+
+      const nextPage = pagecomment + 1;
+      setPagecomment(nextPage);
+
+      try {
+         const cmt = await GetallCommentByProduct(product.id, nextPage);
+         if (cmt) {
+            setCmts(prev => [...prev, ...cmt.data.data]);
+         }
+      } catch (error) {
+         setLoadingcmt(false);
+      } finally {
+         setLoadingcmt(false);
+      }
+      };
+
+
+   useEffect(() =>{
+      GetallCmt();
+   },[product])
+  
     // console.log(itemid,shopid);
    // console.log(productprop);
    // tính số ngày
@@ -161,27 +226,50 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
       setProduct(productprop.data.product.data);
       setCategory(productprop.data.category.data);
       setSubcategory(productprop.data.subcategory.data)
-      setUserseller(productprop.data.user.data);
+      setCountlproduct(productprop.data.countlproduct)
       setSubimg(productprop.data.images.data);
       setSeller(productprop.data.seller.data);
+      console.log(productprop.data.product.data?.id);
+      
   
     }
   }, [productprop]); 
          useEffect(()=>{
                if(product){
                   size(product.id)
+                  checkhasbought(product.id)
                }
          },[product])
+
+      const checkhasbought = async(product_id:number)=>{
+         const hasbought = await CheckHasBought(product_id);
+         console.log(hasbought);
+         if(hasbought.data.data){
+            setHasbought(true)
+         }else{
+            setHasbought(false)
+         }
+         
+      }
+         
   const size =async(id:number) =>{
    // console.log(id);
    
       const sizes =  await  getsizebyidproduct(id)
-      // console.log(sizes.data);
       
-      setResponsesize(sizes.data)
-      // console.log(responsesize);
-      
-      
+      if(sizes.data.success === true){
+               setResponsesize(sizes.data.data)
+
+      }else{
+         setResponsesize([]);
+
+         setSelectedColorId(1000)
+         setSelectedSizeId(1000)
+         
+         
+         
+      }
+
       
   } 
   function getcolorbysize(sizeId:number){
@@ -255,11 +343,13 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
   const formatVN = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
 
   const selectedQuantity = useMemo(() => {
-  if (selectedSizeId && selectedColorId) {
+  if (selectedSizeId && selectedSizeId !== 1000 && selectedColorId && selectedColorId !== 1000) {
     const found = responsesize.find(
       item => item.size.id === selectedSizeId && item.color.id === selectedColorId
     );
     return found?.quantity || 0;
+  }else if(responsesize.length===0 && product){
+   return product?.quantity
   }
   return 0;
 }, [selectedSizeId, selectedColorId, responsesize]);
@@ -277,7 +367,7 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
 //   }
   useEffect(() =>{
    if(responsesize?.length >=1){
-      console.log(responsesize);
+      // console.log(responsesize);
       const arsize = Array.from(
          new Map(responsesize.map(item =>[item.size.id,item.size])).values()
       );
@@ -290,42 +380,48 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    if(productprop.success === false){
       return <div>{productprop.message ?? "Không tìm thấy sản phẩm"}</div>
    }
+
+   const LoginComent = () =>{
+      window.location.href='/login'
+   }
    
-//      if (!productprop.success || !productprop.data) {
-//     return <div>{productprop.message ?? "Không tìm thấy sản phẩm"}</div>;
-//   }else{
-//    console.log(productprop.data);
-//    // lay danh muc
-//    // lay danh muc con
-//    // lay anh phu
-//    // lay chi tiet nguoi ban
-//   }
-   
-//    const [product,setProduct] = useState<interfaceProduct | null> ( null)
-//    useEffect(() =>{
-//       getproduct()
-//       console.log(product);
-      
-//    },[])
-//    const getproduct = async() =>{
-//       try {
-//          const res = await getproductdetail(itemid);
-//          if(res.data.success === true){
-//             setProduct(res.data.data as interfaceProduct)
-//          }
-            
-//       } catch (error)    {
+   const PostComment =async(e: React.FocusEvent<HTMLFormElement>) =>{
+      e.preventDefault(); // chặn reload trang
+      if (!product) return null;
+
+      console.log(rating);
+      console.log(contencomment);
+      if(rating === 0){
+         alert('vui lòng chọn sao')
+         return
+      }else if(!contencomment){
+         alert('vui lòng nhập bình luận')
+         return
+      }else{
+      const body = {
+         star:rating,
+         content:contencomment,
+         product_id:product?.id
+      }
+
+      try {
+         const post = await addComment(body);
+      if(post.data.data.success){
+         toast.success('đã gửi bình luận')
+      }else{
+         toast.error('lỗi khi gửi')
+      }
+      } catch (error) {
          
-//       }
-//    }
-//   if(product){
-//    console.log(product);
-//       //  lấy danh mục
-//       // lấy danh mục com
-//       // lấy hình phụ
-//       // lấy size và màu
-//       // lấy seller
-//   }
+      }
+      
+
+      }
+      
+
+      
+      
+   }
 return(
 <div>
      {/* <div id="Particles">
@@ -344,13 +440,22 @@ return(
       <div className="flex shadow">
          <div className="max-w-[500px] p-2 ">
             <div className=" relative">
-               <Image
+               <ImagePreview
+                  src={product?.image || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
+                  alt={product?.name || 'product'}
+                  width={500}
+                  height={500}
+                  className="max-h-[500px] min-h-[500px] hover:cursor-pointer"
+
+                  />
+
+               {/* <Image
                   width={500}
                   height={500}
                   src={product?.image || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
                   alt={product?.name || 'product'}
                   className="max-h-[500px]"
-                  ></Image>
+                  ></Image> */}
                <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl">
                   <p className="text-white">-25%</p>
                </div>
@@ -358,13 +463,21 @@ return(
             <div  className="flex gap-5 mt-2">
                {subimg ? subimg.map((urlimg,index) =>(
                   <div className="border relative" key={urlimg.url || index}>
-                  <Image
+                     <ImagePreview
+                     src={urlimg?.url || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
+                     alt=""
+                  width={150}
+                  height={150}
+                  className="max-h-[150px] hover:cursor-pointer"
+
+                  />
+                  {/* <Image
                      width={150}
                      height={150}
                      src={urlimg?.url || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
                      alt=""
                      className="max-h-[150px]"
-                     ></Image>
+                     ></Image> */}
                </div>
                )) : (
                   <div className="flex gap-5">
@@ -421,17 +534,10 @@ return(
         <div className="h-4 w-24 bg-gray-200 rounded animate-pulse"></div>
       </div>
     ) : (
-      <div className="flex items-center gap-2">
-        <p className="text-yellow-600 font-medium">{product.averageRating}</p>
-        <ul className="flex gap-1">
-          <li><Star size={20} className="text-yellow-500 fill-yellow-500" /></li>
-          <li><Star size={20} className="text-yellow-500 fill-yellow-500" /></li>
-          <li><Star size={20} className="text-yellow-500 fill-yellow-500" /></li>
-          <li><Star size={20} className="text-yellow-500" /></li>
-          <li><Star size={20} className="text-yellow-500" /></li>
-        </ul>
-        <p className="text-sm text-gray-600">({product.ratingCount} lượt đánh giá)</p>
-      </div>
+      <RatingStars
+         ratingSum={product.ratingSum}
+         ratingCount={product.ratingCount}
+         />
     )}
 
     {/* Giá */}
@@ -466,7 +572,8 @@ return(
     ) : (
       <div className="flex gap-4">
         {/* Select size */}
-        <select
+        {responsesize.length>0 ? (
+         <select
           className="border rounded-md relative px-3 py-2 w-1/2"
           onChange={(e) => handlechangesize(Number(e.target.value))}
         >
@@ -475,8 +582,12 @@ return(
             <option key={size.id} value={size.id}>{size.name}</option>
           ))}
         </select>
+        ) : (
+         <div></div>
+        )}
         {/* Select màu */}
-        <select
+        {responsesize.length>0 ? (
+         <select
           className="border rounded-md px-3 py-2 relative w-1/2"
           onChange={(e) => setSelectedColorId(Number(e.target.value))}
         >
@@ -487,6 +598,9 @@ return(
               ))
             : <option value="">vui lòng chọn size</option>}
         </select>
+        ) : (
+         <div></div>
+        )}
       </div>
     )}
 
@@ -519,7 +633,8 @@ return(
                
             </div>
          </div>
-         <div>
+               {responsesize.length>0 && (
+                           <div>
             <label className="block mb-1 font-medium">Số lượng size và màu</label>
             <div className="flex items-center border w-fit rounded-md overflow-hidden">
               
@@ -527,6 +642,7 @@ return(
                
             </div>
          </div>
+               )}
       </div>
       
     )}
@@ -579,7 +695,7 @@ return(
                <Image
                   width={70}
                   height={70}
-                  src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
+                  src={seller?.avatar || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
                   alt=""
                   className="rounded-full"
                   >
@@ -587,8 +703,14 @@ return(
             </div>
             <div className="">
                <div className="">
-                  <p className="text-xl font-semibold">{userseler?.username}</p>
+                  <p className="text-xl font-semibold">{seller?.usernameseller}</p>
                   <div className="flex items-center gap-1">
+                        <p>
+                        {seller?.ratingCount && seller.ratingCount > 0
+                           ? (seller.ratingSum! / seller.ratingCount).toFixed(1) // làm tròn 1 chữ số
+                           : 0}
+                        </p>
+
                      <ul className="flex">
                         <li>
                            <Star size={15} className="text-yellow-500 fill-yellow-500"/>
@@ -606,7 +728,7 @@ return(
                            <Star size={15} className="text-yellow-500 fill-yellow-500"/>
                         </li>
                      </ul>
-                     <p className="m-0 p-0 ">3,4k</p>
+                     <p className="m-0 p-0 ">{seller?.ratingCount} lượt đánh giá</p>
                   </div>
                </div>
                <div className="flex gap-2 mt-2">
@@ -618,11 +740,11 @@ return(
          {/* thong tin khac */}
          <div className="flex-1 flex items-center justify-between p-2">
             <div className="">
-               <p className="mb-2">san pham: 100</p>
+               <p className="mb-2">san pham: {countlproduct}</p>
                <p>dia chi: {seller?.address}</p>
             </div>
             <div>
-               <p className="mb-2">san pham da ban: 10k</p>
+               <p className="mb-2">san pham da ban: {seller?.soldCount}</p>
                <p>ngay tham gia: ngay truoc</p>
             </div>
             <div>
@@ -654,16 +776,81 @@ return(
             </div>
          </div>
       </div>
+
+
+
+      {/* form dien binh luan */}
+         <form onSubmit={PostComment}>
+         <div className="shadow mt-4 p-4 bg-white rounded-md space-y-4 ">
+         <h3 className="text-lg font-semibold text-gray-800 ">Viết bình luận của bạn</h3>
+
+         {/* Tên người dùng */}
+         <div>
+            <ul className="flex gap-1 relative">
+               {[1,2,3,4,5].map((value) =>(
+                  <li
+                  key={value}
+                  onClick={() =>setRating(value)}
+                  ><Star className={`text-yellow-500 hover:cursor-pointer ${value <= rating ? "fill-yellow-500" : ''}`} /></li>
+
+               ))}
+               
+            </ul>
+         </div>
+
+         {/* Nội dung bình luận */}
+         <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Bình luận</label>
+            <textarea
+            name="contentcomment"
+            value={contencomment || ''}
+
+            onChange={(e) => setContetncomment(e.target.value)}
+               rows={4}
+               className="w-full relative border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
+               placeholder="Hãy chia sẻ cảm nghĩ của bạn về sản phẩm..."
+            ></textarea>
+         </div>
+
+         {user ? (
+            hasbought ?(
+               <div className="text-right">
+            <Button variant="primary">gui binh luan</Button>
+         </div>
+            ) : (
+               <div className="text-right">
+            <Button variant="primary" type='button'
+            
+              onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+
+            >mua san pham de binh luan</Button>
+         </div>
+            )
+         ) : (
+            <div>
+               <Button variant="primary" type='button' onClick={() => LoginComent()}>dang nhap de binh luan</Button>
+            </div>
+         )}
+
+
+         </div>
+         </form>
       {/* danh gia */}
       <div className="shadow mt-4 p-2">
          <div>
             <h1 className="text-2xl font-semibold">danh gia san pham</h1>
          </div>
          <div className="flex items-center gap-4 p-4">
+           {product && (
             <div className="flex items-center gap-2 border-r border-gray-200 pr-2">
-               <p className="text-5xl">4.7</p>
-               <Star size={50} className="text-yellow-500"/>
+               <p className="text-5xl font-bold text-yellow-600">
+                  {product.ratingCount > 0 
+                  ? (product.ratingSum / product.ratingCount).toFixed(1) 
+                  : "0.0"}
+               </p>
+               <Star size={50} className="text-yellow-500 fill-yellow-500" />
             </div>
+            )}
             <div>
                <div className="flex gap-4">
                   <Button variant="primary">tat ca</Button>
@@ -677,132 +864,57 @@ return(
          </div>
          <div className="mt-4">
             {/* user danh gia */}
-            <div className="flex gap-2 border border-gray-200 mb-4">
-               <div className="min-w-[50px] max-w-[50px] max-h-[50px] min-h-[50px] m-2">
-                <Image 
-                  width={50}
-                  height={50}
-                  src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
-                  alt=""
-                  className="rounded-full"
-                  >
-               </Image>
-               </div>
+            {!cmts || cmts.length === 0 ?(
+               <div>chưa có bình luận nào</div>
+            ):(
                <div>
-                  <div>
-                     <p>ten nguoi danh gia</p>
-                     <ul className="flex">
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                     </ul>
-                  </div>
-                  <div className="mt-4">
-                     <p className="bg-gray-200 m-2 p-2">Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượ Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượ Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻</p>
-                    <div className="flex gap-2 justify-end mr-2">
-                        <p className="border-r border-gray-200 pr-2">20/20/2020</p>
-                        <p className="border-r border-gray-200 pr-2">san pham da mua: ao khoac nam</p>
-                        <EllipsisVertical/>
-                    </div>
-                  </div>
+                  {cmts.map((item) =>(
+                     <div className="flex gap-2 border border-gray-200 mb-4 " key={item.id}>
+                        <div className="min-w-[50px] max-w-[50px] max-h-[50px] min-h-[50px] m-2">
+                        <Image 
+                           width={50}
+                           height={50}
+                           src={item.user.avatarUrl}
+                           alt={item.user.username}
+                           className="rounded-full"
+                           >
+                        </Image>
+                        </div>
+                     
+                     <div className="flex-1">
+                        <div>
+                           <div>
+                              <p>{item.user.username}</p>
+                              <RatingStarscmt
+                              star={item.star}
+                              />
+                           </div>
+                           <div className="mt-4">
+                              <p className="  rounded-2xl">{item.content}</p>
+                              <div className="flex gap-2 justify-end mr-2">
+                                    <p className="border-r border-gray-200 pr-2">{item.createAt.toLocaleString()}</p>
+                                    <EllipsisVertical/>
+                              </div>
+                           </div>
+                        </div>
+                     </div>
+                        
+                     </div>
+                  ))}
                </div>
-            </div>
+            )}
+
+
 
 {/* user 2 danh gia */}
 
-                        <div className="flex gap-2 border border-gray-200 mb-4">
-               <div className="min-w-[50px] max-w-[50px] max-h-[50px] min-h-[50px] m-2">
-                <Image 
-                  width={50}
-                  height={50}
-                  src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
-                  alt=""
-                  className="rounded-full"
-                  >
-               </Image>
-               </div>
-               <div>
-                  <div>
-                     <p className="font-semibold text-xl">ten nguoi danh gia</p>
-                     <ul className="flex">
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                     </ul>
-                  </div>
-                  <div className="mt-4">
-                     <p className="bg-gray-200 m-2 p-2">Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượ Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượ Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻 Giao nhanh, đủ số lượng, có bảo hành đầy đủ 👍🏻</p>
-                    <div className="flex gap-2 justify-end mr-2">
-                        <p className="border-r border-gray-200 pr-2">20/20/2020</p>
-                        <p className="border-r border-gray-200 pr-2">san pham da mua: ao khoac nam</p>
-                        <EllipsisVertical/>
-                    </div>
-                  </div>
-               </div>
-            </div>
 
             {/* end user danh gia */}
          </div>
          <div className="w-full text-center">
-            <Button variant="primary" >xem them</Button>
+            <Button variant="primary" onClick={() =>PageCmt()}>xem them</Button>
          </div>
       </div>
-      {/* form dien binh luan */}
-
-         <div className="shadow mt-4 p-4 bg-white rounded-md space-y-4 ">
-         <h3 className="text-lg font-semibold text-gray-800 ">Viết bình luận của bạn</h3>
-
-         {/* Tên người dùng */}
-         <div>
-            <ul className="flex gap-1 relative">
-               <li><Star className="text-yellow-500 hover:cursor-pointer" /></li>
-               <li><Star className="text-yellow-500 hover:cursor-pointer"/></li>
-               <li><Star className="text-yellow-500 hover:cursor-pointer"/></li>
-               <li><Star className="text-yellow-500 hover:cursor-pointer"/></li>
-               <li><Star className="text-yellow-500 hover:cursor-pointer"/></li>
-            </ul>
-         </div>
-
-         {/* Nội dung bình luận */}
-         <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Bình luận</label>
-            <textarea
-               rows={4}
-               className="w-full relative border rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-400"
-               placeholder="Hãy chia sẻ cảm nghĩ của bạn về sản phẩm..."
-            ></textarea>
-         </div>
-
-         {/* Gửi */}
-         <div className="text-right">
-            <Button variant="primary">gui binh luan</Button>
-         </div>
-         </div>
-
 
 
 {/* san pham tuong tu */}
@@ -849,4 +961,52 @@ return(
    <FooterPage/>
 </div>
 )
+}
+
+export function RatingStars({ ratingSum, ratingCount }: RatingStarsProps) {
+  // 🔹 Logic
+  const average = ratingCount > 0 ? ratingSum / ratingCount : 0;
+  const averageDisplay = average.toFixed(1);
+  const stars = Array.from({ length: 5 }, (_, i) => i < Math.round(average));
+
+  // 🔹 UI
+  return (
+    <div className="flex items-center gap-2">
+      <p className="text-yellow-600 font-medium">{averageDisplay}</p>
+      <ul className="flex gap-1">
+        {stars.map((filled, i) => (
+          <li key={i}>
+            <Star
+              size={20}
+              className={
+                filled
+                  ? "text-yellow-500 fill-yellow-500"
+                  : "text-yellow-500"
+              }
+            />
+          </li>
+        ))}
+      </ul>
+      <p className="text-sm text-gray-600">({ratingCount} lượt đánh giá)</p>
+    </div>
+  );
+}
+interface RatingStarscmtProps{
+   star:number
+}
+export function RatingStarscmt({ star }: RatingStarscmtProps) {
+  return (
+    <div>
+      <ul className="flex">
+         {[1,2,3,4,5].map((item) =>(
+            <li key={item}>
+            <Star 
+            size={15} 
+            className={item <= star ? `text-yellow-500 fill-yellow-500` : 'text-yellow-500'}/>
+         </li>
+         ))}
+        
+         </ul>
+    </div>
+  );
 }

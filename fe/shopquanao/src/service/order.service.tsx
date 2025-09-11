@@ -116,4 +116,28 @@ const getallorder = async() =>{
     }
 }
 
-export {getshipfee,creatqrpayos,checkordercode,createorderservice,getorderdetail,updatestatus,Getorderitembyid,getallorder};
+const updateordermail = async(body:any) =>{
+    try {
+        const up = await axiosClient.post('/order/updateordermail',body)
+        return up
+    } catch (error) {
+        return {
+            success:false,
+            message:'loi',
+            data:null
+        }
+    }
+}
+const CheckHasBought =async(product_id:number)=>{
+    try {
+        const up = await axiosClient.get(`/order/checkhasbought/${product_id}`)
+        return up
+    } catch (error) {
+        return {
+            success:false,
+            message:'loi',
+            data:null
+        }
+    }
+}
+export {getshipfee,CheckHasBought,creatqrpayos,checkordercode,createorderservice,getorderdetail,updatestatus,Getorderitembyid,getallorder,updateordermail};

@@ -12,14 +12,12 @@ export class Categorycontroller {
     const response = await this.httpService
     .get('http://localhost:3002/category/getall')
     .toPromise();
-  // console.log(response);
   
   return response!.data;  
   }
   
   @Get('getjsoncategory/:id')
   async getCategory(@Param('id') id:number){
-    // console.log(id);
     
     const response = await this.httpService.get(`http://localhost:3002/category/getbyid/${id}`)
     .toPromise()
@@ -31,7 +29,6 @@ export class Categorycontroller {
       }
     }
     // return response!.data;
-    // console.log(response.data);
     // const product = response.data;
 
     const [subcate,allcate,products] = 
@@ -44,9 +41,7 @@ export class Categorycontroller {
       .get(`http://localhost:3002/product/productsbycategory/${id}`).toPromise()
     ])
 
-    // console.log(subcate?.data);
-    // console.log(allcate?.data);
-    // console.log(products?.data);
+
     
     
     
@@ -65,7 +60,6 @@ export class Categorycontroller {
 
   @Get('getjsonsubcategory/:id')
   async getSubCategory(@Param('id') id:number){
-    // console.log(id);
     
     const response = await this.httpService.get(`http://localhost:3002/subcategory/getsubcategorybyid/${id}`)
     .toPromise()
@@ -77,7 +71,6 @@ export class Categorycontroller {
       }
     }
     // return response!.data;
-    // console.log(response.data);
     // const product = response.data;
 
     const [catedetail,allcate,products,allsubcate] = 
@@ -92,10 +85,7 @@ export class Categorycontroller {
       .get(`http://localhost:3002/subcategory/${response.data.data.categoryId}`).toPromise(),
     ])
 
-    // console.log(subcate?.data);
-    // console.log(allcate?.data);
-    // console.log(products?.data);
-    // console.log(subcatedetail?.data);
+   
     // chi tiet cate da co 
     // chi tiet sub da co
     // product da cos

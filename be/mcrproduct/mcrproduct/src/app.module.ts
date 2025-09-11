@@ -15,6 +15,10 @@ import { ProductVariants } from './size/product_variants.entity';
 import { CategoryModule } from './category/category.module';
 import { Category } from './category/category.entity';
 import { Subcategory } from './category/subcategory.entity';
+import { CommentController } from './comment/comment.controller';
+import { CommentModule } from './comment/comment.module';
+import { Comment } from './comment/comment.entity';
+
 @Module({
   imports: [
     TypeOrmModule.forRoot({
@@ -25,7 +29,7 @@ import { Subcategory } from './category/subcategory.entity';
       username:"postgres",
       password:"123456",
       database:"shopquanao",
-      entities:[Product,Subimg,Color,Size,ProductVariants,Category,Subcategory],
+      entities:[Product,Subimg,Color,Size,ProductVariants,Category,Subcategory,Comment],
       synchronize:true,
 
     }),
@@ -40,7 +44,13 @@ import { Subcategory } from './category/subcategory.entity';
     SizeModule,
     
     
-    CategoryModule], 
+    CategoryModule,
+    
+    
+    CommentModule,
+    
+    
+    ], 
   controllers: [AppController],
   providers: [AppService],
 })

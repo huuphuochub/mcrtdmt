@@ -22,5 +22,18 @@ const Registrationseller = async(data:RegisterInput) =>{
     return Promise.reject(error);
     }
 }
+const getseller = async()=>{
+    try {
+        const sellser= await axiosClient.get('seller/getseller')
+        return sellser.data
+    } catch (error) {
+        return{
+             success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+        }
+    }
+}
 
-export {Registrationseller};
+export {Registrationseller,getseller};

@@ -42,6 +42,9 @@ export class Order {
     @Column()
     ship_fee:number;
 
+    @Column({default:false})
+    emailsend:boolean
+
   @OneToMany(() => OrderItem, orderItem => orderItem.order, { cascade: true })
   items: OrderItem[];
 }

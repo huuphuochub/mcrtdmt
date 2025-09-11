@@ -77,7 +77,6 @@ export class Cartcontroller {
             size_id:number
         }]
     ){
-        // console.log(body);
 
         const productIds = body.map(item => item.product_id);
         const sizeIds = body.map(item => item.size_id);
@@ -101,7 +100,6 @@ export class Cartcontroller {
                 color: colorMap.get(item.color_id),
                 }));
 
-                // console.log(result);
                 
        return{
             success:true,
@@ -114,7 +112,6 @@ export class Cartcontroller {
 
     @Post('updatecartitem')
     async Updatecart(@Req() req:RequestWithCookies, @Body() body:any){
-        // console.log(body);
        const token = req.cookies.access_token;
         if(!token){
             return{

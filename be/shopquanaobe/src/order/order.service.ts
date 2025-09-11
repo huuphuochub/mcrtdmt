@@ -198,4 +198,50 @@ this.payos = payos;
     };
       }
     }
+
+
+  async updateordermail(id: number) {
+    try {
+      await this.orderRepo.update(
+        { id },                 // điều kiện where
+        { emailsend: true }     // dữ liệu update
+      );
+
+      return {
+        success: true,
+        message: 'Update email status thành công',
+      };
+    } catch (error) {
+      return {
+        success: false,
+        data: null,
+        message: 'Lỗi service',
+      };
+    }
+  }
+
+  // check xem user da mua san pham nay chua
+  async HasBought(user_id:number,product_id:number){
+    try {
+      const hasbought = await this.orderRepo
+      .createQueryBuilder('order')
+      .innerJoin('order.items','item')
+      .where('order.user_id = :user_id',{user_id})
+      .andWhere('order.status = :status',{status:5})
+      .andWhere('item.id_product = :product_id',{product_id})
+      .getExists();
+      return {
+        success:true,
+        data:hasbought,
+        message:'da mua san pham'
+      }
+    } catch (error) {
+      return {
+        success:true,
+        data:null,
+        message:error
+      }
+    }
+  }
+
 }

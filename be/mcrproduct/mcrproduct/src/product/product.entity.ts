@@ -3,7 +3,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTabl
 import { Color } from "src/size/color.entity";
 import { Size } from "src/size/size.entity";
 import { ProductVariants } from "src/size/product_variants.entity";
-
+import { Comment } from "src/comment/comment.entity";
 @Entity('product')
 export class Product {
     @PrimaryGeneratedColumn()
@@ -36,9 +36,12 @@ export class Product {
     @Column()
     status:number;
 
+
+    // tổng số sao
     @Column({default:0})
     ratingSum:number;
 
+    // số lượng đánh giá
     @Column({default:0})
     ratingCount:number;
 
@@ -59,10 +62,13 @@ export class Product {
 
 
     @Column({default:0,nullable:true})
-    wreigth:number;
+    weigth:number;
 
     @OneToMany(() => ProductVariants, variant => variant.product)
   variants: ProductVariants[];
+
+  @OneToMany(() => Comment, comment => comment.product,{cascade:true})
+  comments:Comment[];
 //    @OneToMany(() => Color, (color) => color.products)
 //   colors: Color[];
 

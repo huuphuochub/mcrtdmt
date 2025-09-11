@@ -8,6 +8,7 @@ import { useCart } from "../context/cartcontext";
 import { getshipfee,creatqrpayos,createorderservice } from "@/service/order.service";
 import Button from "@/component/ui/button";
 import { useUser } from "../context/usercontext";
+import Link from "next/link";
 
 
 interface Province {
@@ -146,8 +147,8 @@ useEffect(() => {
       const productdata = cartdetail.map((item) => ({
         id: item.product.id,
         quantity: item.quantity,
-        color_id: item.color.id,
-        size_id: item.size.id,
+        color_id: item.color_id,
+        size_id: item.size_id,
         weight: item.product.weigth,
         id_seller: item.product.idSeller,
         name: item.product.name,
@@ -299,8 +300,8 @@ useEffect(() => {
                 quantity:item.quantity,
                 unitprice:item.product.discountprice,
                 productname:item.product.name,
-                color_id:item.color.id,
-                size_id:item.size.id,
+                color_id:item.color_id,
+                size_id:item.size_id,
 
               }
             })
@@ -314,7 +315,8 @@ useEffect(() => {
               status:0,
               ship_fee:shipfees,
               payment_method:paymentmethod,
-              items:itemproduct
+              items:itemproduct,
+              email:email,
             }
 
             // console.log(bodyorder);
@@ -396,6 +398,16 @@ useEffect(() => {
       return newData;
     });
   }
+
+  function toSlug(name: string) {
+  return name
+    .normalize('NFD') // xóa dấu tiếng Việt
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // thay khoảng trắng & ký tự đặc biệt thành -
+    .replace(/^-+|-+$/g, '');    // xóa - thừa đầu/cuối
+}
+
 
 
   return (
@@ -573,7 +585,10 @@ useEffect(() => {
           {/* Tóm tắt đơn hàng */}
 {/* Tóm tắt đơn hàng */}
             <div className="bg-white shadow-md rounded-2xl p-6 space-y-4">
-              <h2 className="text-xl font-semibold border-b pb-2">Đơn hàng của bạn</h2>
+              <div className="flex justify-between items-center text-xl font-semibold border-b pb-2">
+                <h2 className="">Đơn hàng của bạn</h2> <Link href='/cart' className="text-[15px]  relative hover:underline hover:cursor-pointer">xem giỏ hàng</Link>
+              </div>
+              
               <h2 className="text-l font-semibold ">{cartdetail.length} sản phẩm</h2>
 
 
@@ -591,15 +606,22 @@ useEffect(() => {
               </div>
               ) : (
                 <div className="border-b border-black">
-                  {cartdetail.map((item) =>(
-                    <div className="flex items-center justify-between border-b pb-2" key={item.product.id + item.size.id + item.color.id}>
-                <span>{item.product.name} * {item.quantity}</span>
+                  {cartdetail.map((item) =>
+                    {
+                    const slug = `${toSlug(item.product.name)}-i.${item.product.idSeller}.${item.product.id}`;
+
+
+                      return(
+                    <div className="flex items-center justify-between border-b pb-2" key={item.product.id + item.size_id + item.color_id}>
+                <Link className="relative hover:cursor-pointer hover:text-red-500" href={`/${slug}`}>{item.product.name} * {item.quantity}</Link>
                 <div className="text-right">
-                  <span className="line-through text-gray-400 text-sm block">{item.product.price}</span>
-                  <span className="text-red-500 font-semibold">{item.product.discountprice}</span>
+                  <span className="line-through text-gray-400 text-sm block">{item.product.price.toLocaleString()} đ</span>
+                  <span className="text-red-500 font-semibold">{item.product.discountprice.toLocaleString()} đ</span>
                 </div>
               </div>
-                  ))}
+                  )
+                    }
+                  )}
               
               </div>
               )}
@@ -622,20 +644,20 @@ useEffect(() => {
               {/* Tổng kết */}
               <div className="flex items-center justify-between border-b pb-2">
                 <span>Tạm tính</span>
-                <span>{cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0)}</span>
+                <span>{cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0).toLocaleString()} đ</span>
               </div>
               
               <div className="flex items-center justify-between border-b pb-2 text-green-600">
                 <span>Tiết kiệm</span>
-                <span>{cartdetail.reduce((total,item) => total + (item.product.price - item.product.discountprice) * item.quantity,0)}</span>
+                <span>{cartdetail.reduce((total,item) => total + (item.product.price - item.product.discountprice) * item.quantity,0).toLocaleString()} đ</span>
               </div>
               <div className="flex items-center justify-between border-b pb-2">
                 <span>Phí vận chuyển</span>
-                <span>{shipfees}</span>
+                <span>{shipfees.toLocaleString()} đ</span>
               </div>
               <div className="flex items-center justify-between font-semibold text-lg">
                 <span>Tổng cộng</span>
-                <span>{(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees}</span>
+                <span>{((cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees).toLocaleString()} đ</span>
               </div>
             </div>
 

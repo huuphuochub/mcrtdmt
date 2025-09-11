@@ -133,4 +133,13 @@ logout(@Res({ passthrough: true }) res: Response) {
     return this.usersService.updateProfile(user.id, updateData);
   }
 
+      //   lay thong tin user tu mang id user
+  @Post('inforusers')
+  async InforUsers(@Body() ids:{ok:number[]}){
+    console.log(ids);
+    
+    return await this.usersService.InForUsers(ids.ok)
+    
+  }
+
 }

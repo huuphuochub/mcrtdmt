@@ -179,7 +179,7 @@ function toSlug(name: string) {
                           {prd.name}
                         </h4>
                         
-                        <p className="text-sm text-gray-600">{prd.price} đ</p>
+                        <p className="text-sm text-gray-600">{prd.price.toLocaleString()} đ</p>
                       </div>
                         <div className="w-24 h-24 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
                         <Image

@@ -21,7 +21,7 @@ export class SellerService {
   }
   async Getsellerbyiduser(id:number){
     try {
-      const seller = await this.sellerRepo.findOne({where:{user_id:id}});
+      const seller = await this.sellerRepo.findOne({where:{id:id}});
       if (!seller) {
       return {
         success: false,
@@ -44,11 +44,35 @@ export class SellerService {
     }
   }
 
-
-  async Inforseller(ids:number[]) :Promise<Seller[]>{  
+// lay mang seller tu mang id user
+  async Inforsellers(ids:number[]) :Promise<Seller[]>{  
       return await this.sellerRepo.find({
-        where:{user_id:In(ids)}
+        where:{id:In(ids)}
       });
       
+  }
+
+  //  lay 1 seller tu id user
+  async Inforseller(id:number){
+    try {
+      const seller =  await this.sellerRepo.findOne({where:{user_id:id}})
+      if(!seller){
+        return{
+        success :false,
+        data:seller
+      }
+      }
+      return{
+        success :true,
+        data:seller
+      }
+    } catch (error) {
+      return {
+      success: false,
+      message: 'Lỗi khi lấy thông tin seller',
+      data: null,
+    };
+    }
+
   }
 }

@@ -8,6 +8,10 @@ module.exports = {
   theme: {
     extend: {
       keyframes: {
+          progress: {
+          '0%': { width: '0%' },
+          '100%': { width: '100%' },
+        },
         fall: {
           '0%': { 
             transform: 'translateY(-100px) rotate(0deg)', 
@@ -21,6 +25,8 @@ module.exports = {
       },
       animation: {
         fall: 'fall 5s linear forwards',
+    progressLoop: "progressLoop 2s ease-in-out infinite alternate",
+
       },
     },
   },

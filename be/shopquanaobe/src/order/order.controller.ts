@@ -51,7 +51,7 @@ export class OrderController {
 
     @Post('updatestatus')
     async Updatestatusorder(@Body() body:any){
-        console.log(body);
+        // console.log(body);
         
         return await this.orderService.updatestatus(Number(body.ordercode),body.status);
     }   
@@ -71,4 +71,30 @@ export class OrderController {
         return await this.orderService.getallorder(user.id);
     }
 
+        @Post('updateordermail')
+    async updateordermail(@Body() body:any) {
+        console.log(body);
+        
+        return await this.orderService.updateordermail(Number(body.id))
     }
+
+
+    // check xem sản phẩm đã mua từ user này chưa
+    @UseGuards(JwtAuthGuardFromCookie)
+    @Get('hasbought/:product_id')
+    async hasBought(@Param('product_id') product_id:number , @GetUser() user:any){
+        // console.log("da gọi has bó");
+        console.log(user);
+        console.log(product_id);
+        
+        
+        const haha = await this.orderService.HasBought(user.id,product_id);
+        console.log(haha);
+        return haha
+        
+    }
+
+    }
+
+
+

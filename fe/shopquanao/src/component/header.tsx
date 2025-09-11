@@ -1,7 +1,7 @@
 
 
 "use client";
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, use } from "react";
 import Image from "next/image";
 import Cartheader from "./cart/cart";
 import { Getuserbyid,Logout } from "@/service/userservice";
@@ -9,8 +9,12 @@ import { Getallcartitem } from "@/service/cartservice";
 import Link from "next/link";
 import { useCart } from "@/app/context/cartcontext";
 import { useUser } from "@/app/context/usercontext";
+import useCategoryStore from "@/app/context/categorycontext";
+import { useRouter } from "next/navigation";
+import { deletehistory, getHistorysearch } from "@/service/product.service";
 
 import { User,ShoppingCart,Heart,Search,ClockFading,X } from 'lucide-react';
+import { AddKeywordSearch } from "@/service/product.service";
 
 
 interface Carts{
@@ -32,49 +36,38 @@ export default function Header(){
      const { cart, addToCart } = useCart();
    
 const [isOpen, setIsOpen] = useState(false);
+const [loadinghistory,setLoadinghistory] = useState(true);
 // const [added, setAdded] = useState(false);
-
+const [history,setHistory]=useState<any[] >([]);
 const [isOpenCartheader, setIsopencartheader] = useState(false);
 const [isOpenprofile, setIsopenprofile] = useState(false);
 const [cartitem,setCartitem] = useState<CartItem[]>([])
-const {user} = useUser();
-// const [fetched, setFetched] = useState(false);
-//   const [item,setItem] = useState<Carts[]>([]);
+const {user,seller} = useUser();
+  const router = useRouter();
 
+  const { categorys,fetchCategorys } = useCategoryStore();
+    const [keyword, setKeyword] = useState("");
 
+ useEffect(() => {
+    fetchCategorys();
+    // console.log(categorys);
+    
+  }, []);
 
 const wrapperRef = useRef<HTMLDivElement>(null);
+  const handleSearch = async() => {
+    if (keyword.trim()) {
+      console.log(encodeURIComponent(keyword.trim()));
+      if(user){
+         const ok =await AddKeywordSearch({keyword:keyword})
+         console.log(ok);
+         
+         
+      }
+      router.push(`/search/?keyword=${encodeURIComponent(keyword.trim())}`);
+    }
+  };
 
-// interface Userheader  {
-//    username:string,
-//    image:string,
-//    avatarUrl:string,
-// }
-// const [users, setUsers] = useState<Userheader | null>(null);
-
-// useEffect(() =>{
-//    if (!users) {
-//     Getuser();
-//   }
-   
-// },[users])
-
-// useEffect(() => {
-//   if (users) {
-//      const fetchCart = async () => {
-//       const data = await getallcartitem();
-//       setCartitem(data.data.data); 
-//       // console.log(data.data.data);
-      
-//     };
-//     fetchCart();
-//   }else{
-//     const cartStr = localStorage.getItem("cart");
-//     const localCart = cartStr ? JSON.parse(cartStr) : [];
-//     setCartitem(localCart);
-   
-//   }
-// }, [users]);
 useEffect(() => {
   if (cartitem.length > 0) {
     cartitem.forEach((element: Carts) => {
@@ -88,28 +81,43 @@ useEffect(() => {
   }
 }, [cartitem, addToCart]);
 
+const fetahsearch =async() =>{
+      setIsOpen(true);
 
-
-
-// const getallcartitem = async() =>{
-//    return await Getallcartitem();
-//    // console.log(cartitems.data.data);
+  if(user){
+    try {
+      const keywords = await getHistorysearch();
+      setHistory(keywords.data.data)
+   // console.log(keywords.data.data);
+   } catch (error) {
+      setLoadinghistory(false);
+   }finally{
+      setLoadinghistory(false);
+   }
+  }
    
-   
-// }
-// const Getuser = async() =>{
-//    const user = await Getuserbyid()
-//    // console.log(user);
-   
-//    if( user.success){
-//       setUsers(user.data[0]);
-//       // console.log(user.data);
+}
 
-//       // console.log(users);
+const handledeletehistory =async(id:number)=>{
+   // console.log(id);
+   
+   const xoa = await deletehistory(id);
+   // console.log(xoa);
+   
 
-      
-//    }
-// }
+   const  ok = history.filter((item) => item = item.id !==id)
+   // console.log(ok);
+   setHistory(ok);
+} 
+
+  function toSlug(name: string) {
+  return name
+    .normalize('NFD') // xóa dấu tiếng Việt
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // thay khoảng trắng & ký tự đặc biệt thành -
+    .replace(/^-+|-+$/g, '');    // xóa - thừa đầu/cuối
+}
 const logoutsubmit = async() =>{
    Logout();
    window.location.href="/login"
@@ -151,22 +159,27 @@ return(
                </li>
                <div className="relative group inline-block py-[20px]">
                   <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300">
-                  <Link href="http://localhost:3000/Category">Danh mục</Link>
+                  <Link href="http://localhost:3000/">Danh mục</Link>
                   </li>
                   <div className="fixed left-0 top-[80px] w-lvw  h-[300px] bg-white z-50 border  hidden group-hover:block">
                      <ul className="flex flex-wrap gap-4 p-4">
-                        {Array(12)
-                        .fill("quần áo")
-                        .map((text, i) => (
-                        <li key={i} className="w-[120px] text-gray-700 hover:text-black cursor-pointer">
-                           <p>{text}</p>
-                        </li>
-                        ))}
+                       {(categorys ?? []).map((cat) =>{
+                     const slug = `${toSlug(cat.name)}-cat.${cat.id}`
+                        return(
+                           <Link href={`/${slug}`} key={cat.id} className="w-[120px] text-gray-700 hover:text-black cursor-pointer">
+                           <p>{cat.name}</p>
+                        </Link>
+                        )
+                       })}
                      </ul>
                   </div>
                </div>
                <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300 py-[20px]">
-                  <Link href="http://localhost:3000/sellerregistration">Đăng kí bán hàng</Link>
+                  {seller ? (
+                     <Link href="http://localhost:3000/admin">Cửa hàng của bạn</Link>
+                  ) : (
+                     <Link href="http://localhost:3000/sellerregistration">Đăng kí bán hàng</Link>
+                  )}
                </li>
             </ul>
          </div>
@@ -175,29 +188,43 @@ return(
          <div ref={wrapperRef} className="relative w-full max-w-md">
             <input
                type="text"
-               onFocus={() => setIsOpen(true)}
+               value={keyword}
+               onChange={(e) => setKeyword(e.target.value)}
+               onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                           e.preventDefault();
+                           handleSearch();
+                        }
+                     }}
+               onFocus={() => fetahsearch()}
             placeholder="Tìm kiếm sản phẩm..."
-            className="w-full pl-4 pr-10  border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            className="w-full pl-4 pr-10 placeholder:text-xl border border-gray-300 rounded-full focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
             />
             <Search className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 hover:text-blue-600 cursor-pointer" />
             {isOpen && (
-            <div className="absolute w-full h-[600px] overflow-y-auto bg-white border border-gray-300 rounded-xl shadow-lg mt-2 z-50">
+            <div className="absolute w-full h-[600px] overflow-y-auto hide-scrollbar bg-white border border-gray-300 rounded-xl shadow-lg mt-2 z-50">
 
-                  <p className=" sticky top-0 p-3 font-semibold text-gray-700 border-b border-gray-200 z-10 bg-white">
+                  <p className=" sticky text-xl top-0 p-3 font-semibold text-gray-700 border-b border-gray-200 z-10 bg-white">
                      Lịch sử tìm kiếm
                   </p>
-               {[...Array(112)].map((_, i) => (
+
+               {history.length>0 && history.map((item:any,i:number)  =>(
                <div
                   key={i}
-                  className="flex items-center justify-between px-4 py-2 hover:bg-gray-100 transition"
+                  className="flex items-start justify-between px-4 py-2 hover:bg-gray-100 transition border-b"
+                  
                   >
-                  <div className="flex items-center gap-2 cursor-pointer text-gray-700">
-                     <ClockFading />
-                     <p className="text-xl">quần nam đẹp {i + 1}</p>
+                  <div className="flex items-start gap-2 cursor-pointer text-gray-700 "
+                  
+                  onClick={() => router.push(`/search/?keyword=${encodeURIComponent(item.keyword)}`)}
+                  >
+                     {/* <ClockFading className="size-6"/> */}
+                     <p className="text-[20px] p-0 m-0">{item.keyword}</p>
                   </div>
-                  <X className="cursor-pointer text-gray-400 hover:text-red-500 transition" />
+                  <X className="cursor-pointer size-6 p-0 m-0 text-gray-400 hover:text-red-500 transition" onClick={() =>handledeletehistory(item.id)}/>
                </div>
-               ))}
+              ) )}   
+
             </div>
             )}
          </div>
@@ -209,7 +236,7 @@ return(
                   <div ></div>
                )}
             {isOpenCartheader && (
-                <Cartheader  onClose={Opencart} />
+                <Cartheader  onClose={Opencart} isOpen={isOpenCartheader} />
             )}
          </div>
          <div>

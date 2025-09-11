@@ -72,4 +72,56 @@
             
         }
     }
-    export {Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct}
+
+    const searchproduct =async(data:any)=>{
+        try {
+            const result = await axiosClient.post('/product/searchproductkeypage',data);
+            
+            return result
+        } catch (error) {
+    return {
+          success: false,
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+    };
+        }
+    }
+
+    const AddKeywordSearch =async(body:any) =>{
+        try {
+            const result = await axiosClient.post('/product/addserch',body)
+        } catch (error) {
+            
+        }
+    }
+
+    const getHistorysearch = async() =>{
+        try {
+            const search = await axiosClient.get('/users/gethistorysearch');
+            return search
+        } catch (error) {
+            return{
+                success:false,
+                message:'loi',
+                data:null,
+            }
+        }
+    }
+
+    const deletehistory = async(id:number)=>{
+        try {
+            const xoa = await axiosClient.delete(`/users/deletesearch/${id}`);
+            return xoa
+        } catch (error) {
+            return{
+                success:false,
+                message:'loi',
+                data:null,
+            }
+        }
+    }
+
+
+
+    export {Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}

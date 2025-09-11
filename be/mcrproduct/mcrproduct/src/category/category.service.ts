@@ -18,7 +18,7 @@ export class CategoryService {
         if(!result){
             return({success:false,data:null,message:"khong co danh muc"})
         }
-        console.log(result);
+        // console.log(result);
         
         return {
             success:true,
@@ -26,7 +26,7 @@ export class CategoryService {
         };
     }
     async Getcategorybyid(id:number){
-        console.log(id);
+        // console.log(id);
         
         try {
             const result = await this.cateRepo.findOne({where:{id:id}})

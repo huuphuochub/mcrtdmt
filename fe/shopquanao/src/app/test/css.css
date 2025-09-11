@@ -1,0 +1,33 @@
+@keyframes progress {
+  0% {
+    width: 0%;
+    left: 0;
+  }
+  100% {
+    width: 100%;
+    left: 0;
+  }
+}
+.progress-line{
+    height: 100%;
+            width: 0; /* Bắt đầu với chiều rộng 0 */
+            background-color: #4CAF50;
+            border-radius: 5px;
+            animation: expand-and-reset 1.5s linear infinite; /* Animation kéo dài và lặp lại */
+            transform-origin: left; 
+}
+
+@keyframes expand-and-reset {
+            0% {
+                width: 0; /* Bắt đầu với chiều rộng 0 */
+                transform: scaleX(0); /* Dùng scaleX để animation mượt mà hơn */
+            }
+            50% {
+                width: 33%; /* Đạt chiều rộng 100% */
+                transform: scaleX(1);
+            }
+            100% {
+                width: 33%; /* Giữ ở 100% trước khi lặp lại */
+                transform: scaleX(1);
+            }
+        }

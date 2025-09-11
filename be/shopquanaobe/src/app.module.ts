@@ -20,7 +20,10 @@ import { OrderItem } from './order/orderitem.entity';
 import { Order } from './order/order.entity';
 import { ConfigModule } from '@nestjs/config';
 // import { CartController } from './cart/cart.controller';
-
+// import { HistorysearchController } from './historysearch/historysearch.controller';
+import { HistorysearchModule } from './historysearch/historysearch.module';
+import { CommentSeller } from './seller/commentseller.entity';
+import { HistorySearch } from './historysearch/historysearch.entity';
 
 
 @Module({
@@ -36,12 +39,12 @@ import { ConfigModule } from '@nestjs/config';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities:[User,Seller,Cart,CartItem,Order,OrderItem],
+      entities:[User,Seller,Cart,CartItem,Order,OrderItem,CommentSeller,HistorySearch],
       synchronize:true,
     }),
     UsersModule, 
      
-    SellerModule, AuthModule, CartModule, OrderModule
+    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule
   
   ],
   controllers: [AppController],

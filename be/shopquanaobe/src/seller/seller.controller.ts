@@ -31,10 +31,26 @@ async Registerseller(
         return this.sellerservice.Getsellerbyiduser(id);
       } 
 
+
+    //   lay thong tin seller tu mang id user
     @Post('inforseller')
-    async inforseller(@Body() ids:{sellerIds:number[]}){
+    async inforsellers(@Body() ids:{sellerIds:number[]}){
         console.log(ids);
         
-        return this.sellerservice.Inforseller(ids.sellerIds);
+        return this.sellerservice.Inforsellers(ids.sellerIds);
     }
+
+    // lay seller tu id user
+
+    @Post('inforsellerbyuser')
+    async inforseller(@Body() id:{user_id:number}){
+        console.log(id.user_id);
+        
+        return this.sellerservice.Inforseller(id.user_id);
+    }
+
+    // @Post('getseller')
+    // async 
+
+
 }

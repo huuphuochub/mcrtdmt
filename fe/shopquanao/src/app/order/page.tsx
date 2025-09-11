@@ -71,9 +71,17 @@ export default function Order() {
                         <span className="text-blue-600 font-semibold">
                           Đang vận chuyển
                         </span>
+                      ) : order.status === 4 ? (
+                        <span className="text-green-600 font-semibold">
+                          Hoàn thành
+                        </span>
+                      ) : order.status === 5 ?(
+                        <span className="text-red-600 font-semibold">
+                          Bị Hủy
+                        </span>
                       ) : (
                         <span className="text-gray-600 font-semibold">
-                          Hoàn thành
+                          Không xác định
                         </span>
                       )}
                     </td>

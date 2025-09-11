@@ -58,4 +58,25 @@ export class ProductController {
         }
         return await this.productservice.Getbatch(ids);
     }
+
+    @Post('searchkeypage')
+    async searchproduct(@Body() body:any){
+        // console.log('da gọi search');
+        
+        
+        return await this.productservice.searchProductsService(body);
+        
+        
+    }
+    @Get('countproductseller/:id')
+    async gettotalproductseller(@Param('id') id:number ){
+        
+        
+        return await this.productservice.countproduct(id);
+        
+    }
+    @Post('updateratingproduct')
+    async apdateRating(@Body() body:any){
+        return await this.productservice.UpdateRating(body);
+    }
 }

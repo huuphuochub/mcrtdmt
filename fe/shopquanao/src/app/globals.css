@@ -150,3 +150,20 @@ body {
   }
 
 }
+
+/* Ẩn thanh scroll mặc định nhưng vẫn cuộn được */
+.hide-scrollbar::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hide-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #9ca3af; /* xám Tailwind gray-400 */
+  border-radius: 9999px;     /* bo tròn */
+}
+
+.hide-scrollbar::-webkit-scrollbar-track {
+  background-color: #f3f4f6; /* xám nhạt Tailwind gray-100 */
+}
+
+
+

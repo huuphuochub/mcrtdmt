@@ -12,6 +12,7 @@ import { Cartcontroller } from './controller/cart.controller';
 import { OrderController } from './controller/order.controller';
 import { ViettelpostService } from './service/viettelpost.service';
 import { ConfigModule } from '@nestjs/config';
+import { CommentProductController } from './controller/commentproduct.controller';
 
 
 @Module({
@@ -29,6 +30,17 @@ import { ConfigModule } from '@nestjs/config';
 
           queue: 'upload_queue',
           queueOptions: { durable: false },
+        },
+      },
+       {
+        name: 'SEND_MAIL_ORDER',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'],
+            //  urls: ['amqp://rabbitmq:5672'],
+
+          queue: 'mailer_order',
+          queueOptions: { durable: false }, 
         },
       },
       {
@@ -49,6 +61,6 @@ import { ConfigModule } from '@nestjs/config';
       exports: [ViettelpostService], // nếu muốn dùng ở chỗ khác
 
 
-  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController],
+  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController ,CommentProductController]
 })
 export class AppModule {}

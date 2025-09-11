@@ -1,9 +1,11 @@
-import { Controller, Post, Body, Res, HttpStatus, Get, Req } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpStatus, Get, Req, UseGuards, Delete, Param } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { Response } from 'express';
 import { UnauthorizedException } from '@nestjs/common';
 
 import { firstValueFrom } from 'rxjs';
+import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -25,7 +27,6 @@ export class UserController {
           withCredentials: true, // Gửi và nhận cookie
         }),
       );
-      // console.log(response);
       
       // 👇 Nhận token từ user-service (nếu bạn trả về token)
       const token = response.data.token;
@@ -116,7 +117,7 @@ async logout(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Re
   } catch (error) {
     // Nếu user-service báo lỗi thì vẫn clear cookie,
     // vì mục đích chính là đăng xuất khỏi FE
-    // console.error('Logout error:', error.response?.data || error.message);
+
   }
 
   // Xoá cookie tại gateway
@@ -132,10 +133,53 @@ async logout(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Re
   };
 }
 
+@Get('gethistorysearch')
+async gethistory(@Req() req:RequestWithCookies)
+{
+const token = req.cookies?.access_token;
+
+      if (!token) {
+          return {
+              success: false,
+              message: 'Unauthorized',
+              code: 401,
+          };
+      }
+
+      try {
+          const { data } = await firstValueFrom(
+              this.httpService.get(`http://localhost:3004/historysearch/gethistorybyuser`, {
+                  headers: {
+                      Authorization: `Bearer ${token}`,
+                  },
+              })
+          );
+          return data;
+      } catch (error) {
+          const errRes = error.response?.data || {};
+          return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+            
+ }
+
+ @Delete('deletesearch/:id')
+ async deletesearch(@Param('id') id:number){
+  
+    const ok = await
+    firstValueFrom(
+    
+    this.httpService.delete(`http://localhost:3004/historysearch/deletehistory/${id}`))
+    return   ok.data
+    
+  
+  }
 
 @Post('register')
 async registration(@Body() body:any){
-    // console.log(body);
     const {data} = await firstValueFrom(
         this.httpService.post(`http://localhost:3004/users/register`,body)
     )
@@ -187,10 +231,8 @@ export class sellerController {
       @Req() req: RequestWithCookies,
       
       @Body() body:any){
-      // console.log(body);
         const token = req.cookies?.access_token;
 
-        // console.log(body);
       if(!token){
         return {
           success: false,
@@ -215,8 +257,8 @@ export class sellerController {
 
     @Post('login')
     async loginSeller(@Body() body:any, @Res({ passthrough: true }) res: Response){
-        // console.log(body);
-       const {data} = await firstValueFrom(
+                   
+      const {data} = await firstValueFrom(
             this.httpService.post(`http://localhost:3004/seller/login`,body,{
                 withCredentials:true
             })
@@ -261,7 +303,6 @@ export class sellerController {
         } catch (error) {
             // Nếu user-service báo lỗi thì vẫn clear cookie,
             // vì mục đích chính là đăng xuất khỏi FE
-            // console.error('Logout error:', error.response?.data || error.message);
         }
 
         // Xoá cookie tại gateway
@@ -275,5 +316,36 @@ export class sellerController {
             success: true,
             message: 'Đăng xuất thành công',
         };
+    }
+
+    @UseGuards(JwtAuthGuardFromCookie)
+    @Get('getseller')
+    async Getsellerbyiduser(@GetUser() user:any ){
+      
+      if(!user){
+        return{
+          success:false,
+          message:'bui long dang nhap',
+          data:null
+        }
+
+      }
+          const seller = await this.httpService.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
+                        
+
+          if(!seller?.data.success){
+            return{
+              success:false,
+              data:null,
+              message:'khong co thong tin seller da dang ki'
+            }
+          }else{
+            return{
+               success:true,
+              data:seller.data.data,
+              message:''
+            }
+          }
+
     }
 }

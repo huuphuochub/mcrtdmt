@@ -4,6 +4,7 @@ import { Product } from './product.entity';
 import { In, Repository } from 'typeorm';
 import { CreateProductDto } from './product.dto';
 
+
 interface PaginationOptions{
   limit:number;
   page:number;
@@ -18,10 +19,12 @@ export class ProductService {
 
 
     ){}
+
+
     
 // them san pham
     async addProduct(dto: CreateProductDto) {
-          console.log(dto);
+          // console.log(dto);
 
   try {
     const newProduct = this.productRepo.create(dto);
@@ -148,6 +151,17 @@ export class ProductService {
     }
   }
 
+  async countproduct(id_seller:number){
+   try {
+    const total = await this.productRepo.count({
+      where: { idSeller: id_seller },
+    });
+    return total;
+  } catch (error) {
+    throw error;
+  }
+  }
+
 
   async Getbatch(ids:number[]){
     try {
@@ -157,4 +171,54 @@ export class ProductService {
       
     }
   }
+
+
+
+   async searchProductsService(body:any) {
+    const take = 12;
+    const skip = (body.page - 1) * take;
+
+    const [products, total] = await this.productRepo
+      .createQueryBuilder('product')
+      .where(
+        `unaccent(lower(product.name)) LIKE unaccent(lower(:keyword))`,
+        { keyword: `%${body.keyword}%` },
+      )
+      .orderBy('product.id', 'DESC')
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
+      // console.log(products);
+      
+
+    return {
+      data: products,
+      total,
+      currentPage: body.page,
+      totalPages: Math.ceil(total / take),
+    };
+  }
+
+    async UpdateRating(body: any) {
+      try {
+        const pr = await this.productRepo.findOne({
+          where: { id: body.product_id },
+        });
+
+        if (!pr) {
+          throw new Error("Product not found");
+        }
+
+        pr.ratingSum = (pr.ratingSum || 0) + body.star;
+        pr.ratingCount = (pr.ratingCount || 0) + 1;
+
+        await this.productRepo.save(pr);
+        return pr;
+      } catch (error) {
+        console.error("UpdateRating error:", error);
+        throw error;
+      }
+    }
+
 }

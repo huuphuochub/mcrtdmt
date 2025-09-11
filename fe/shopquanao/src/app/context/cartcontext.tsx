@@ -16,6 +16,8 @@ export interface CartItem {
 
 export interface Cartdetail {
   cart_id:number;
+  color_id:number;
+  size_id:number;
   product: interfaceProduct;
   size: interfacesize;
   color: interfacecolor;
@@ -46,7 +48,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     const fetchCart = async () => {
       setLoading(true);
-      console.log('loading true');
+      // console.log('loading true');
       if (user) {
         try {
           const data = await Getallcartitem();
@@ -80,7 +82,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       
       try {
         const data = await Getdetailallcart(cart);
-        // console.log(data.data.data.length);
+        // console.log(data.data);
         
         setCartdetail(data.data.data || []);
       } catch (err) {
@@ -141,10 +143,10 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     // console.log(cartdetail);
 
     const updatedata = cartdetail.map((item) =>({
-       color_id: item.color.id,
+       color_id: item.color_id,
        product_id: item.product.id,
        quantity: item.quantity,
-       size_id: item.size.id,
+       size_id: item.size_id,
        cart_id: item.cart_id,
     }))
     console.log(updatedata);

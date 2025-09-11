@@ -10,6 +10,10 @@ export class UploadController {
   @MessagePattern('upload_queue')
   async handleUploadImage(@Payload() data: { file: { buffer: Buffer; mimetype: string; originalname: string } }) {
     console.log("da gọi message queue");
+      console.log(process.env.CLOUD_NAME);
+  console.log(process.env.API_KEY);
+  console.log(process.env.API_SECRET);
+
     
     if (!data?.file) {
       return { success: false, message: 'No file provided' };

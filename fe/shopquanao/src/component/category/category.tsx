@@ -9,21 +9,15 @@ import { Autoplay, Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import Link from "next/link";
+import useCategoryStore from "@/app/context/categorycontext";
 
-// const categories = [
-//   { id: 1, name: "Danh mục 1", img: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188519/17.3-removebg-preview_efb0ga.png" },
-//   { id: 2, name: "Danh mục 2", img: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188419/images__1_-removebg-preview_x6duym.png" },
-//   { id: 3, name: "Danh mục 3", img: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188339/images-removebg-preview_gx5jgi.png" },
-//   { id: 4, name: "Danh mục 4", img: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188233/ao-thun-nu-mau-den-in-hinh-buom-asm16-35-removebg-preview_ennicm.png" },
-//   { id: 5, name: "Danh mục 5", img: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188114/finespec_white_110-002-043_main_sq_nt_2400x2400_f0ffac416aa54c128ff1fd73245c0ed0_master-removebg-preview_d09l31.png" },
-//   { id: 6, name: "Danh mục 6", img: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188519/17.3-removebg-preview_efb0ga.png" },
-//   { id: 7, name: "Danh mục 7", img: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188419/images__1_-removebg-preview_x6duym.png" },
-// ];
+
 
 export default function CategorySlider() {
   const [isLoaded, setIsLoaded] = useState(false);
   const [imagesLoaded, setImagesLoaded] = useState(0);
-  const [categorys,setCategorys] = useState<Category[] | null>([])
+  // const [categorys,setCategorys] = useState<Category[] | null>([])
+  const { categorys, loading, error } = useCategoryStore();
 
   useEffect(() => {
     // Simulate loading time and ensure all images are loaded
@@ -35,36 +29,15 @@ export default function CategorySlider() {
   }, []);
 
 
-useEffect(() => {
-  const fetchcategory = async () => {
-    const categoryss = await Getallcategory();
-    // console.log(imagesLoaded);
-    
-    if (categoryss.data.success) {
-      setCategorys(categoryss.data.data);
-    }
-  };
 
-  fetchcategory();
-}, []);
+
+
 
   const handleImageLoad = () => {
     setImagesLoaded(prev => prev + 1);
   };
   
-  // const fetchcategory = async() =>{
-  //   const categoryss = await Getallcategory();
-  //   // console.log(categorys);
-    
-  //   if(categoryss.data.success ){
-  //     console.log(imagesLoaded);
-      
-  //     setCategorys(categoryss.data.data)
-  //     // console.log(categoryss);
-  //   }  
-  // }
-
-  // ham tao slug
+  
   function toSlug(name: string) {
   return name
     .normalize('NFD') // xóa dấu tiếng Việt

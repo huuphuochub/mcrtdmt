@@ -1,6 +1,12 @@
-import React from "react";
+
+
+"use client"
+import React, { useEffect } from "react";
+import { useSeller } from "../context/sellercontext";
 import { AlignJustify,Search,Settings ,Box,ChartArea,Bell,MessageCircleMore } from 'lucide-react';
 import Image from "next/image";
+
+
 import {
   Accordion,
   AccordionContent,
@@ -9,9 +15,26 @@ import {
 } from "@/components/ui/accordion"
 
 const Headeradmin1 =() =>{
+  const {seller,loading} = useSeller();
+  useEffect(() => {
+    if (!loading) { // chỉ kiểm tra sau khi load xong
+      if (!seller) {
+        window.location.href = "http://localhost:3000/sellerregistration";
+      }
+    }
+  }, [loading, seller]);
     return(
         <div className=" fixed top-0 w-full bg-gray-200 z-10  h-[80px] ">
-            <div className=" w-full px-4 ">
+            {loading ? (
+            <div className="w-full h-full flex justify-center items-center bg-gray-200 border">
+               <span className="flex space-x-1">
+                  <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></span>
+                  <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.2s]"></span>
+                  <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.4s]"></span>
+              </span>
+            </div>
+            ) : (
+              <div className=" w-full px-4 ">
             <div  className="flex justify-between items-center  w-full ">
                  <div className="flex w-max-[334px] w-[334px]  items-center">
                         <AlignJustify />
@@ -55,13 +78,18 @@ const Headeradmin1 =() =>{
                     </div>
                 </div>
             </div>
+            )}
         </div>
     )
 }
 const Headeradmin2 =() =>{
+  const {loading} = useSeller();
+  console.log(loading);
+  
     return(
         <div className="w-max-[350px] w-[350px] border h-lvh mt-[80px] p-4">
-            <div>
+            {!loading ? (
+              <div>
                  <div className="">
                   
                     <Accordion type="single" collapsible>
@@ -137,6 +165,18 @@ const Headeradmin2 =() =>{
                     </Accordion>
                  </div>
             </div>
+            ) : (
+            <div className=" w-full px-4 ">
+                        <div className="w-full h-lvh flex justify-center items-center">
+                          <span className="flex space-x-1">
+                              <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></span>
+                              <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.2s]"></span>
+                              <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.4s]"></span>
+                          </span>
+                        </div>
+                        </div>
+            )}
+           
         </div>
     )
 }
