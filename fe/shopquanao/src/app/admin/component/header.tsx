@@ -3,7 +3,7 @@
 "use client"
 import React, { useEffect } from "react";
 import { useSeller } from "../context/sellercontext";
-import { AlignJustify,Search,Settings ,Box,ChartArea,Bell,MessageCircleMore } from 'lucide-react';
+import { AlignJustify,Search,Settings ,Box,ChartArea,Bell,MessageCircleMore, Home,ChevronDown  } from 'lucide-react';
 import Image from "next/image";
 
 
@@ -13,10 +13,13 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion"
+import Link from "next/link";
 
 const Headeradmin1 =() =>{
   const {seller,loading} = useSeller();
   useEffect(() => {
+    console.log(seller);
+    
     if (!loading) { // chỉ kiểm tra sau khi load xong
       if (!seller) {
         window.location.href = "http://localhost:3000/sellerregistration";
@@ -24,62 +27,66 @@ const Headeradmin1 =() =>{
     }
   }, [loading, seller]);
     return(
-        <div className=" fixed top-0 w-full bg-gray-200 z-10  h-[80px] ">
-            {loading ? (
-            <div className="w-full h-full flex justify-center items-center bg-gray-200 border">
-               <span className="flex space-x-1">
-                  <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></span>
-                  <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.2s]"></span>
-                  <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.4s]"></span>
-              </span>
-            </div>
-            ) : (
-              <div className=" w-full px-4 ">
-            <div  className="flex justify-between items-center  w-full ">
-                 <div className="flex w-max-[334px] w-[334px]  items-center">
-                        <AlignJustify />
-                        <div>
-                            <Image 
-                                        width={70}
-                                        height={70}
-                                        src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
-                                        alt=""
-                                        ></Image>
-                        </div>
-                 </div>
+<div className="fixed top-0 left-0 w-full h-[60px] bg-white shadow z-20">
+  {loading ? (
+    // Loading state
+    <div className="w-full h-full flex justify-center items-center bg-gray-50">
+      <span className="flex space-x-1">
+        <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></span>
+        <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.2s]"></span>
+        <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.4s]"></span>
+      </span>
+    </div>
+  ) : (
+    <div className="h-full px-6 flex items-center justify-between">
+      {/* Left: Logo + toggle */}
+      <div className="flex items-center gap-4 w-[280px]">
+        <AlignJustify className="cursor-pointer hover:text-blue-500 text-xl transition  bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
+        <Image
+          width={35}
+          height={35}
+          src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
+          alt="Logo"
+          className="object-contain border rounded-full"
+        />
+      </div>
 
-
-                    <div className="flex-1">
-                        <div className="relative w-full md:w-1/2  ">
-                    <input
-                        type="text"
-                        placeholder="Tìm sản phẩm theo tên..."
-                        className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none bg-white"
-                    />
-                    <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
-                    </div>
-                    </div>
-                    <div className="flex gap-2 items-center">
-                        <Settings/>
-                        <MessageCircleMore/>
-                        <Bell/>
-                        <Image
-                        width={50}
-                        height={50}
-                        src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
-                        alt=""
-                        className="rounded-full"
-
-                        
-                        >
-                            
-                            
-                        </Image>                        
-                    </div>
-                </div>
-            </div>
-            )}
+      {/* Center: Search */}
+      <div className="flex-1 flex justify-center">
+        <div className="relative w-full max-w-[500px]">
+          <input
+            type="text"
+            placeholder="Tìm sản phẩm theo tên..."
+            className="w-full pl-4 pr-10 py-1 border border-gray-300 rounded-full 
+                       focus:ring-2 focus:ring-blue-500 focus:border-blue-500 focus:outline-none"
+          />
+          <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
         </div>
+      </div>
+
+      {/* Right: Icons */}
+      <div className="flex items-center gap-4">
+        <Settings className="cursor-pointer hover:text-blue-500 text-xl transition  bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
+        <MessageCircleMore className="cursor-pointer hover:text-blue-500 text-xl transition bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
+        <Bell className="cursor-pointer hover:text-blue-500 text-xl transition bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
+        <div className="flex items-center">
+            <Image
+            width={35}
+            height={35}
+            src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
+            alt="User avatar"
+            className="rounded-full border border-gray-300 cursor-pointer hover:scale-105 transition"
+          />
+          <ChevronDown size={15}/>
+          <div>
+            <p className="">nguyễn văn a</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  )}
+</div>
+
     )
 }
 const Headeradmin2 =() =>{
@@ -87,97 +94,221 @@ const Headeradmin2 =() =>{
   console.log(loading);
   
     return(
-        <div className="w-max-[350px] w-[350px] border h-lvh mt-[80px] p-4">
-            {!loading ? (
-              <div>
-                 <div className="">
-                  
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="item-1"  >
-                       <div className="flex items-center gap-2">
-                          <ChartArea/>
-                          <AccordionTrigger>   Doashboard</AccordionTrigger>
-                       </div>
-                        <AccordionContent className="ml-[20px]">
-                          doanh thu
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          San pham
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          Khach hang
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          ok
-                        </AccordionContent>
-                        
-                      </AccordionItem>
-                    </Accordion>
+<aside className="fixed top-[60px] left-0 w-[280px] h-[calc(100vh-60px)] bg-white border-r p-4 overflow-y-auto z-10 rounded-tr-xl ">
+  {!loading ? (
+    <div className="flex flex-col gap-4">
+      {/* Trang chủ */}
+      <a href="#" className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 transition">
+        <Home />
+        <span className="text-2xl">Trang chủ</span>
+      </a>
+
+      {/* Accordion Menu */}
+      <Accordion type="single" collapsible>
+        <AccordionItem value="dashboard" className="text-2xl">
+          <div className="flex  items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 text-xl font-medium">Dashboard</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl ">Doanh thu</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Sản phẩm</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Khách hàng</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Báo cáo</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="products">
+          <div className="flex items-center gap-2">
+            <Box />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Sản phẩm</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <Link href="/admin/page/product/list" className="hover:text-blue-500 text-xl">Danh sách</Link>
+            <a href="#" className="hover:text-blue-500 text-xl">Thêm sản phẩm</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Thêm biến thể</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
 
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
 
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="item-1"  >
-                       <div className="flex items-center gap-2">
-                          <Box/>
-                          <AccordionTrigger>   San pham</AccordionTrigger>
-                       </div>
-                        <AccordionContent className="ml-[20px]">
-                          danh sach
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          Them san pham
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          doanh thu
-                        </AccordionContent>
-                        
-                      </AccordionItem>
-                    </Accordion>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
 
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
 
 
-                    <Accordion type="single" collapsible>
-                      <AccordionItem value="item-1"  >
-                       <div className="flex items-center gap-2">
-                          <ChartArea/>
-                          <AccordionTrigger>   Doashboard</AccordionTrigger>
-                       </div>
-                        <AccordionContent className="ml-[20px]">
-                          doanh thu
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          doanh thu
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          doanh thu
-                        </AccordionContent>
-                        <AccordionContent className="ml-[20px]">
-                          doanh thu
-                        </AccordionContent>
-                        
-                      </AccordionItem>
-                    </Accordion>
-                 </div>
-            </div>
-            ) : (
-            <div className=" w-full px-4 ">
-                        <div className="w-full h-lvh flex justify-center items-center">
-                          <span className="flex space-x-1">
-                              <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></span>
-                              <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.2s]"></span>
-                              <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.4s]"></span>
-                          </span>
-                        </div>
-                        </div>
-            )}
-           
-        </div>
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+
+
+      <Accordion type="single" collapsible>
+        <AccordionItem value="other">
+          <div className="flex items-center gap-2">
+            <ChartArea />
+            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+          </div>
+          <AccordionContent className="ml-6 flex flex-col gap-1">
+            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
+    </div>
+  ) : (
+    // Loading state
+    <div className="w-full h-full flex justify-center items-center">
+      <span className="flex space-x-1">
+        <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce"></span>
+        <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.2s]"></span>
+        <span className="w-2 h-2 bg-gray-600 rounded-full animate-bounce [animation-delay:-.4s]"></span>
+      </span>
+    </div>
+  )}
+</aside>
+
     )
 }
 export {Headeradmin1,Headeradmin2}

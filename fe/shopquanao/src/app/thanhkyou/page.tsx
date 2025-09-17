@@ -50,6 +50,7 @@ useEffect(() => {
         if(res.data.result.data.status === "PAID"){
           const body = {
             status:1,
+            payable_amount:0,
             ordercode:Number(orderCode),
           }
            await updatestatuss(body);

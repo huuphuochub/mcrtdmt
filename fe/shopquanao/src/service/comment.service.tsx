@@ -36,4 +36,17 @@ const GetallCommentByProduct = async(product_id:number,page:number)=>{
     }
 }
 
-export {addComment,GetallCommentByProduct}
+const DeleteCmtProduct = async(id:number)=>{
+    try {
+        const decmt = await axiosClient.delete(`/commentproduct/delete/${id}`)
+        return decmt
+    } catch (error) {
+        return{     
+            success:true,
+            data:null,
+            message:'loi k gui dc'
+        }
+    }
+}
+
+export {addComment,GetallCommentByProduct,DeleteCmtProduct}

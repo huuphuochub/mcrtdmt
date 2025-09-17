@@ -2,7 +2,7 @@ import { Controller, Post, Body, Res, HttpStatus, Get, Req, UseGuards, Delete, P
 import { HttpService } from '@nestjs/axios';
 import { Response } from 'express';
 import { UnauthorizedException } from '@nestjs/common';
-
+import { AuthService } from 'src/auth/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
@@ -11,7 +11,10 @@ interface RequestWithCookies extends Request {
 }
 @Controller('users')
 export class UserController {
-  constructor(private readonly httpService: HttpService) {}
+  constructor(private readonly httpService: HttpService,
+                private authService : AuthService,
+    
+  ) {}
 
   @Post('login')
   async loginUser(
@@ -276,6 +279,8 @@ export class sellerController {
     @Post('logout')
     async logoutSeller(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Response) {
         const token = req.cookies?.access_token;
+        const tokenseller = req.cookies?.seller_token;
+
 
         // Nếu không có token thì coi như đã logout
         if (!token) {
@@ -283,6 +288,11 @@ export class sellerController {
                 httpOnly: true,
                 sameSite: 'lax',
                 secure: false, // true nếu deploy HTTPS
+            });
+            res.clearCookie('seller_token', {
+               httpOnly: true,
+                sameSite: 'lax',
+                secure: false, 
             });
 
             return {
@@ -292,6 +302,11 @@ export class sellerController {
         }
 
         try {
+           res.clearCookie('seller_token', {
+               httpOnly: true,
+                sameSite: 'lax',
+                secure: false, 
+            });
             // Forward logout request tới user-service (nếu cần quản lý refresh token / blacklist)
             await firstValueFrom(
                 this.httpService.post('http://localhost:3004/seller/logout', {}, {
@@ -320,7 +335,10 @@ export class sellerController {
 
     @UseGuards(JwtAuthGuardFromCookie)
     @Get('getseller')
-    async Getsellerbyiduser(@GetUser() user:any ){
+    async Getsellerbyiduser(@GetUser() user:any ,
+      @Res({ passthrough: true }) res: Response,
+
+  ){
       
       if(!user){
         return{
@@ -330,8 +348,10 @@ export class sellerController {
         }
 
       }
-          const seller = await this.httpService.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
-                        
+          const seller:any = await this.httpService.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
+          // console.log('cek seller');
+          
+                    console.log(seller.data);    
 
           if(!seller?.data.success){
             return{
@@ -340,6 +360,19 @@ export class sellerController {
               message:'khong co thong tin seller da dang ki'
             }
           }else{
+
+            // const token = this.authService.generateToken({
+              const token = seller.data.token;
+              if(token){
+                res.cookie('seller_token', token ,{
+                  httpOnly:true,
+                  maxAge:1000*60*60*24*7,
+                });
+              }
+              
+            //  })
+            
+            
             return{
                success:true,
               data:seller.data.data,

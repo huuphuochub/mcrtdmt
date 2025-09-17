@@ -2,7 +2,7 @@ import { Injectable } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 import { PayOS } from '@payos/node';
 import { Order } from './order.entity';
-import { Repository } from 'typeorm';
+import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 
 
@@ -146,7 +146,7 @@ this.payos = payos;
     }
   }
 
-    async updatestatus(ordercode:number,status:number){
+    async updatestatus(ordercode:number,status:number,payable_amount:number){
       try {
         const order = await this.orderRepo.findOne({
           where:{ordercode},
@@ -159,6 +159,7 @@ this.payos = payos;
       };
     }
       order.status = status;
+      order.payable_amount= payable_amount;
       await this.orderRepo.save(order);
      return {
       success: true,
@@ -175,29 +176,64 @@ this.payos = payos;
     }
 
 
-    async getallorder(user_id:any){
+    async getallorder(user_id: any, page: number,status?:number,month?:string) {
       try {
-        const orders = await this.orderRepo.find({where : {user_id}})
-        if(!orders){
-          return{
-            success:false,
-            data:null,
-            message:'khong tim thay order'
+        const take = 15; // số bản ghi mỗi trang
+        const skip = (page - 1) * take; // bỏ qua bao nhiêu bản ghi
+          // console.log(status?.toString());
+          
+          const where: any = { user_id };
+            if (status !== undefined) {
+              where.status = status; // chỉ thêm nếu có
+            }
+
+            let startDate: Date | undefined;
+          let endDate: Date | undefined;
+
+           if (month) {
+            const [year, m] = month.split('-').map(Number);
+            startDate = new Date(year, m - 1, 1);
+            endDate = new Date(year, m, 0, 23, 59, 59); // ngày cuối cùng trong tháng
           }
+          console.log(month);
+          
+
+            const [orders, total] = await this.orderRepo.findAndCount({
+              where: {
+                ...where,
+                ...(month
+                  ? { created_at: Between(startDate, endDate) }
+                  : {}),
+              },
+              take,
+              skip,
+              order: { created_at: 'DESC' },
+            });
+
+        if (!orders || orders.length === 0) {
+          return {
+            success: false,
+            data: null,
+            message: 'Không tìm thấy order',
+          };
         }
-        return{
-          success:true,
-          message:'',
-          orders
-        }
+
+        return {
+          success: true,
+          message: '',
+          data: orders,
+            
+          
+        };
       } catch (error) {
-         return {
-      success: false,
-      message: error,
-      data: null,
-    };
+        return {
+          success: false,
+          message: error.message || 'Server error',
+          data: null,
+        };
       }
     }
+
 
 
   async updateordermail(id: number) {

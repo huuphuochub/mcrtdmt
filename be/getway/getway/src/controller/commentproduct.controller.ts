@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
@@ -102,7 +102,18 @@ export class CommentProductController {
                   }      
             }
       }
-  
+      
+
+      @Delete('delete/:id')
+      async DeleteCmt(@Param('id') id:number){
+            console.log(id);
+            
+            const dev:any = await firstValueFrom(
+            
+            
+            this.httpService.delete(`http://localhost:3002/comment/delete/${id}`))
+            return dev.data
+      }
   
 }
 

@@ -14,9 +14,14 @@
     };
         }
     }
-    const getAllproduct = async() =>{
+    const getAllproduct = async(page:number,limit:number) =>{
         try {
-            const result = await axiosClient.get('/product/getallproduct');
+            const result = await axiosClient.get('/product/getallproduct', {
+                params:{
+                    limit,
+                    page
+                }
+            });
             // console.log(result);
             
             return result;
@@ -122,6 +127,60 @@
         }
     }
 
+    const GetBestsell = async(page:any)=>{
+        // console.log("hahahahahha" ,page);
+        
+        try {
+            const body = {
+                page:page
+            }
+            const prd = await axiosClient.post('/product/getbestselling',body)
+            return prd
+        } catch (error) {
+            return{
+                success:false,
+                message:'khong gui dc',
+                data:null
+            }
+        }
+    }
+
+        const GetRating = async(page:any)=>{
+        // console.log("hahahahahha" ,page);
+        
+        try {
+            const body = {
+                page:page
+            }
+            const prd = await axiosClient.post('/product/getrating',body)
+            return prd
+        } catch (error) {
+            return{
+                success:false,
+                message:'khong gui dc',
+                data:null
+            }
+        }
+    }
+
+            const GetNewProduct = async(page:any)=>{
+        // console.log("hahahahahha" ,page);
+        
+        try {
+            const body = {
+                page:page
+            }
+            const prd = await axiosClient.post('/product/getnewproduct',body)
+            return prd
+        } catch (error) {
+            return{
+                success:false,
+                message:'khong gui dc',
+                data:null
+            }
+        }
+    }
 
 
-    export {Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}
+
+    export {GetNewProduct,GetRating,GetBestsell,Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}

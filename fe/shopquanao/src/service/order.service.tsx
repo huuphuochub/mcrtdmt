@@ -103,18 +103,26 @@ const Getorderitembyid = async(id:number)=>{
     }
 }
 
-const getallorder = async() =>{
-    try {
-        const response = await axiosClient.get('/order/getallorder')
-        return response
-    } catch (error) {
-         return{
-            success:false,
-            data:null,
-            message:'loi'
-        }
+    const getallorder = async (page: number, status?: number, month?: string) => {
+    let url = `/order/getallorder/${page}`;
+    if (status !== undefined) {
+        url += `/${status}`;
     }
-}
+
+    try {
+        const response = await axiosClient.get(url, {
+        params: { month }, // nếu month = undefined thì axios sẽ bỏ qua
+        });
+        return response;
+    } catch (error) {
+        return {
+        success: false,
+        data: null,
+        message: 'loi',
+        };
+    }
+    };
+
 
 const updateordermail = async(body:any) =>{
     try {

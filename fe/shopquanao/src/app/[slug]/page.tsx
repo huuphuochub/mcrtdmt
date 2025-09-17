@@ -17,7 +17,7 @@ export default async function Page({
 
     const res = await fetch(
       `http://localhost:3001/product/productdetail/${itemid}`,
-      { cache: "no-store" }
+      { next: { revalidate: 60 } }
     );
     const json = await res.json();
     // console.log(json);
@@ -37,7 +37,7 @@ export default async function Page({
     const catId = slug.split(".").pop();
     const res = await fetch(
       `http://localhost:3001/category/getjsoncategory/${catId}`,
-      { cache: "no-store" }
+      { next: { revalidate: 60 } }
     );
     const json = await res.json();
     return <Categorypage categoryprop={json} />;
@@ -45,7 +45,7 @@ export default async function Page({
     const subcatid = slug.split(".").pop();
     const res = await fetch(
       `http://localhost:3001/category/getjsonsubcategory/${subcatid}`,
-      { cache: "no-store" }
+      { next: { revalidate: 60 } }
     );
     const json = await res.json();
     return <SubCategorypage categoryprop={json} />;

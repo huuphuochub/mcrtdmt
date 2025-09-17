@@ -15,6 +15,8 @@ import { deletehistory, getHistorysearch } from "@/service/product.service";
 
 import { User,ShoppingCart,Heart,Search,ClockFading,X } from 'lucide-react';
 import { AddKeywordSearch } from "@/service/product.service";
+// import React, { useRef } from "react";
+
 
 
 interface Carts{
@@ -32,8 +34,9 @@ interface CartItem {
    id:number;
 }
 
+
 export default function Header(){
-     const { cart, addToCart } = useCart();
+     const { cart, addToCart,registerCart  } = useCart();
    
 const [isOpen, setIsOpen] = useState(false);
 const [loadinghistory,setLoadinghistory] = useState(true);
@@ -138,7 +141,7 @@ document.addEventListener("mousedown", handleClickOutside);
 return () => document.removeEventListener("mousedown", handleClickOutside);
 }, []);
 return(
-<header className="fixed top-0 z-10 w-full bg-white ">
+<header className="fixed top-0 z-20 w-full bg-white ">
    <div className="flex justify-between items-center max-w-[1200px] mx-auto">
       <div className="flex items-center gap-4">
          <div className="logo hover:cursor-pointer">
@@ -228,7 +231,7 @@ return(
             </div>
             )}
          </div>
-         <div className="relative">
+         <div className="relative" ref={registerCart} >
             <ShoppingCart className="size-7 hover:cursor-pointer" onClick={()=>Opencart()}/>
                {cart.length > 0 ?(
                   <div className="absolute top-[-10px] right-[-10px] bg-red-500 w-[15px] h-[15px] text-[15px] flex justify-center items-center text-white rounded-full"><span>{cart.length}</span></div>
@@ -255,7 +258,7 @@ return(
                      onClick={() => Openprofile()}
                   />
                   {isOpenprofile && (
-                     <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg z-50">
+                     <div className="absolute right-0 mt-2 w-64 bg-white border border-gray-200 rounded-xl shadow-lg  z-10">
                         <div className="p-2">
                            <div
                               onClick={() => logoutsubmit()}

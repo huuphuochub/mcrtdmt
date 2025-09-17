@@ -1,5 +1,5 @@
 import { HttpService } from "@nestjs/axios";
-import { Body, Controller, Get, Inject, Param, Post, Req, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Post, Query, Req, UnauthorizedException } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { response } from "express";
 import { firstValueFrom, lastValueFrom } from "rxjs";
@@ -214,7 +214,8 @@ const orderforviettel = results.map(seller => {
         await firstValueFrom(
           this.httpService.post('http://localhost:3004/order/updatestatus',{
             ordercode:body.ordercode,
-            status:1
+            status:1,
+            payable_amount:body.payable_amount,
           })
         )
       }
@@ -355,20 +356,31 @@ const orderforviettel = results.map(seller => {
       }
     }
 
-    @Get('getallorder')
-    async Ggetallorder(@Req() req:RequestWithCookies){
+    @Get('getallorder/:page/:status?')
+    async Ggetallorder(@Req() req:RequestWithCookies,@Param('page') page:number, @Param('status') status?:number,
+    @Query('month') month?:string
+  
+  ){
+      // console.log('da họi lay page');
+      console.log(month);
+      
+        console.log(status);
+        
+        const parsedStatus = status !== undefined ? Number(status) : undefined;
 
+        // console.log(parsedStatus);
+        
       const token = req.cookies?.access_token;
       if(!token){
         return{
           success:false,
-          data:null,
+          data:null, 
           message:"vui lòng đăng nhập"
         }
       }
             try {
         const response = await firstValueFrom(
-          this.httpService.get(`http://localhost:3004/order/getallorder/`,{
+          this.httpService.get(`http://localhost:3004/order/getallorder/${page}/${parsedStatus}/?month=${month}`,{
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -376,7 +388,7 @@ const orderforviettel = results.map(seller => {
         );
 
         // chỉ trả về data cho FE
-        return {
+        return { 
           success: response.data.success,
           data: response.data,
         };

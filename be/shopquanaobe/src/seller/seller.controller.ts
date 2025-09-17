@@ -2,10 +2,12 @@ import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { SellerService } from './seller.service';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
+import { AuthService } from 'src/auth/auth.service';
 
 @Controller('seller')
 export class SellerController {
-constructor( private sellerservice:SellerService){}
+constructor( private sellerservice:SellerService,        private readonly authService: AuthService,
+){}
 
 
 @UseGuards(JwtAuthGuardFromCookie)
@@ -44,12 +46,24 @@ async Registerseller(
 
     @Post('inforsellerbyuser')
     async inforseller(@Body() id:{user_id:number}){
-        console.log(id.user_id);
+        // console.log(id.user_id);
         
-        return this.sellerservice.Inforseller(id.user_id);
+        
+        const selle = await this.sellerservice.Inforseller(id.user_id);
+        console.log('lay seller');
+        if(!selle.success){
+            return selle
+
+        }
+        const token = this.authService.generateToken({
+            seller_id:selle?.data?.id
+        })
+         return { success: true, message: 'tạo token seller thành công',token,data:selle?.data };
+
+        // console.log(selle?.data?.id);
     }
 
-    // @Post('getseller')
+    // @Post('getseller') 
     // async 
 
 

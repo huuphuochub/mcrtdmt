@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { Comment } from './comment.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
@@ -7,7 +7,10 @@ import { Product } from 'src/product/product.entity';
 export class CommentService {
     constructor(
         @InjectRepository(Comment)
-        private commentRepo:Repository<Comment>
+        private commentRepo:Repository<Comment>,
+
+        @InjectRepository(Product)
+        private productRepo:Repository<Product>
 
 
     ){}
@@ -50,5 +53,34 @@ export class CommentService {
             totalPages: Math.ceil(total / 10),
         };
     }
+    async deleteComment(id: number) {
+        const comment = await this.commentRepo.findOne({
+            where: { id },
+            relations: ["product"],
+        });
+
+        if (!comment) throw new NotFoundException("Comment not found");
+
+        const productId = comment.product_id;
+
+        await this.commentRepo.remove(comment);
+
+        await this.productRepo
+            .createQueryBuilder()
+            .update(Product)
+            .set({
+            ratingSum: () => `"ratingSum" - ${comment.star}`,
+            ratingCount: () => `"ratingCount" - 1`,
+            averageRating: () => `CASE 
+                WHEN "ratingCount" - 1 > 0 
+                THEN ("ratingSum" - ${comment.star})::decimal / ("ratingCount" - 1) 
+                ELSE 0 END`
+            })
+            .where("id = :id", { id: productId })
+            .execute();
+
+        return { success: true };
+        }
+
 
 }

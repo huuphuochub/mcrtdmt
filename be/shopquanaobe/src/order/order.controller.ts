@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, Req, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, Req, UseGuards } from '@nestjs/common';
 import { OrderService } from './order.service';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
@@ -53,7 +53,7 @@ export class OrderController {
     async Updatestatusorder(@Body() body:any){
         // console.log(body);
         
-        return await this.orderService.updatestatus(Number(body.ordercode),body.status);
+        return await this.orderService.updatestatus(Number(body.ordercode),body.status,Number(body.payable_amount));
     }   
      
 
@@ -65,11 +65,27 @@ export class OrderController {
     }
 
     @UseGuards(JwtAuthGuardFromCookie)
-    @Get('getallorder')
-    async Getallorder(@GetUser() user:any)
-    {
-        return await this.orderService.getallorder(user.id);
-    }
+   @Get('getallorder/:page/:status?')
+            async Getallorder(
+            @GetUser() user: any,
+            @Param('page') page: string,
+            @Param('status') status?: string,
+            @Query('month') month?:string
+            ) {
+            const parsedPage = Number(page);
+            const parsedStatus =
+                status !== undefined &&
+                status !== 'undefined' &&
+                !isNaN(Number(status))
+                ? Number(status)
+                : undefined;
+
+                const parsedMonth =
+                month !== undefined && month !== 'undefined' ? month : undefined;
+
+            return this.orderService.getallorder(user.id, parsedPage, parsedStatus,parsedMonth);
+            }
+
 
         @Post('updateordermail')
     async updateordermail(@Body() body:any) {

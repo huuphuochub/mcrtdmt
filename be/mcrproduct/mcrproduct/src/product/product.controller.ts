@@ -20,13 +20,21 @@ export class ProductController {
         }
     // lay tat ca san pham
     @Get('getall')
-        async getallproduct(){
-            return await this.productservice.getAllproduct()
+        async getallproduct(@Query('limit') limit:string, @Query('page') page:string){
+            return await this.productservice.getAllproduct(Number(limit),Number(page))
+        }
+
+        // lay san pham theo selle de selle xem
+            @Get('getallbyseller')
+        async getallproductseller(@Query('limit') limit:string, @Query('page') page:string,@Query('seller_id') seller_id:string){
+            console.log(seller_id);
+            
+            return await this.productservice.getAllproductseller(Number(limit),Number(page),Number(seller_id))
         }
         // lay san pham theo nguoi ban
     @Get('bestseller')
         async getbeseller(@Query() paginationDto:PaginationDto){
-            const limit = paginationDto.limit || 4;
+            const limit = paginationDto.limit || 12;
             const page = paginationDto.page || 0;
             return await this.productservice.getBeseller({limit,page})
         }
@@ -78,5 +86,22 @@ export class ProductController {
     @Post('updateratingproduct')
     async apdateRating(@Body() body:any){
         return await this.productservice.UpdateRating(body);
+    }
+
+    @Post('getbestselling')
+    async GetBestselling(@Body() body:any){
+        // console.log(body);
+        
+        return await this.productservice.GetBestselling(body.page)
+    }
+
+    @Post('getratingproduct')
+    async Getratingprd(@Body() body:any){
+        return await this.productservice.Getratingprd(body.page)
+    }
+
+    @Post('getnewproduct')
+    async Getnew(@Body() body:any){
+        return await this.productservice.Getnewprodct(body.page)
     }
 }

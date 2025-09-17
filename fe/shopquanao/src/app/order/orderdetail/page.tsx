@@ -324,6 +324,11 @@ export default function OrderDetail() {
                             <span className="font-semibold">Tổng tiền: </span>
                             <span className="font-bold text-red-500 text-lg">{orders?.total_amount.toLocaleString()} đ</span>
                             </p>
+                            <p>
+                            <span className="font-semibold">Số tiền cần thanh toán: </span>
+                             <span className="font-bold text-red-500 text-lg">{orders?.payable_amount.toLocaleString()} đ</span>
+
+                            </p>
                         </div>
                 </div>
                 

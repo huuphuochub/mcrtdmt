@@ -24,6 +24,8 @@ import { ConfigModule } from '@nestjs/config';
 import { HistorysearchModule } from './historysearch/historysearch.module';
 import { CommentSeller } from './seller/commentseller.entity';
 import { HistorySearch } from './historysearch/historysearch.entity';
+import { CookiesuserController } from './cookiesuser/cookiesuser.controller';
+import { CookiesuserModule } from './cookiesuser/cookiesuser.module';
 
 
 @Module({
@@ -44,10 +46,10 @@ import { HistorySearch } from './historysearch/historysearch.entity';
     }),
     UsersModule, 
      
-    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule
+    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule
   
   ],
-  controllers: [AppController],
+  controllers: [AppController, CookiesuserController],
   providers: [AppService],
 })
 export class AppModule {}

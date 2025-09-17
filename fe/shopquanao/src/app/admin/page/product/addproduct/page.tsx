@@ -224,7 +224,7 @@ export default function Addproduct() {
   };
 
   return (
-    <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl mt-10">
+    <div className="bg-white shadow-lg rounded-lg p-8 max-w-4xl  ">
       <h2 className="text-2xl font-bold mb-6 text-gray-700">🛒 Thêm Sản Phẩm</h2>
 
       {submitMessage && (

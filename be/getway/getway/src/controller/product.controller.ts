@@ -9,15 +9,18 @@ import {
   Get,
   Param,
   Req,
-  UnauthorizedException
+  UnauthorizedException,
+  Query
 } from '@nestjs/common';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 import { HttpService } from '@nestjs/axios';
+import { JwtSellerAuthGuardFromCookie } from 'src/auth/seller-jwt.guard';
 
 import { ClientProxy } from '@nestjs/microservices';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { firstValueFrom } from 'rxjs';
+import { GetSeller } from 'src/common/decorators/get-seller.decorator';
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -132,13 +135,41 @@ export class ProductController {
 
 
  @Get('getallproduct')
-async getAllProduct() {
+async getAllProduct(@Query('limit') limit:string, @Query('page') page:string) {
   const response = await this.httpservice
-    .get('http://localhost:3002/product/getall')
+    .get('http://localhost:3002/product/getall',{
+      params:{
+        page,limit
+      }
+    })
     .toPromise();
   
-  return response!.data; // ✅ chỉ return phần data
+  return response!.data; 
 }
+   @UseGuards(JwtSellerAuthGuardFromCookie)
+ @Get('getallproductseller')
+async getAllProductseller(@GetSeller() seller:any,  @Query('limit') limit:string, @Query('page') page:string) {
+    if(!seller){
+        return{
+          success:false,
+          data:null,
+          message:'ban k phai sellse'
+        }
+    }
+    
+     const response = await this.httpservice
+    .get('http://localhost:3002/product/getallbyseller',{
+      params:{
+        page,limit,seller_id:seller.seller_id
+      }
+    })
+    .toPromise();
+  
+  return response!.data; 
+  // } 
+  
+}
+
 
 @Get('bestseller')
 async getbeseller() {
@@ -287,6 +318,64 @@ async getSizebyidprd(@Param('id') id:number){
       } catch (error) {
           const errRes = error.response?.data || {};
           return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+    }
+
+
+    @Post('getbestselling')
+    async GetBestsell(@Body() body:any){
+            console.log(body);
+
+      try {
+          const data:any =   await this.httpservice.post('http://localhost:3002/product/getbestselling',body).toPromise();
+
+        return data.data
+      } catch (error) {
+          const errRes = error.response?.data || {};
+
+         return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+    }
+
+    @Post('getrating')
+    async GetRating(@Body() body:any){
+      
+      try {
+                  const data:any =   await this.httpservice.post('http://localhost:3002/product/getratingproduct',body).toPromise();
+
+        return data.data
+      } catch (error) {
+          const errRes = error.response?.data || {};
+
+         return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+    }
+
+
+    
+    @Post('getnewproduct')
+    async GetNewProduct(@Body() body:any){
+      
+      try {
+                  const data:any =   await this.httpservice.post('http://localhost:3002/product/getnewproduct',body).toPromise();
+
+        return data.data
+      } catch (error) {
+          const errRes = error.response?.data || {};
+
+         return {
               success: false,
               message: errRes.message || 'Lỗi cập nhật thông tin',
               code: errRes.code || 'UNKNOWN_ERROR',

@@ -6,6 +6,8 @@ import { UserProvider } from "./context/usercontext";
 import Script from "next/script";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import { Toaster } from "react-hot-toast";
+import QueryProvider from "./QueryProvider";
+
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -27,6 +29,7 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+
   return (
     <html lang="en">
       <head>
@@ -35,6 +38,7 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} font-sans bg-[var(--background)] text-[var(--foreground)] dark:bg-[var(--background)]`}
        >
+        <QueryProvider>
         <UserProvider>
         <CartProvider>
           {/* <div className="" >
@@ -48,6 +52,7 @@ export default function RootLayout({
 
         </CartProvider>
         </UserProvider>
+        </QueryProvider>
       </body>
     </html>
   );

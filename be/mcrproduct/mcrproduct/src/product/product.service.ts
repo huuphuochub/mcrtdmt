@@ -50,9 +50,44 @@ export class ProductService {
 
 // lay tat ca san pham
 
-  async getAllproduct(){
+  async getAllproduct(limit:number,page:number){
     try {
-      const result = await this.productRepo.find()
+      const take = limit || 12;
+      const skip = (page - 1) * take;
+
+      const [result] = await this.productRepo.findAndCount({
+        skip,
+        take,
+        order:{
+          createdAt:'DESC'
+        },
+      })
+      return {
+      success: true,
+      data: result,
+    };
+    } catch (error) {
+      
+    }
+  }
+
+  // lay danh sach san pham theo seller de seller xem
+
+    async getAllproductseller(limit:number,page:number,seller_id:number){
+    try {
+      const take = limit || 12;
+      const skip = (page - 1) * take;
+
+      const [result] = await this.productRepo.findAndCount({
+        where:{
+          idSeller:seller_id
+        },
+        skip,
+        take,
+        order:{
+          createdAt:'DESC'
+        },
+      })
       return {
       success: true,
       data: result,
@@ -201,24 +236,106 @@ export class ProductService {
   }
 
     async UpdateRating(body: any) {
-      try {
-        const pr = await this.productRepo.findOne({
-          where: { id: body.product_id },
-        });
+  try {
+    const pr = await this.productRepo.findOne({
+      where: { id: body.product_id },
+    });
 
-        if (!pr) {
-          throw new Error("Product not found");
-        }
-
-        pr.ratingSum = (pr.ratingSum || 0) + body.star;
-        pr.ratingCount = (pr.ratingCount || 0) + 1;
-
-        await this.productRepo.save(pr);
-        return pr;
-      } catch (error) {
-        console.error("UpdateRating error:", error);
-        throw error;
-      }
+    if (!pr) {
+      throw new Error("Product not found");
     }
+
+    // Cộng dồn rating
+    pr.ratingSum = (pr.ratingSum || 0) + body.star;
+    pr.ratingCount = (pr.ratingCount || 0) + 1;
+
+    // Tính lại averageRating
+    pr.averageRating = pr.ratingCount > 0 
+      ? Number(pr.ratingSum) / Number(pr.ratingCount) 
+      : 0;
+
+    await this.productRepo.save(pr);
+
+    return pr;
+  } catch (error) {
+    console.error("UpdateRating error:", error);
+    throw error;
+  }
+}
+
+async GetBestselling(page: number) {
+  try {
+    const [products, total] = await this.productRepo.findAndCount({
+      order: { totalsold: 'DESC' }, // sắp xếp giảm dần theo totalsold
+      skip: (page - 1) * 12,     // số lượng cần bỏ qua
+      take: 12,                  // số lượng lấy
+    });
+
+    return {
+      success: true,
+      data: products,
+      total,
+      page,
+      totalPages: Math.ceil(total / 12),
+    };
+  } catch (error) {
+    console.error("GetBestselling error:", error);
+    return {
+      success: false,
+      message: "Không thể lấy danh sách bán chạy",
+      error,
+    };
+  }
+}
+
+async Getratingprd(page:any){
+  try {
+    const [products,total] = await this.productRepo.findAndCount({
+      order:{averageRating:'DESC'},
+      skip: (page-1) * 12,
+      take:12,
+    })
+        return {
+      success: true,
+      data: products,
+      total,
+      page,
+      totalPages: Math.ceil(total / 12),
+    };
+  } catch (error) {
+     console.error("GetBestselling error:", error);
+    return {
+      success: false,
+      message: "Không thể lấy danh sách bán chạy",
+      error,
+    };
+  }
+}
+
+
+async Getnewprodct(page:any){
+  try {
+    const [products,total] = await this.productRepo.findAndCount({
+      order:{createdAt:'DESC'},
+      skip: (page-1) * 12,
+      take:12,
+    })
+        return {
+      success: true,
+      data: products,
+      total,
+      page,
+      totalPages: Math.ceil(total / 12),
+    };
+  } catch (error) {
+     console.error("GetBestselling error:", error);
+    return {
+      success: false,
+      message: "Không thể lấy danh sách bán chạy",
+      error,
+    };
+  }
+}
+
 
 }

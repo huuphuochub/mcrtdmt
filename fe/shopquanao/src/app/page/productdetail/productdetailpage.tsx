@@ -1,13 +1,13 @@
 "use client"
 
-import React,{useEffect,useMemo,useState} from "react";
+import React,{useEffect,useMemo,useRef,useState} from "react";
 import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import Image from "next/image";
 import Button from "@/component/ui/button";
 import { interfaceProduct } from "@/interface/product.interface";
-import { Star,Heart,EllipsisVertical } from "lucide-react";
+import { Star,Heart,EllipsisVertical, Trash } from "lucide-react";
 import { interfaceSeller } from "@/interface/user.interface";
 import { interfaceuser } from "@/interface/user.interface";
 import { interfacesubimg } from "@/interface/subimg.interface";
@@ -26,7 +26,8 @@ import { addComment } from "@/service/comment.service";
    import { Comment } from "@/interface/comment.interface";
 import toast from "react-hot-toast";
 import { ImagePreview } from "@/components/ui/enlargeimg";
-
+import { DeleteCmtProduct } from "@/service/comment.service";
+// import { useCart } from "@/app/context/cartcontext";
 // import { interfacesize } from "@/interface/interfacesize";
 interface ProductResponse<T> {
   success: boolean;
@@ -91,6 +92,7 @@ interface commentdetail extends Comment{
 }
 type ResponseSize = ResponseSizeItem[]; 
 
+type ProductProps = { imgUrl: string };
 
 
 
@@ -106,7 +108,7 @@ type ResponseSize = ResponseSizeItem[];
 // }
 
 export default function Productdetailpage({productprop} :ProductDetailProps){
-   const {  addToCart } = useCart();
+   const {  addToCart,getCartRect  } = useCart();
    
    const [product,setProduct] = useState<interfaceProduct | null >(null)
    const [category,setCategory] = useState<Category | null >(null);
@@ -129,6 +131,43 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const [cmts,setCmts] = useState<commentdetail[] >([])
    const [loadingcmt,setLoadingcmt] = useState(true);
    // const average = ratingCount > 0 ? ratingSum / ratingCount : 0;
+//   const cartRef = useRef<HTMLDivElement>(null);
+
+
+const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const cartRect = getCartRect();
+  if (!cartRect) return;
+
+  // Lấy vị trí button làm điểm xuất phát
+  const btnRect = e.currentTarget.getBoundingClientRect();
+
+  // tạo ảnh bay từ product.img
+  const flyingImg = document.createElement("img");
+  if(product ){
+   flyingImg.src = product.image;
+  } // dùng url từ product
+  flyingImg.classList.add("fixed", "z-[9999]", "rounded-xl");
+  flyingImg.style.left = btnRect.left + "px";
+  flyingImg.style.top = btnRect.top + "px";
+  flyingImg.style.width = "80px";
+  flyingImg.style.transition = "all 1s ease-in-out";
+
+  document.body.appendChild(flyingImg);
+
+  // animate đến giỏ hàng
+  requestAnimationFrame(() => {
+    flyingImg.style.left = cartRect.left + "px";
+    flyingImg.style.top = cartRect.top + "px";
+    flyingImg.style.width = "30px";
+    flyingImg.style.opacity = "0.5";
+  });
+
+  flyingImg.addEventListener("transitionend", () => {
+    flyingImg.remove();
+  });
+
+  handleAddToCart(); 
+};
 
 
 
@@ -160,6 +199,8 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
          const cmt = await GetallCommentByProduct(product.id, nextPage);
          if (cmt) {
             setCmts(prev => [...prev, ...cmt.data.data]);
+            
+            
          }
       } catch (error) {
          setLoadingcmt(false);
@@ -223,6 +264,8 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    useEffect(() => {
   
     if (productprop.success && productprop.data?.product.success) {
+      // console.log(productprop.data.product.data);
+      
       setProduct(productprop.data.product.data);
       setCategory(productprop.data.category.data);
       setSubcategory(productprop.data.subcategory.data)
@@ -272,6 +315,7 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
 
       
   } 
+
   function getcolorbysize(sizeId:number){
          return Array.from(
             new Map(
@@ -384,6 +428,15 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const LoginComent = () =>{
       window.location.href='/login'
    }
+   const handleDeleteCmt = async(id:number) =>{
+      const de = await DeleteCmtProduct(id);
+      if(de.data.success){
+         toast.success('da xoa binh luan');
+         setCmts((prevCmts) => prevCmts.filter((item) => item.id !== id));
+         
+      }
+      
+   }
    
    const PostComment =async(e: React.FocusEvent<HTMLFormElement>) =>{
       e.preventDefault(); // chặn reload trang
@@ -424,11 +477,7 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    }
 return(
 <div>
-     {/* <div id="Particles">
-            <canvas id="fluid"></canvas>
-              <FluidSimulation/>
-          </div> */}
-   <Header/>
+   <Header />
    <div className="mt-[100px] max-w-[1200px] mx-auto ">
       <div className="flex py-2 px-1 ">
          <p>trang chu</p>
@@ -448,14 +497,6 @@ return(
                   className="max-h-[500px] min-h-[500px] hover:cursor-pointer"
 
                   />
-
-               {/* <Image
-                  width={500}
-                  height={500}
-                  src={product?.image || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
-                  alt={product?.name || 'product'}
-                  className="max-h-[500px]"
-                  ></Image> */}
                <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl">
                   <p className="text-white">-25%</p>
                </div>
@@ -471,13 +512,6 @@ return(
                   className="max-h-[150px] hover:cursor-pointer"
 
                   />
-                  {/* <Image
-                     width={150}
-                     height={150}
-                     src={urlimg?.url || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
-                     alt=""
-                     className="max-h-[150px]"
-                     ></Image> */}
                </div>
                )) : (
                   <div className="flex gap-5">
@@ -674,7 +708,7 @@ return(
         ) : selectedQuantity < 1 ? (
           <Button variant="danger">Hết hàng</Button>
         ) : (
-          <Button variant="primary"  onClick={handleAddToCart}>Thêm vào giỏ hàng</Button>
+          <Button variant="primary"  onClick={handleAddToCartcss}>Thêm vào giỏ hàng</Button>
           
         )}
         <Button variant="secondary">Mua ngay</Button>
@@ -688,77 +722,136 @@ return(
 
       </div>
       {/* nguoi ban */}
-      <div className="shadow mt-4 p-2 flex">
-         {/* img */}
-         <div className="flex gap-2 items-center max-w-[350px] w-[350px] border-r border-gray-300">
-            <div>
+      {!seller ? (
+         <div className="shadow mt-4 p-2 flex animate-pulse">
+            {/* avatar + tên */}
+            <div className="flex gap-2 items-center max-w-[350px] w-[350px] border-r border-gray-300">
+               <div className="w-[70px] h-[70px] bg-gray-200 rounded-full"></div>
+               <div className="flex flex-col gap-2">
+               <div className="h-5 w-40 bg-gray-200 rounded"></div>
+               <div className="flex items-center gap-2">
+                  <div className="h-4 w-10 bg-gray-200 rounded"></div>
+                  <div className="flex gap-1">
+                     {Array.from({ length: 5 }).map((_, i) => (
+                     <div key={i} className="w-4 h-4 bg-gray-200 rounded"></div>
+                     ))}
+                  </div>
+                  <div className="h-4 w-20 bg-gray-200 rounded"></div>
+               </div>
+               <div className="flex gap-2 mt-2">
+                  <div className="h-8 w-20 bg-gray-200 rounded-lg"></div>
+                  <div className="h-8 w-20 bg-gray-200 rounded-lg"></div>
+               </div>
+               </div>
+            </div>
+
+            {/* info khác */}
+            <div className="flex-1 flex items-center justify-between p-2">
+               <div className="flex flex-col gap-2">
+               <div className="h-4 w-32 bg-gray-200 rounded"></div>
+               <div className="h-4 w-40 bg-gray-200 rounded"></div>
+               </div>
+               <div className="flex flex-col gap-2">
+               <div className="h-4 w-40 bg-gray-200 rounded"></div>
+               <div className="h-4 w-32 bg-gray-200 rounded"></div>
+               </div>
+               <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
+            </div>
+         </div>
+         ) : (
+         // === UI thật ===
+         <div className="shadow mt-4 p-2 flex">
+            {/* avatar + seller info */}
+            <div className="flex gap-2 items-center max-w-[350px] w-[350px] border-r border-gray-300">
+               <div>
                <Image
                   width={70}
                   height={70}
-                  src={seller?.avatar || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
+                  src={
+                     seller?.avatar ||
+                     "https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg"
+                  }
                   alt=""
                   className="rounded-full"
-                  >
-               </Image>
-            </div>
-            <div className="">
-               <div className="">
-                  <p className="text-xl font-semibold">{seller?.usernameseller}</p>
-                  <div className="flex items-center gap-1">
-                        <p>
-                        {seller?.ratingCount && seller.ratingCount > 0
-                           ? (seller.ratingSum! / seller.ratingCount).toFixed(1) // làm tròn 1 chữ số
-                           : 0}
-                        </p>
-
-                     <ul className="flex">
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                        <li>
-                           <Star size={15} className="text-yellow-500 fill-yellow-500"/>
-                        </li>
-                     </ul>
-                     <p className="m-0 p-0 ">{seller?.ratingCount} lượt đánh giá</p>
-                  </div>
+               />
+               </div>
+               <div>
+               <p className="text-xl font-semibold">{seller?.usernameseller}</p>
+               <div className="flex items-center gap-1">
+                  <p>
+                     {seller?.ratingCount && seller.ratingCount > 0
+                     ? (seller.ratingSum! / seller.ratingCount).toFixed(1)
+                     : 0}
+                  </p>
+                  <ul className="flex">
+                     {Array.from({ length: 5 }).map((_, i) => (
+                     <li key={i}>
+                        <Star size={15} className="text-yellow-500 fill-yellow-500" />
+                     </li>
+                     ))}
+                  </ul>
+                  <p className="m-0 p-0">{seller?.ratingCount} lượt đánh giá</p>
                </div>
                <div className="flex gap-2 mt-2">
-                  <Button variant="primary">chat ngay</Button>
-                  <Button variant="secondary">theo gioi</Button>
+                  <Button variant="primary">Chat ngay</Button>
+                  <Button variant="secondary">Theo dõi</Button>
+               </div>
+               </div>
+            </div>
+
+            {/* info khác */}
+            <div className="flex-1 flex items-center justify-between p-2">
+               <div>
+               <p className="mb-2">Sản phẩm: 100</p>
+               <p>Địa chỉ: {seller?.address}</p>
+               </div>
+               <div>
+               <p className="mb-2">Sản phẩm đã bán: {seller?.soldCount}</p>
+               <p>Ngày tham gia: ngày trước</p>
+               </div>
+               <div>
+               <EllipsisVertical />
                </div>
             </div>
          </div>
-         {/* thong tin khac */}
-         <div className="flex-1 flex items-center justify-between p-2">
-            <div className="">
-               <p className="mb-2">san pham: {countlproduct}</p>
-               <p>dia chi: {seller?.address}</p>
+         )}
+
+      {/*  mo ta*/}
+         {!product ? (
+         <div className="shadow mt-4 p-2 animate-pulse">
+            {/* tiêu đề */}
+            <div className="h-6 w-48 bg-gray-200 rounded mb-4"></div>
+
+            {/* grid thông tin */}
+            <div className="grid grid-cols-[200px_1fr] gap-y-2 bg-white p-4 rounded-md border-b border-gray-200">
+               <div className="h-5 w-32 bg-gray-200 rounded"></div>
+               <div className="h-5 w-48 bg-gray-200 rounded"></div>
+
+               <div className="h-5 w-32 bg-gray-200 rounded"></div>
+               <div className="h-5 w-40 bg-gray-200 rounded"></div>
+
+               <div className="h-5 w-32 bg-gray-200 rounded"></div>
+               <div className="h-5 w-36 bg-gray-200 rounded"></div>
+
+               <div className="h-5 w-32 bg-gray-200 rounded"></div>
+               <div className="h-5 w-52 bg-gray-200 rounded"></div>
             </div>
-            <div>
-               <p className="mb-2">san pham da ban: {seller?.soldCount}</p>
-               <p>ngay tham gia: ngay truoc</p>
-            </div>
-            <div>
-               <EllipsisVertical/>
+
+            {/* mô tả */}
+            <div className="h-6 w-44 bg-gray-200 rounded mt-4 mb-2"></div>
+            <div className="space-y-2 p-4">
+               <div className="h-4 w-full bg-gray-200 rounded"></div>
+               <div className="h-4 w-5/6 bg-gray-200 rounded"></div>
+               <div className="h-4 w-2/3 bg-gray-200 rounded"></div>
             </div>
          </div>
-      </div>
-      {/*  mo ta*/}
-      <div className="shadow mt-4 p-2">
-         <div>
-            <div >
-               <h1 className="text-2xl font-semibold">chi tiet san pham</h1>
-            </div>
-            <div className="grid grid-cols-[200px_1fr] gap-y-2 bg-white p-4 rounded-md border-b border-gray-200">
+         ) : (
+         <div className="shadow mt-4 p-2">
+            <div>
+               <div>
+               <h1 className="text-2xl font-semibold">Chi tiết sản phẩm</h1>
+               </div>
+               <div className="grid grid-cols-[200px_1fr] gap-y-2 bg-white p-4 rounded-md border-b border-gray-200">
                <p className="font-medium text-gray-700">Tên sản phẩm:</p>
                <p>{product?.name}</p>
                <p className="font-medium text-gray-700">Danh mục:</p>
@@ -766,16 +859,18 @@ return(
                <p className="font-medium text-gray-700">Xuất xứ:</p>
                <p>Trung Quốc</p>
                <p className="font-medium text-gray-700">Ngày sản xuất:</p>
-               <p>{}</p>
-            </div>
-            <div>
-               <h1 className="text-2xl font-semibold">mo ta san pham</h1>
-            </div>
-            <div className="">
-               <p className="p-4">{product?.describe} </p>
+               <p>{/* Ngày sản xuất ở đây */}</p>
+               </div>
+               <div>
+               <h1 className="text-2xl font-semibold">Mô tả sản phẩm</h1>
+               </div>
+               <div className="">
+               <p className="p-4">{product?.describe}</p>
+               </div>
             </div>
          </div>
-      </div>
+         )}
+
 
 
 
@@ -893,7 +988,10 @@ return(
                               <p className="  rounded-2xl">{item.content}</p>
                               <div className="flex gap-2 justify-end mr-2">
                                     <p className="border-r border-gray-200 pr-2">{item.createAt.toLocaleString()}</p>
-                                    <EllipsisVertical/>
+                                    <EllipsisVertical className="hover:cursor-pointer"/>
+                                    {user && item.user.id === user.id && (
+                                       <Trash className="hover:cursor-pointer" onClick={() =>handleDeleteCmt(item.id)}/>
+                                    ) } 
                               </div>
                            </div>
                         </div>
@@ -912,7 +1010,13 @@ return(
             {/* end user danh gia */}
          </div>
          <div className="w-full text-center">
-            <Button variant="primary" onClick={() =>PageCmt()}>xem them</Button>
+            {product && cmts.length === product.ratingCount ? (
+               <Button variant="danger"  >xem thêm</Button>
+
+            ) : (
+            <Button variant="primary" onClick={() =>PageCmt()}>xem thêm</Button>
+
+            )}
          </div>
       </div>
 

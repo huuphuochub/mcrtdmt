@@ -1,5 +1,5 @@
 import { Subimg } from "src/subimg/subimg.entity";
-import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable } from "typeorm";
+import { Entity, PrimaryGeneratedColumn, Column, OneToMany, ManyToMany, JoinTable, CreateDateColumn } from "typeorm";
 import { Color } from "src/size/color.entity";
 import { Size } from "src/size/size.entity";
 import { ProductVariants } from "src/size/product_variants.entity";
@@ -69,6 +69,9 @@ export class Product {
 
   @OneToMany(() => Comment, comment => comment.product,{cascade:true})
   comments:Comment[];
+
+    @CreateDateColumn({ type: "timestamp with time zone" })
+  createdAt: Date;
 //    @OneToMany(() => Color, (color) => color.products)
 //   colors: Color[];
 

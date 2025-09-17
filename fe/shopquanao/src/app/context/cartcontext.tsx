@@ -34,16 +34,29 @@ interface CartContextType {
   removeFromCart: (product_id: number, size_id: number, color_id: number) => void;
   clearCart: () => void;
   deleteCart:()=>void;
+  registerCart: (el: HTMLDivElement | null) => void;
+  getCartRect: () => DOMRect | null;
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export const CartProvider = ({ children }: { children: ReactNode }) => {
+    const [cartEl, setCartEl] = useState<HTMLDivElement | null>(null);
+
   const { user } = useUser();
   const [cart, setCart] = useState<CartItem[]>([]);
   const [cartdetail, setCartdetail] = useState<Cartdetail[]>([]);
   const [loading, setLoading] = useState(true);
 
+
+
+    const registerCart = (el: HTMLDivElement | null) => {
+    setCartEl(el);
+  };
+
+  const getCartRect = () => {
+    return cartEl ? cartEl.getBoundingClientRect() : null;
+  };
   // Fetch cart from API / localStorage once when user changes
   useEffect(() => {
     const fetchCart = async () => {
@@ -169,7 +182,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
     
   }
   return (
-    <CartContext.Provider value={{ cart, cartdetail,savecart, deleteCart,loading, addToCart, updateQuantity, removeFromCart, clearCart }}>
+    <CartContext.Provider value={{registerCart, getCartRect, cart, cartdetail,savecart, deleteCart,loading, addToCart, updateQuantity, removeFromCart, clearCart }}>
       {children}
     </CartContext.Provider>
   );

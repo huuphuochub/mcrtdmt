@@ -23,8 +23,10 @@ export const SellerProvider = ({children}:{children : React.ReactNode})=>{
         const fetchseller = async() =>{
            try {
              const seller = await Getseller();
+             console.log(seller);
+             
               if(seller.data.success){
-            setSeller(seller.data.data);
+                setSeller(seller.data.data);
 
             }else{
                 setSeller(null)

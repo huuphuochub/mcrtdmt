@@ -7,6 +7,7 @@ import { SellerInterface } from '@/interface/seller.interface';
 import { updateuser } from '@/service/userservice';
 import { getseller } from '@/service/sellerservice';
 interface UserHeader {
+    id?:number ;
     username: string;
     // image: string;
     avatarUrl: string;
@@ -25,7 +26,7 @@ interface UserHeader {
 
 interface UserContextType {
     user: UserHeader | null;
-    seller:SellerInterface|null;
+    seller:boolean;
     setUser: (user: UserHeader | null) => void;
   Updateuser: (data: UserHeader) => Promise<any>; 
   setnote: (note:string) =>void
@@ -37,7 +38,7 @@ const Usercontext = createContext<UserContextType | undefined>(undefined);
 export const UserProvider =({children} : { children: React.ReactNode}) =>{
     const [user,setUser] = useState<UserHeader | null>(null);
         const [note,setNote] = useState<string | null>(null);
-        const [seller,setSeller] = useState<SellerInterface | null>(null);
+        const [seller,setSeller] = useState(false);
 
 
 
@@ -45,10 +46,10 @@ export const UserProvider =({children} : { children: React.ReactNode}) =>{
             const fetchUser = async () =>{
                 const userData = await Getuserbyid();
                 const seller = await getseller();
-                // console.log(seller);
+                console.log(seller);
                 
                 if(seller.success){
-                    setSeller(seller.data)
+                    setSeller(seller.success)
                 }
                 
                 // console.log(userData.data);

@@ -9,6 +9,7 @@ import { getshipfee,creatqrpayos,createorderservice } from "@/service/order.serv
 import Button from "@/component/ui/button";
 import { useUser } from "../context/usercontext";
 import Link from "next/link";
+import { deletecart } from "@/service/cartservice";
 
 
 interface Province {
@@ -254,6 +255,8 @@ useEffect(() => {
       const districtId = formData.districtId;
       const wardsId = formData.wardsId;
       const paymentmethod = formData.paymentmethod;
+      console.log(paymentmethod);
+      
 
                 if(!phoneorder){
             setError("Vui lòng nhập số điện thoại");
@@ -306,7 +309,13 @@ useEffect(() => {
               }
             })
 
-            const bodyorder = {
+           
+            
+
+            if(String(paymentmethod) === "2"){
+              // console.log('ck');
+              
+              const bodyorder = {
               total_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
               phone:phoneorder,
               ordercode:orderCode,
@@ -317,16 +326,16 @@ useEffect(() => {
               payment_method:paymentmethod,
               items:itemproduct,
               email:email,
+              payable_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
             }
 
             // console.log(bodyorder);
             const orders =await createorderservice(bodyorder);
-            console.log(orders);
-            
 
-            
 
-            const orderdata = {
+
+
+                const orderdata = {
                   orderCode: orderCode,
                   amount:amount,
                   description:"thanh toan don hang",
@@ -340,6 +349,38 @@ useEffect(() => {
                 if(url){
                   window.location.href = url;
                 }
+            }else if(String(paymentmethod) === "1"){
+
+              // console.log('tin mat');
+              
+               const bodyorder = {
+              total_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
+              phone:phoneorder,
+              ordercode:orderCode,
+              note:formData.note,
+              address:addresss,
+              status:1,
+              ship_fee:shipfees,
+              payment_method:paymentmethod,
+              items:itemproduct,
+              email:email,
+              payable_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
+            }
+
+              const ok = confirm('xác nhận đặt đơn hàng')
+              if(ok){
+                const orders =await createorderservice(bodyorder);
+
+            await deletecart();
+            window.location.href = `/order/orderdetail/?id=${orders.data.id}`;
+              }else{
+                return ;
+              }
+
+
+            }
+
+            
           }
 
       // console.log(cartdetail);

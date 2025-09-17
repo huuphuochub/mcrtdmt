@@ -1,11 +1,13 @@
 "use client"
 
-import React,{useEffect,useState} from "react";
+import React,{useEffect,useRef,useState} from "react";
 import Image from "next/image";
-import { getBesellerproduct } from "@/service/product.service";
+import { getBesellerproduct, GetBestsell, GetNewProduct, GetRating } from "@/service/product.service";
 import Link from "next/link";
 // import { Star } from 'lucide-react';
 import { interfaceProduct } from "@/interface/product.interface";
+import { Star } from "lucide-react";
+import Button from "../ui/button";
 
 //  hàm tạo slug
 function toSlug(name: string) {
@@ -25,7 +27,7 @@ const Htmlload = () => {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[1, 2, 3, 4].map((_, index) => (
+        {[1, 2, 3, 4,5,6,7,8].map((_, index) => (
           <div
             key={index}
             className="rounded-2xl shadow p-4 animate-pulse"
@@ -49,30 +51,153 @@ const Htmlload = () => {
 
 
 
-const BesellingProduct = () => {
-  const [prd, setPrd] = useState<interfaceProduct[]>([]);
-  const [loading, setLoading] = useState(true); // Thêm state 'loading', mặc định là true khi component mount
+// const BesellingProduct = () => {
+//   const [prd, setPrd] = useState<interfaceProduct[]>([]);
+//   const [loading, setLoading] = useState(true); // Thêm state 'loading', mặc định là true khi component mount
 
-  const getAllProductData = async () => {
-    try {
-      setLoading(true); 
+//   const getAllProductData = async () => {
+//     try {
+//       setLoading(true); 
 
-      const product = await getBesellerproduct();
-      // const products = await getBesellerproduct()
-      // console.log(product);
-      // console.log(products);
+//       const product = await getBesellerproduct();
+//       // const products = await getBesellerproduct()
+//       // console.log(product);
+//       // console.log(products);
       
-      setPrd(product?.data?.data ?? []); // fallback mảng trống nếu không có data
+//       setPrd(product?.data?.data ?? []); // fallback mảng trống nếu không có data
+//     } catch (error) {
+//       console.error('Lỗi lấy sản phẩm:', error);
+//     } finally{
+//       setLoading(false);
+//     }
+//   };
+
+//   useEffect(() => {
+//     getAllProductData();
+//   }, []);
+
+//   if (loading) {
+//     return <Htmlload />    ; 
+//   }
+  
+//   // Hiển thị thông báo nếu không có sản phẩm nào
+//   if (prd.length === 0) {
+//     return <div>Không tìm thấy sản phẩm bán chạy.</div>;
+//   }
+//   return (
+    
+//       <div className="px-4 sm:px-6 lg:px-8 py-10 max-w-[1200px] mx-auto mt-6 relative">
+//         <div className="w-full text-center">
+//           <h1 className="text-3xl font-bold mb-10 text-gray-800">Sản phẩm bán chạy</h1>
+//         </div>
+
+//         <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+//           {prd.map((prdd: interfaceProduct, index: number) => {
+//             const slug = `${toSlug(prdd.name)}-i.${prdd.idSeller}.${prdd.id}`;
+//             const avg = prdd.ratingCount > 0 ? prdd.ratingSum / prdd.ratingCount : 0;
+
+//             return (
+//               <Link
+//                 key={index}
+//                 href={`/${slug}`}
+//                 className="group rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white overflow-hidden block"
+//               >
+//                 {/* Ảnh sản phẩm */}
+//                 <div className="w-full h-[200px] sm:h-[220px] flex justify-center items-center relative bg-gray-50">
+//                   <Image
+//                     width={160}
+//                     height={160}
+//                     src={prdd.image}
+//                     alt={prdd.name}
+//                     className="object-contain transition-transform duration-300 group-hover:scale-105"
+//                   />
+
+//                   {/* Tag giảm giá */}
+//                   <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
+//                     -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+//                   </div>
+//                 </div>
+
+//                 {/* Nội dung */}
+//                 <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
+//                   <p className="font-medium text-gray-800 line-clamp-2">{prdd.name}</p>
+
+//                   {/* Rating sao */}
+//                   <div className="flex items-center justify-center gap-1">
+//                     {Array.from({ length: 5 }).map((_, i) => (
+//                       <Star
+//                         key={i}
+//                         size={14}
+//                         className={
+//                           i < Math.round(avg)
+//                             ? "text-yellow-400 fill-yellow-400"
+//                             : "text-gray-300"
+//                         }
+//                       />
+//                     ))}
+//                     <span className="text-xs sm:text-sm text-gray-500 ml-1">
+//                       ({prdd.ratingCount || 0})
+//                     </span>
+//                   </div>
+
+//                   <p className="text-xs sm:text-sm line-through text-gray-400">
+//                     {prdd.price.toLocaleString("vi-VN")} đ
+//                   </p>
+//                   <p className="text-base sm:text-xl text-red-600 font-bold">
+//                     {prdd.discountprice.toLocaleString("vi-VN")} đ
+//                   </p>
+//                 </div>
+//               </Link>
+//             );
+//           })}
+//         </div>
+//           <div className="flex justify-end mt-2">
+//             <Button variant='primary'>xem thêm</Button>
+//           </div>
+
+//       </div>
+      
+
+
+//   );
+// };
+
+ const  BesellingProduct=()=>{
+   const [prd, setPrd] = useState<interfaceProduct[]>([]);
+  const [loading, setLoading] = useState(true); // Thêm state 'loading', mặc định là true khi component mount
+  const [page,setPage] = useState(1);
+
+
+
+useEffect(() => {
+  // if (calledOnce.current[page]) return; // nếu page này đã gọi rồi thì bỏ qua
+  // calledOnce.current[page] = true;
+
+  const Getbestsell = async () => {
+    try {
+      const product = await GetBestsell(page);
+      if (product.data.success) {
+        if (page === 1) {
+          setPrd(product.data.data); // load mới
+        } else {
+          setPrd((prev) => [...prev, ...product.data.data]); // nối thêm
+        }
+      }
     } catch (error) {
-      console.error('Lỗi lấy sản phẩm:', error);
-    } finally{
+      setLoading(false);
+    } finally {
       setLoading(false);
     }
   };
 
-  useEffect(() => {
-    getAllProductData();
-  }, []);
+  Getbestsell();
+}, [page]);
+
+
+  const nextPage=() =>{
+    setPage(page + 1)
+  }
+
 
   if (loading) {
     return <Htmlload />    ; 
@@ -82,130 +207,317 @@ const BesellingProduct = () => {
   if (prd.length === 0) {
     return <div>Không tìm thấy sản phẩm bán chạy.</div>;
   }
-  return (
-    
-    <div className="px-8 py-6 max-w-[1200px] mx-auto mt-4 relative">
-      <div className="w-full text-center">
-        <h1 className="text-2xl font-bold mb-6">Sản phẩm bán chạy</h1>
-      </div>
-
-      <div className="grid py-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
-    {prd.map((prdd: interfaceProduct, index: number) => {
-      const slug = `${toSlug(prdd.name)}-i.${prdd.idSeller}.${prdd.id}`;
-      return (
-        <Link
-          key={index}
-          href={`/${slug}`}
-          className="rounded-2xl shadow hover:shadow-md transition duration-300 hover:cursor-pointer block"
-        >
-          <div className="w-full h-[200px] flex justify-center items-center relative">
-            <Image
-              width={150}
-              height={150}
-              src={prdd.image}
-              alt={prdd.name}
-              className="object-contain"
-            />
-            <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl text-white">
-              -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
-            </div>
-          </div>
-
-          <div className="mt-4 space-y-1 text-center">
-            <p className="font-medium py-0 my-0">{prdd.name}</p>
-            <p className="text-sm line-through text-gray-400 py-0 my-0">
-              {prdd.price.toLocaleString('vi-VN')} đ
-            </p>
-            <p className="text-lg text-red-500 font-semibold py-0 my-0">
-              {prdd.discountprice.toLocaleString('vi-VN')} đ
-            </p>
-          </div>
-        </Link>
-      );
-    })}
-</div>
-
-    </div>
-
-  );
-};
-
- const  NewProduct=()=>{
     return(
-            <div className="px-8 py-6 max-w-[1200px] mx-auto mt-4 relative">
-                <div className="w-full text-center">
-                    <h1 className="text-2xl font-bold mb-6">Sản phẩm mới</h1>
+      <div className="px-4 sm:px-6 lg:px-8 py-10 max-w-[1200px] mx-auto mt-6 relative">
+        <div className="w-full text-center">
+          <h1 className="text-3xl font-bold mb-10 text-gray-800">sản phẩm bán chạy</h1>
+        </div>
+
+        <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {prd.map((prdd: interfaceProduct, index: number) => {
+            const slug = `${toSlug(prdd.name)}-i.${prdd.idSeller}.${prdd.id}`;
+            const avg = prdd.ratingCount > 0 ? prdd.ratingSum / prdd.ratingCount : 0;
+
+            return (
+              <Link
+                key={index}
+                href={`/${slug}`}
+                className="group rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white overflow-hidden block"
+              >
+                {/* Ảnh sản phẩm */}
+                <div className="w-full h-[200px] sm:h-[220px] flex justify-center items-center relative bg-gray-50">
+                  <Image
+                    width={160}
+                    height={160}
+                    src={prdd.image}
+                    alt={prdd.name}
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+
+                  {/* Tag giảm giá */}
+                  <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
+                    -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+                  </div>
                 </div>
 
-                <div className="grid py-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 ">
-                    {[1, 2, 3, 4].map((_, index) => (
-                    <Link href="http://localhost:3000/dien-thoai-oppo-a57-i.123456.78910"
-                    key={index}>
-                        <div
-                        
-                        className=" rounded-2xl shadow hover:shadow-md transition duration-300"
-                    >
-                        <div className="w-full h-[200px] flex justify-center items-center  relative">
-                        <Image
-                            width={300}
-                            height={300}
-                            src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188339/images-removebg-preview_gx5jgi.png"
-                            alt="product"
-                            className="object-contain"
-                        />
-                        <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl text-white">-25%</div>
-                        </div>
+                {/* Nội dung */}
+                <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
+                  <p className="font-medium text-gray-800 line-clamp-2">{prdd.name}</p>
 
-                        <div className="mt-4 space-y-1 text-center">
-                        <p className="font-medium py-0 my-0">Vòng bạc</p>
-                        <p className="text-sm line-through text-gray-400 py-0 my-0">200.000 đ</p>
-                        <p className="text-lg text-red-500 font-semibold py-0 my-0">180.000 đ</p>
-                        
-
-
-                        </div>
-                    </div>
-                    </Link>
+                  {/* Rating sao */}
+                  <div className="flex items-center justify-center gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={
+                          i < Math.round(avg)
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-gray-300"
+                        }
+                      />
                     ))}
+                    <span className="text-xs sm:text-sm text-gray-500 ml-1">
+                      ({prdd.ratingCount || 0})
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm line-through text-gray-400">
+                    {prdd.price.toLocaleString("vi-VN")} đ
+                  </p>
+                  <p className="text-base sm:text-xl text-red-600 font-bold">
+                    {prdd.discountprice.toLocaleString("vi-VN")} đ
+                  </p>
                 </div>
-                </div>
+              </Link>
+            );
+          })}
+        </div>
+          <div className="flex justify-end mt-2">
+            <Button variant='primary' onClick={nextPage}>xem thêm</Button>
+          </div>
+
+      </div>
     )
 }
 
- const  Foruser=()=>{
+
+
+ const  NewProduct=()=>{
+   const [prd, setPrd] = useState<interfaceProduct[]>([]);
+  const [loading, setLoading] = useState(true); // Thêm state 'loading', mặc định là true khi component mount
+  const [page,setPage] = useState(1);
+
+
+const calledOnce = useRef<{ [key: number]: boolean }>({});
+
+useEffect(() => {
+  if (calledOnce.current[page]) return; // nếu page này đã gọi rồi thì bỏ qua
+  calledOnce.current[page] = true;
+      const Getbestsell = async() =>{
+        try {
+          const product = await GetNewProduct(page);
+        console.log(product);
+        if(product.data.success){
+          if (page === 1) {
+            setPrd(product.data.data); // load mới
+          } else {
+            setPrd((prev) => [...prev, ...product.data.data]); // nối thêm
+          }
+        }
+        } catch (error) {
+          setLoading(false)
+        }finally{
+          setLoading(false)
+        }
+        
+      }
+      Getbestsell();
+  },[page]);
+
+    const nextPage=() =>{
+    setPage(page + 1)
+  }
+  if (loading) {
+    return <Htmlload />    ; 
+  }
+  
+  // Hiển thị thông báo nếu không có sản phẩm nào
+  if (prd.length === 0) {
+    return <div>Không tìm thấy sản phẩm bán chạy.</div>;
+  }
     return(
-            <div className="px-8 py-6 max-w-[1200px] mx-auto mt-4 relative">
-                <div className="w-full text-center">
-                    <h1 className="text-2xl font-bold mb-6">Dành cho bạn</h1>
+      <div className="px-4 sm:px-6 lg:px-8 py-10 max-w-[1200px] mx-auto mt-6 relative">
+        <div className="w-full text-center">
+          <h1 className="text-3xl font-bold mb-10 text-gray-800">sản phẩm mới</h1>
+        </div>
+
+
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {prd.map((prdd: interfaceProduct, index: number) => {
+            const slug = `${toSlug(prdd.name)}-i.${prdd.idSeller}.${prdd.id}`;
+            const avg = prdd.ratingCount > 0 ? prdd.ratingSum / prdd.ratingCount : 0;
+
+            return (
+              <Link
+                key={index}
+                href={`/${slug}`}
+                className="group rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white overflow-hidden block"
+              >
+                {/* Ảnh sản phẩm */}
+                <div className="w-full h-[200px] sm:h-[220px] flex justify-center items-center relative bg-gray-50">
+                  <Image
+                    width={160}
+                    height={160}
+                    src={prdd.image}
+                    alt={prdd.name}
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+
+                  {/* Tag giảm giá */}
+                  <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
+                    -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+                  </div>
                 </div>
 
-                <div className="grid py-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 ">
-                    {[1, 2, 3, 4].map((_, index) => (
-                    <div
-                        key={index}
-                        className=" rounded-2xl shadow hover:shadow-md transition duration-300"
-                    >
-                        <div className="w-full h-[200px] flex justify-center items-center  ">
-                        <Image
-                            width={300}
-                            height={300}
-                            src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188519/17.3-removebg-preview_efb0ga.png"
-                            alt="product"
-                            className="object-contain"
-                        />
-                        </div>
+                {/* Nội dung */}
+                <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
+                  <p className="font-medium text-gray-800 line-clamp-2">{prdd.name}</p>
 
-                        <div className="mt-4 space-y-1 text-center">
-                        <p className="font-medium py-0 my-0">Vòng bạc</p>
-                        <p className="text-sm line-through text-gray-400 py-0 my-0">200.000 đ</p>
-                        <p className="text-lg text-red-500 font-semibold py-0 my-0">180.000 đ</p>
-
-
-                        </div>
-                    </div>
+                  {/* Rating sao */}
+                  <div className="flex items-center justify-center gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={
+                          i < Math.round(avg)
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-gray-300"
+                        }
+                      />
                     ))}
+                    <span className="text-xs sm:text-sm text-gray-500 ml-1">
+                      ({prdd.ratingCount || 0})
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm line-through text-gray-400">
+                    {prdd.price.toLocaleString("vi-VN")} đ
+                  </p>
+                  <p className="text-base sm:text-xl text-red-600 font-bold">
+                    {prdd.discountprice.toLocaleString("vi-VN")} đ
+                  </p>
                 </div>
+              </Link>
+            );
+          })}
+        </div>
+          <div className="flex justify-end mt-2">
+            <Button variant='primary' onClick={nextPage}>xem thêm</Button>
+          </div>
+
+      </div>
+    )
+}
+
+
+ const  Ratingproduct=()=>{
+
+   const [prd, setPrd] = useState<interfaceProduct[]>([]);
+  const [loading, setLoading] = useState(true); // Thêm state 'loading', mặc định là true khi component mount
+  const [page,setPage] = useState(1);
+
+
+const calledOnce = useRef<{ [key: number]: boolean }>({});
+
+useEffect(() => {
+  if (calledOnce.current[page]) return; // nếu page này đã gọi rồi thì bỏ qua
+  calledOnce.current[page] = true;
+      const Getbestsell = async() =>{
+        try {
+          const product = await GetRating(page);
+        console.log(product);
+        if(product.data.success){
+          if (page === 1) {
+            setPrd(product.data.data); // load mới
+          } else {
+            setPrd((prev) => [...prev, ...product.data.data]); // nối thêm
+          }
+        }
+        } catch (error) {
+          setLoading(false)
+        }finally{
+          setLoading(false)
+        }
+        
+      }
+      Getbestsell();
+  },[page]);
+
+    const nextPage=() =>{
+    setPage(page + 1)
+  }
+    if (loading) {
+    return <Htmlload />    ; 
+  }
+  
+  // Hiển thị thông báo nếu không có sản phẩm nào
+  if (prd.length === 0) {
+    return <div>Không tìm thấy sản phẩm bán chạy.</div>;
+  }
+    return(
+      <div className="px-4 sm:px-6 lg:px-8 py-10 max-w-[1200px] mx-auto mt-6 relative">
+        <div className="w-full text-center">
+          <h1 className="text-3xl font-bold mb-10 text-gray-800">Sản phấm xếp hạng</h1>
+        </div>
+
+
+                    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
+          {prd.map((prdd: interfaceProduct, index: number) => {
+            const slug = `${toSlug(prdd.name)}-i.${prdd.idSeller}.${prdd.id}`;
+            const avg = prdd.ratingCount > 0 ? prdd.ratingSum / prdd.ratingCount : 0;
+
+            return (
+              <Link
+                key={index}
+                href={`/${slug}`}
+                className="group rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 hover:scale-[1.02] bg-white overflow-hidden block"
+              >
+                {/* Ảnh sản phẩm */}
+                <div className="w-full h-[200px] sm:h-[220px] flex justify-center items-center relative bg-gray-50">
+                  <Image
+                    width={160}
+                    height={160}
+                    src={prdd.image}
+                    alt={prdd.name}
+                    className="object-contain transition-transform duration-300 group-hover:scale-105"
+                  />
+
+                  {/* Tag giảm giá */}
+                  <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
+                    -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+                  </div>
                 </div>
+
+                {/* Nội dung */}
+                <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
+                  <p className="font-medium text-gray-800 line-clamp-2">{prdd.name}</p>
+
+                  {/* Rating sao */}
+                  <div className="flex items-center justify-center gap-1">
+                    {Array.from({ length: 5 }).map((_, i) => (
+                      <Star
+                        key={i}
+                        size={14}
+                        className={
+                          i < Math.round(avg)
+                            ? "text-yellow-400 fill-yellow-400"
+                            : "text-gray-300"
+                        }
+                      />
+                    ))}
+                    <span className="text-xs sm:text-sm text-gray-500 ml-1">
+                      ({prdd.ratingCount || 0})
+                    </span>
+                  </div>
+
+                  <p className="text-xs sm:text-sm line-through text-gray-400">
+                    {prdd.price.toLocaleString("vi-VN")} đ
+                  </p>
+                  <p className="text-base sm:text-xl text-red-600 font-bold">
+                    {prdd.discountprice.toLocaleString("vi-VN")} đ
+                  </p>
+                </div>
+              </Link>
+            );
+          })}
+        </div>
+          <div className="flex justify-end mt-2">
+            <Button variant='primary' onClick={nextPage}>xem thêm</Button>
+          </div>
+
+      </div>
     )
 }
 
@@ -301,4 +613,4 @@ const DiscountProduct=()=>{
 
     )
 }
-export{BesellingProduct,NewProduct,Foruser,DiscountProduct,FavouriteProduct};
+export{BesellingProduct,NewProduct,Ratingproduct,DiscountProduct,FavouriteProduct};
