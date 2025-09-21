@@ -9,7 +9,7 @@ import FooterPage from "@/component/footer";
 import { Category } from "@/interface/category.interface";
 import { Subcategory } from "@/interface/category.interface";
 import { interfaceProduct } from "@/interface/product.interface";
-import { Search } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -47,6 +47,20 @@ export default function Categorypage({categoryprop} : propDetailCategoryPage) {
   const [allcates,setAllcates] = useState<Category[] | null>(null);
   const [productss, setProductss] = useState<interfaceProduct[] |null>(null);
   const [cate,setCate] = useState<Category | null>(null);
+  const [keyword,setKeyword] =useState('');
+  const [category,setCategory] = useState(0);
+  const [subcate,setSubcate] = useState(0);
+  const [page,setPage] =useState(1);
+  const [bestselling,setBestselling] = useState(0);
+  const [rating,setRating] =useState(0);
+  const [discount,setDiscount] = useState(0);
+  const [newproduct,setNewproduct] = useState(0);
+  const [minprice,setMinprice] = useState(0);
+  const [maxprice,setMaxprice] = useState(0);
+  const [star,setStar] = useState(0);
+
+
+  // const []
 //  hàm tạo slug
 function toSlug(name: string) {
   return name
@@ -84,7 +98,7 @@ function toSlug(name: string) {
 
       <Header />
 
-      <div className="mt-[100px] max-w-[1200px] mx-auto px-4 min-h-[700px]">
+      <div className="mt-[80px] max-w-[1200px] mx-auto px-4 min-h-[700px]">
          <div className="flex py-2 px-1 relative">
          <p className="hover:cursor-pointer hover:text-red-300">Trang chủ </p>
          &gt;
@@ -140,17 +154,49 @@ function toSlug(name: string) {
                      })}
                     
                   </ul>
+                <div className="space-y-2">
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <label
+                      key={star}
+                      className="flex items-center gap-2 cursor-pointer p-2 rounded-lg   hover:border-indigo-500 hover:bg-indigo-50 transition"
+                    >
+                      <input
+                        type="radio"
+                        name="rating"
+                        value={star}
+                        className="accent-indigo-600 w-4 h-4"
+                        onChange={(e) => setStar(Number(e.target.value))}
+                      />
+                      <span className="flex items-center gap-1 text-gray-700">
+                        {star} <Star className="w-4 h-4 text-yellow-400" />
+                      </span>
+                    </label>
+                  ))}
+
+                  {/* tất cả */}
+                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition">
+                    <input
+                      type="radio"
+                      name="rating"
+                      value={0}
+                      className="accent-indigo-600 w-4 h-4"
+                      onChange={(e) => setStar(Number(e.target.value))}
+                    />
+                    <span className="text-gray-700">Tất cả</span>
+                  </label>
+                </div>
+
                 </div>
               </div>
           </div>
          <div className="flex-1">
            <div className="flex gap-2 mb-4">
             
-            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm bg-blue-100 hover:cursor-pointer">Sản phẩm nổi bật</h3>
-            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm  bg-red-100 hover:cursor-pointer">Sản phẩm gia re</h3>
+            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm bg-blue-100 hover:cursor-pointer">Sản phẩm mới</h3>
+            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm  bg-red-100 hover:cursor-pointer">Sản phẩm giảm giá</h3>
 
             <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm bg-yellow-100 hover:cursor-pointer">Sản phẩm ban chay </h3>
-            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm  bg-pink-100 hover:cursor-pointer">Sản phẩm chat luong</h3>
+            {/* <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm  bg-pink-100 hover:cursor-pointer"></h3> */}
 
            </div>
 

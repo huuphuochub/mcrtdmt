@@ -1,5 +1,18 @@
     import axiosClient from "@/lib/axiosclient";
 
+    interface bodyfilter{
+        page:number,
+        keyword:string | undefined,
+        category:number,
+        subcate:number,
+        bestselling:number,
+        rating:number,
+        discount:number,
+        newdate:number,
+        minprice:number,
+        maxprice:number,
+
+    }
 
     const Addproduct =async(data:FormData)=>{
         try {
@@ -182,5 +195,18 @@
     }
 
 
+    const FilterPrd = async(body:bodyfilter) =>{
+        try {
+            const products = await axiosClient.post('/product/filter/user',body)
+            return products
+        } catch (error) {
+            return{
+                success:false,
+                data:null,
+                message:'không gửi đc'
+            }
+        }
+    }
 
-    export {GetNewProduct,GetRating,GetBestsell,Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}
+
+    export {FilterPrd,GetNewProduct,GetRating,GetBestsell,Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}

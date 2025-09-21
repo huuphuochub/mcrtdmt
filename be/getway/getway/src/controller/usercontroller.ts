@@ -351,7 +351,7 @@ export class sellerController {
           const seller:any = await this.httpService.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
           // console.log('cek seller');
           
-                    console.log(seller.data);    
+                    // console.log(seller.data);    
 
           if(!seller?.data.success){
             return{
@@ -363,6 +363,10 @@ export class sellerController {
 
             // const token = this.authService.generateToken({
               const token = seller.data.token;
+              // console.log('token seller');
+              
+              // console.log(token);
+              
               if(token){
                 res.cookie('seller_token', token ,{
                   httpOnly:true,

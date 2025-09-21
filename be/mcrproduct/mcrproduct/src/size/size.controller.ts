@@ -47,5 +47,14 @@ export class SizeController {
         }
         return await this.sizeService.Getbatchcolor(ids);
     }
+
+    @Get('sizeandcolor')
+    async Sizecolor(){
+        // console.log('da goi');
+        const ok = await this.sizeService.GetSizeColor();
+        // console.log(ok.data);
+        return ok
+        
+    }
 }
  

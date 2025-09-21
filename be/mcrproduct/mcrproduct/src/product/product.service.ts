@@ -208,6 +208,69 @@ export class ProductService {
   }
 
 
+    async FilterUser(body:any){
+      const take = 12;
+      const skip = (body.page - 1) * take;
+      const category = body.category
+      const subcate = body.subcate
+      
+      let query= this.productRepo
+      .createQueryBuilder('product')
+
+      if(body.keyword !== ""){
+        query = query.where(
+        `unaccent(lower(product.name)) LIKE unaccent(lower(:keyword))`,
+        { keyword: `%${body.keyword}%` },
+      )
+      }
+
+      if(category !== 0 ){
+        query = query.andWhere('product.idCategory = :category',{category})
+      }
+      if(subcate !== 0) {
+        query = query.andWhere('product.subcate = :subcate',{subcate})
+      }
+      if(body.bestselling !== 0) {
+        query = query.orderBy('product.totalsold', 'DESC');      
+      }
+      if(body.rating !== 0) {
+        query = query.orderBy('product.averageRating', 'DESC');
+      }
+      if(body.discount !==0) {
+        query =query.orderBy('product.discount', 'DESC');
+      }
+      if(body.newdate !==0){
+        query = query.orderBy('product.date','DESC')
+      } 
+      if (body.minprice !== 0 && body.maxprice === 0) {
+        query = query.andWhere('product.discountPrice >= :min', { min: body.minprice });
+      }
+      if (body.maxprice !== 0 && body.minprice === 0) {
+        query = query.andWhere('product.discountPrice <= :max', { max: body.maxprice });
+      }
+      
+      try {
+        const [products,total] = await query
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
+       return{
+        success:true,
+        data:products,
+        message:'ok'
+      }
+      } catch (error) {
+        return{
+          success:false,
+          message:'loi service',
+          data:null
+        }
+      }
+
+     
+    }
+
 
    async searchProductsService(body:any) {
     const take = 12;
@@ -333,6 +396,129 @@ async Getnewprodct(page:any){
       success: false,
       message: "Không thể lấy danh sách bán chạy",
       error,
+    };
+  }
+}
+
+
+async SearchPrdSeller(keyword:string,page:number,seller_id:number){
+  try {
+    const take = 10;
+    const skip = (page - 1) * take;
+
+    const [products, total] = await this.productRepo
+      .createQueryBuilder('product')
+      .where(
+        `unaccent(lower(product.name)) LIKE unaccent(lower(:keyword))`,
+        { keyword: `%${keyword}%` },
+        
+      )
+      .andWhere(
+        {idSeller:seller_id},
+      )
+      .orderBy('product.id', 'DESC')
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
+      // console.log(products);
+      
+
+    return {
+      success:true,
+      data: products,
+      total,
+      currentPage: page,
+      totalPages: Math.ceil(total / take),
+    };
+  } catch (error) {
+   return{
+    success:false,
+    data:null,
+    message:'loi server'
+   } 
+  }
+}
+
+
+async Filterproduct(category: number, status: number, seller_id: number, quantity: number, page: number) {
+  try {
+    const take = 15; // số sản phẩm mỗi trang
+    const skip = (page - 1) * take;
+
+    let query = this.productRepo
+      .createQueryBuilder("product")
+      .where("product.idSeller = :seller_id", { seller_id })
+      // .andWhere("product.idCategory = :category", { category });
+
+    // Filter theo status
+    if (status !== 0) {
+      query = query.andWhere("product.status = :status", { status });
+    }
+    if(category !==0) {
+      query = query.andWhere('product.idCategory = :category' ,{ category })
+    }
+
+    // Filter theo quantity
+    if (quantity === 1) {
+      query = query.andWhere("product.quantity < :minQuantity", { minQuantity: 20 });  
+    } else if (quantity === 2) {
+      query = query.andWhere("product.quantity > :maxQuantity", { maxQuantity: 50 });
+    }
+
+    // Lấy dữ liệu + count (phân trang)
+    const [products, total] = await query
+      .skip(skip)
+      .take(take)
+      .getManyAndCount();
+
+    return {
+      success: true,
+      data: products,
+      total,
+      page,
+      pageSize: take,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: "Lỗi khi filter sản phẩm",
+    };
+  }
+}
+
+
+async ProductDetailSeller(id: number, seller_id: number) {
+  try {
+    const product = await this.productRepo.findOne({
+      where: { id, idSeller: seller_id },
+      relations: [
+        "subImages",          // lấy ảnh phụ
+        "variants",           // lấy variants
+        "variants.color",     // lấy màu từ variant
+        "variants.size",      // lấy size từ variant
+            // nếu muốn lấy luôn comments
+      ],
+    });
+
+    if (!product) {
+      return {
+        success: false,
+        message: "Không có sản phẩm nào",
+        data: null,
+      };
+    }
+
+    return {
+      success: true,
+      data: product,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: "Có lỗi xảy ra khi lấy sản phẩm",
+      data: null,
     };
   }
 }

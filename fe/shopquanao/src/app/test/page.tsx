@@ -76,7 +76,7 @@ const OrderProgress = ({ status }: { status: number }) => {
 
         {status !== 5 ? (
           <div className="flex justify-between">
-          <div>đã thanh toán</div>
+          <div>Đã đặt hàng</div>
           <div>đang soạn hàng</div>
           <div>đang vận chuyển</div>
           <div>đã hoàn thành</div>

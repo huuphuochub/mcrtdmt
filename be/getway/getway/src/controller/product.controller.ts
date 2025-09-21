@@ -110,6 +110,7 @@ export class ProductController {
         ratingSum:0,
         ratingCount:0,
         averageRating:0,
+        weigth:body.weigth,
         subcategory:body.subcategoryId
       }
       
@@ -149,6 +150,8 @@ async getAllProduct(@Query('limit') limit:string, @Query('page') page:string) {
    @UseGuards(JwtSellerAuthGuardFromCookie)
  @Get('getallproductseller')
 async getAllProductseller(@GetSeller() seller:any,  @Query('limit') limit:string, @Query('page') page:string) {
+  console.log(seller);
+  
     if(!seller){
         return{
           success:false,
@@ -195,14 +198,6 @@ async getproductdatil(@Param('id') id:number){
 
   const product = response.data;
 
-// if (!product?.idCategory || !product?.subcategory || !product?.idSeller) {
-//   return {
-//     success: false,
-//     message: 'Thiếu thông tin sản phẩm để load chi tiết',
-//     data: product,
-//   };
-// }
-
   const [imagesRes, categoryRes, subcategoryRes,countproductRes, sellerRes] =
   await Promise.allSettled([
     this.httpservice
@@ -221,23 +216,6 @@ async getproductdatil(@Param('id') id:number){
       .get(`http://localhost:3004/seller/getseller/${response.data.data.idSeller}`)
       .toPromise(),
     
-    // this.httpservice
-    //   .get(`http://product:3002/subimg/subimgbyid/${id}`)
-    //   .toPromise(),
-    // this.httpservice
-    //   .get(`http://user:3004/category/getbyid/${response.data.data.idCategory}`)
-    //   .toPromise(),
-    // this.httpservice
-    //   .get(`http://user:3004/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
-    //   .toPromise(),
-    // this.httpservice
-    //   .get(`http://user:3004/users/getuser/${response.data.data.idSeller}`)
-    //   .toPromise(),
-    // this.httpservice
-    //   .get(`http://user:3004/seller/getseller/${response.data.data.idSeller}`)
-    //   .toPromise(),
-
-
   ]);
 
   
@@ -381,6 +359,163 @@ async getSizebyidprd(@Param('id') id:number){
               code: errRes.code || 'UNKNOWN_ERROR',
           };
       }
+    }
+
+   @UseGuards(JwtSellerAuthGuardFromCookie)
+    @Post('searchbyseller')
+    async Searchprdbyseller(@GetSeller() seller:any,@Body() body:any){
+      // console.log(body);
+      
+      if(!seller){
+        return{
+          message:'loi roi ban oi',
+          success:false,
+          data:null
+        }
+      }
+            
+      try {
+        const bddata = {
+            seller_id:seller.seller_id,
+            page:body.page,
+            keyword:body.keyword,
+        }
+        const data:any =   await this.httpservice.post('http://localhost:3002/product/searchprdseller',bddata).toPromise();
+
+        return data.data
+      } catch (error) {
+          const errRes = error.response?.data || {};
+
+         return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+      
+      
+    }
+   @UseGuards(JwtSellerAuthGuardFromCookie)
+    @Post('filterproduct')
+    async Filterproduct(@GetSeller() seller:any,@Body() body:any) {
+      // console.log(body);
+      // console.log(seller);
+      console.log(body);
+      
+      
+      
+      if(!seller){
+        return{
+          message:'loi roi ban oi',
+          success:false,
+          data:null
+        }
+      }
+      // console.log(body);
+      try {
+        const bodydata = {
+          category:body.body.category,
+          status:body.body.status,
+          seller_id:seller.seller_id,
+          quantity:body.body.quantity,
+          page:body.body.page
+        }
+          const data:any =   await this.httpservice.post('http://localhost:3002/product/filterproduct',bodydata).toPromise();
+            console.log(data.data);
+            
+           return data.data
+
+      } catch (error) {
+        const errRes = error.response?.data || {};
+
+         return {
+              success: false,
+              message: errRes.message || 'Lỗi cập nhật thông tin',
+              code: errRes.code || 'UNKNOWN_ERROR',
+          };
+      }
+      
+    }
+
+    @UseGuards(JwtSellerAuthGuardFromCookie)
+    @Get('productdetailseller/:id')
+    async GetDetailProductSeller(@Param('id') id:string,@GetSeller() seller:any){
+        if(!seller){
+          return{
+            success:false,
+            data:null,
+            message:'vui long dang nhaptrang ban hang'
+          }
+        }
+
+         try {
+           const response:any = await this.httpservice
+            .get(`http://localhost:3002/product/productdetailseller/${id}`,{
+              params:{
+                seller_id:seller.seller_id
+              }
+            })
+            .toPromise();
+
+            return response.data
+         } catch (error) {
+          return{
+            success:false,
+            data:null,
+            message:'loi khi lay san pham'
+          }
+         }
+    }
+
+    @Get('sizeandcolor')
+    async GetSizeColor(){
+      try {
+        // console.log('da goi');
+        
+        const data:any = await this.httpservice.get('http://localhost:3002/size/sizeandcolor').toPromise()
+      // console.log(data.data);
+        return data.data
+      } catch (error) {
+          return{
+            success:false,
+            data:null,
+            message:'loi server'
+          }
+      }
+    }
+
+    @Post('filter/user')
+    async FilterProductUser(
+      // @Query('keyword') keyword:string,
+      // @Query('page') page:string, 
+      // @Query('category') category:string, 
+      // @Query('subcate') subcate:string,
+      // @Query('bestselling') bestselling:string,
+      // @Query('rating') rating:string,
+      // @Query('discount') discount:string,
+      // @Query('newdate') newdate:string,
+      // @Query('minprice') minprice:string,
+      // @Query('maxprice') maxprice:string,
+
+      @Body() body:any
+
+      
+      
+
+    ){
+      console.log(body);
+      try {
+        const data:any  = await this.httpservice.post('http://localhost:3002/product/filteruser', body).toPromise()
+        return data.data
+
+      } catch (error) {
+         return{
+            success:false,
+            data:null,
+            message:'loi server'
+          }
+      }
+      
     }
 }
   

@@ -15,7 +15,7 @@ export default function Home() {
           </div>
       </div> */}
       <Header/>
-      <div className="mt-[100px]">
+      <div className="mt-[80px]">
           <HomePage/>
       </div>
       <FooterPage/>

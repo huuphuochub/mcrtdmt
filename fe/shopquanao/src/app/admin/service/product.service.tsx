@@ -1,5 +1,13 @@
 import axiosClient from "@/lib/axiosclient";
 
+
+interface bodyfilter{
+    status:number,
+    category:number,
+    quantity:number,
+    // seller_id:number,
+    page:number
+}
 const getListProduct = async(limit:number,page:number) =>{
     try {
         const Listprd = await axiosClient.get('/product/getallproductseller',{
@@ -29,5 +37,51 @@ const SearchProduct= async(keyword:string,page:number)=>{
         }
     }
 }
+const filterprd = async(body:bodyfilter) =>{
+    // console.log(status,quantity,category,page);
+    console.log('service');
+    
+    console.log(body);
+    
+    try {
+        const product = await axiosClient.post('/product/filterproduct',{body});
+        // console.log(product);
+        
+        return product
+        
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            messgae:'khong gui dc'
+        }
+    }
+}
 
-export {getListProduct,SearchProduct};
+const GetDetailProduct =async(id:number) =>{
+    try {
+        const product = await axiosClient.get(`/product/productdetailseller/${id}`);
+        return product
+    } catch (error) {
+        return{
+            success:false,
+            message:'khong ui dc',
+            data:null,
+        }
+    }
+}
+
+const GetSizeColor= async() =>{
+    try {
+        const ok = await axiosClient.get('/product/sizeandcolor')
+        return ok
+    } catch (error) {
+        return{
+            success:false,
+            message:"khong ui dc",
+            data:null
+        }
+    }
+}
+
+export {getListProduct,SearchProduct,filterprd,GetDetailProduct,GetSizeColor};

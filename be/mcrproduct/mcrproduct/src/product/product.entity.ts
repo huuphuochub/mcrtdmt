@@ -60,6 +60,9 @@ export class Product {
     @Column({default:0,nullable:true})
     totalsold:number;
 
+    @Column({default:0})
+    discount:number;
+
 
     @Column({default:0,nullable:true})
     weigth:number;

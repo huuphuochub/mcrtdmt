@@ -68,4 +68,25 @@ export class SizeService {
       
     }
   }
+
+  async GetSizeColor(){
+    try {
+      const size = await this.sizeRepo.find();
+      const color = await this.colorrepo.find();
+
+      return{
+        success:true,
+        data:{
+          size,color
+        },
+        message:'ok'
+      }
+    } catch (error) {
+      return{
+        success:false,
+        data:null,
+        message:'loi service'
+      }
+    }
+  }
 }

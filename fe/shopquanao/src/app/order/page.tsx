@@ -136,7 +136,7 @@ const [month, setMonth] = useState<string | undefined>(undefined);
                     <td className="px-4 py-3">
                       {order.status === 1 ? (
                         <span className="text-green-600 font-semibold">
-                          Đã thanh toán
+                          Đã đặt hàng
                         </span>
                       ) : order.status === 0 ? (
                         <span className="text-red-600 font-semibold">

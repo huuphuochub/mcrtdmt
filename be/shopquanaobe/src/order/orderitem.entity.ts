@@ -1,13 +1,16 @@
 import { Column, Entity, JoinColumn, ManyToOne, PrimaryGeneratedColumn } from "typeorm";
 import { Order } from "./order.entity";
 
-@Entity("orderitem") // <-- thiếu @Entity ở code bạn
+@Entity("orderitem") 
 export class OrderItem {
   @PrimaryGeneratedColumn()
   id: number;
 
   @Column()
   id_product: number;
+
+  @Column({default:0})
+  seller_id:number;
 
   @Column()
   quantity: number;

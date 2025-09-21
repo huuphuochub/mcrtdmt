@@ -1,72 +1,40 @@
 "use client";
+import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
-import React from "react";
-import dynamic from "next/dynamic";
-import { ApexOptions } from "apexcharts";
+const data = [
+  { name: "Hoàn thành", value: 400 },
+  { name: "Hủy bởi khách", value: 300 },
+  { name: "Thu nhập", value: 300 },
+  { name: "Tổng sản phẩm", value: 200 },
+  { name: "Bị hủy", value: 100 },
+];
 
-// Sử dụng dynamic import vì ApexCharts chỉ chạy client
-const Chart = dynamic(() => import("react-apexcharts"), { ssr: false });
+const COLORS = ["#0088FE", "#00C49F", "#FFBB28", "#FF8042", "#A020F0"];
 
-const PieChart: React.FC = () => {
-  const series = [44, 55, 13, 43, 22,44, 55, 13, 43, 22,44, 55, 13, 43, 22]; // dữ liệu
-  const labels = [
-    "Hoàn thành sản phẩm a này hơi dài để xem có xấu không",
-    "Hủy bởi khách",
-    "Thu nhập",
-    "Tổng sản phẩm",
-    "Bị hủy",
-    "Hoàn thành sản phẩm a này hơi dài để xem có xấu không",
-    "Hủy bởi khách",
-    "Thu nhập",
-    "Tổng sản phẩm",
-    "Bị hủy",
-    "Hoàn thành sản phẩm a này hơi dài để xem có xấu không",
-    "Hủy bởi khách",
-    "Thu nhập",
-    "Tổng sản phẩm",
-    "Bị hủy"
-  ];
-
-  const options: ApexOptions = {
-    chart: {
-      id: "traffic-pie-chart",
-      type: "pie",
-      height: 350,
-    toolbar: { show: false }
-
-    },
-    labels: labels,
-    legend: {
-    position: "right",
-    show:false,
-    formatter: (seriesName: string, opts: any) => {
-        return seriesName.length > 15 ? seriesName.slice(0, 15) + "..." : seriesName;
-    }
-    },
-
-    dataLabels: {
-      enabled: true,
-      formatter: function (val, opts) {
-        const label = opts.w.globals.labels[opts.seriesIndex];
-        return label.length > 10 ? label.slice(0, 10) + "..."  : label ;
-      },
-      style: {
-        fontSize: "12px"
-      }
-    },
-    
-    responsive: [
-      {
-        breakpoint: 768, // mobile
-        options: {
-          chart: { width: 300 },
-          legend: { position: "bottom" }
-        }
-      }
-    ]
-  };
-
-  return <Chart options={options} series={series} type="pie" height={350} />;
-};
-
-export default PieChart;
+export default function MyPieChart() {
+  return (
+    <div className="flex justify-center bg-white p-4 rounded-xl shadow">
+      <PieChart width={400} height={400}>
+        <Pie
+          data={data}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          outerRadius={150}
+          fill="#8884d8"
+          dataKey="value"
+          label
+        >
+          {data.map((entry, index) => (
+            <Cell
+              key={`cell-${index}`}
+              fill={COLORS[index % COLORS.length]}
+            />
+          ))}
+        </Pie>
+        <Tooltip />
+        <Legend />
+      </PieChart>
+    </div>
+  );
+}

@@ -4,9 +4,12 @@
 import { Box, DollarSign, FileText, Home, User } from "lucide-react";
 // import ApexCharts from 'apexcharts'
 // import TrafficChart from "./TrafficChart ";
+// import PieChart from "./Pie";
 import dynamic from "next/dynamic";
-const PieChart = dynamic(() => import("./Pie"),{ssr:false});
-const TrafficChart = dynamic(() => import("./TrafficChart "), { ssr: false });
+import MyPieChart from "./Pie";
+const TrafficChart = dynamic(() => import("./TrafficChart "), { ssr: false , loading: () => <p>Loading chart...</p>, });
+// const PieChart = dynamic(() => import("./Pie"),{ssr:false , loading: () => <p>Loading chart...</p>, });
+
 import React from "react";
 import DashboardCards from "./doasboardcart";
 import BiaxialBarChart from "./BarChart";
@@ -88,7 +91,7 @@ export default function HomePageAdmin(){
                             </select>
                         </div>
 
-                        <PieChart/>
+                        <MyPieChart/>
                     </div>
                 </div>
 

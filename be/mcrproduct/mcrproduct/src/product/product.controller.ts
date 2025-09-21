@@ -104,4 +104,47 @@ export class ProductController {
     async Getnew(@Body() body:any){
         return await this.productservice.Getnewprodct(body.page)
     }
+
+    @Post('searchprdseller')
+    async SearchPrdSeller(@Body() body:any){
+        console.log(body);
+        return await this.productservice.SearchPrdSeller(body.keyword,body.page,body.seller_id)
+        
+    }
+
+    @Post('filterproduct')
+    async FilterProduct(@Body() body:any){
+        console.log(body);
+        
+        return await this.productservice.Filterproduct(body.category,
+        body.status,
+            body.seller_id,
+            body.quantity, 
+            body.page)
+    }
+
+    @Get('productdetailseller/:id')
+    async GetDetailProductSeller(@Param('id') id:string, @Query('seller_id') seller_id:string){
+
+        return await this.productservice.ProductDetailSeller(Number(id), Number(seller_id));
+        
+    }
+
+    @Post('filteruser')
+    async FilterProductUser(
+    //   @Query('keyword') keyword:string,
+    //   @Query('page') page:string, 
+    //   @Query('category') category:string, 
+    //   @Query('subcate') subcate:string,
+    //   @Query('bestselling') bestselling:string,
+    //   @Query('rating') rating:string,
+    //   @Query('discount') discount:string,
+        @Body() body:any
+      
+    ){
+
+        return await this.productservice.FilterUser(body)
+
+    }
+
 }

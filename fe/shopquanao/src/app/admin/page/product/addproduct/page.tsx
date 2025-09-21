@@ -19,6 +19,7 @@ interface FormErrors {
   mainImage?: string;
   subImage?: string;
   quantity?:string;
+  weigth?:string;
 }
 
 export default function Addproduct() {
@@ -33,6 +34,7 @@ export default function Addproduct() {
   const [idsubcategory, setIdsubcategory] = useState<number>(0);
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [weigth,setWeigth] = useState(0);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', message: string } | null>(null);
 
   const handleImageChange = (
@@ -74,7 +76,7 @@ export default function Addproduct() {
 
   const getallcategory = async () => {
     const allcate = await Getallcategory();
-    // console.log(allcate.data);
+    console.log(allcate.data);
     
     if (allcate.data.success) {
       // console.log(allcate.data.result);
@@ -133,6 +135,11 @@ export default function Addproduct() {
     const quantity = formData.get('quantity' ) as string;
     if(!quantity || parseFloat(quantity) <=0){
       errors.quantity = "vui long nhap so luong"
+    }
+
+    const weigth = formData.get('weigth') as string;
+    if(!weigth || parseFloat(weigth) <=0){
+      errors.weigth = "vui long nhap can nang"
     }
     // Validate origin
     const origin = formData.get('origin') as string;
@@ -213,6 +220,7 @@ export default function Addproduct() {
         setIdsubcategory(0);
         setSubcates([]);
         setErrors({});
+        setWeigth(0)
       } else {
         setSubmitMessage({ type: 'error', message: 'Có lỗi xảy ra khi thêm sản phẩm' });
       }
@@ -297,6 +305,21 @@ export default function Addproduct() {
             onChange={() => setErrors(prev => ({ ...prev, quantity: undefined }))}
           />
           {errors.quantity && <p className="text-red-500 text-sm mt-1">{errors.quantity}</p>}
+        </div>
+
+        {/* can nang */}
+        <div>
+          <label className="block text-sm font-semibold mb-1">can nang(gram)</label>
+          <input
+            type="number"
+            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.weigth ? 'border-red-500' : ''
+            }`}
+            name="weigth"
+            min="0"
+            onChange={() => setErrors(prev => ({ ...prev, weigth: undefined }))}
+          />
+          {errors.weigth && <p className="text-red-500 text-sm mt-1">{errors.weigth}</p>}
         </div>
 
         {/* Mô tả */}

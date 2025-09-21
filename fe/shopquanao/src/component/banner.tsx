@@ -11,7 +11,7 @@ const banners = [
     description:
       "Let's Fashion ád ád ádas đá jadc á ádjk ádk ád ạ  kjh  kjh kjh kjhg jhkg dd ạkdas dkas...",
     image:
-      "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751182630/LvA1IJHhR3UMSTuh2AjL9nqk309TTz8NqT0pVYbr__1_-removebg-preview_axdcn7.png",
+      "https://res.cloudinary.com/dnjakwi6l/image/upload/v1749191204/vrlafwtsyuceiekglvkv.jpg",
   },
   {
     title: "Modern Style",
@@ -19,7 +19,7 @@ const banners = [
     description:
       "Trendy fashion for you. Enjoy the latest designs now! New drops every week.",
     image:
-      "https://res.cloudinary.com/dnjakwi6l/image/upload/v1751182630/LvA1IJHhR3UMSTuh2AjL9nqk309TTz8NqT0pVYbr__1_-removebg-preview_axdcn7.png",
+      "https://res.cloudinary.com/dnjakwi6l/image/upload/v1749191204/vrlafwtsyuceiekglvkv.jpg",
   },
 ];
 

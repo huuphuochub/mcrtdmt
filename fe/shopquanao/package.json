@@ -27,8 +27,11 @@
     "react-circular-progressbar": "^2.2.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.6.0",
+    "react-router-dom": "^7.9.1",
+    "recharts": "^3.2.1",
     "swiper": "^11.2.10",
     "tailwind-merge": "^3.3.1",
+    "use-debounce": "^10.0.6",
     "zustand": "^5.0.8"
   },
   "devDependencies": {

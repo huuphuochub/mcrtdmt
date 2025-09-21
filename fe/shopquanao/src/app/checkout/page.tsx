@@ -305,6 +305,7 @@ useEffect(() => {
                 productname:item.product.name,
                 color_id:item.color_id,
                 size_id:item.size_id,
+                seller_id:item.product.idSeller,
 
               }
             })

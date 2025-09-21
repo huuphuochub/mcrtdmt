@@ -15,7 +15,7 @@ import {
 } from "@/components/ui/accordion"
 import Link from "next/link";
 
-const Headeradmin1 =() =>{
+const Headeradmin1 =({ onToggleMenu }: { onToggleMenu: () => void }) =>{
   const {seller,loading} = useSeller();
   useEffect(() => {
     console.log(seller);
@@ -41,7 +41,7 @@ const Headeradmin1 =() =>{
     <div className="h-full px-6 flex items-center justify-between">
       {/* Left: Logo + toggle */}
       <div className="flex items-center gap-4 w-[280px]">
-        <AlignJustify className="cursor-pointer hover:text-blue-500 text-xl transition  bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
+        <AlignJustify className="cursor-pointer hover:text-blue-500 text-xl transition  bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" onClick={onToggleMenu}/>
         <Image
           width={35}
           height={35}
@@ -52,7 +52,7 @@ const Headeradmin1 =() =>{
       </div>
 
       {/* Center: Search */}
-      <div className="flex-1 flex justify-center">
+      <div className="flex-1 flex justify-center ">
         <div className="relative w-full max-w-[500px]">
           <input
             type="text"
@@ -79,7 +79,7 @@ const Headeradmin1 =() =>{
           />
           <ChevronDown size={15}/>
           <div>
-            <p className="">nguyễn văn a</p>
+            <p className="">{seller?.usernameseller}</p>
           </div>
         </div>
       </div>
@@ -94,9 +94,9 @@ const Headeradmin2 =() =>{
   console.log(loading);
   
     return(
-<aside className="fixed top-[60px] left-0 w-[280px] h-[calc(100vh-60px)] bg-white border-r p-4 overflow-y-auto z-10 rounded-tr-xl ">
+<aside className="fixed  left-0 w-[280px] h-[calc(100vh-60px)] bg-white border-r p-4 overflow-y-auto z-10 rounded-tr-xl ">
   {!loading ? (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4 ">
       {/* Trang chủ */}
       <a href="#" className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 transition">
         <Home />

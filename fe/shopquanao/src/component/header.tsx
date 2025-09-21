@@ -141,19 +141,14 @@ document.addEventListener("mousedown", handleClickOutside);
 return () => document.removeEventListener("mousedown", handleClickOutside);
 }, []);
 return(
-<header className="fixed top-0 z-20 w-full bg-white ">
+<header className="fixed top-0 z-20 w-full bg-white border-b">
    <div className="flex justify-between items-center max-w-[1200px] mx-auto">
       <div className="flex items-center gap-4">
-         <div className="logo hover:cursor-pointer">
-            <Image 
-               width={100}
-               height={100}
-               src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
-               alt=""
-               ></Image>
-         </div>
+         {/* <div className="logo hover:cursor-pointer">
+            Danh mục
+         </div> */}
          <div>
-            <ul className="flex gap-6 text-2xl font-semibold font-poppins ">
+            <ul className="flex gap-6 text-xl font-semibold font-poppins ">
                <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300 py-[20px]">
                   <Link href="http://localhost:3000">Trang chủ</Link>
                </li>
@@ -164,13 +159,23 @@ return(
                   <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300">
                   <Link href="http://localhost:3000/">Danh mục</Link>
                   </li>
-                  <div className="fixed left-0 top-[80px] w-lvw  h-[300px] bg-white z-50 border  hidden group-hover:block">
+                  <div className="fixed left-0 top-[50px] w-lvw  h-[300px] bg-white z-50 border  hidden group-hover:block">
                      <ul className="flex flex-wrap gap-4 p-4">
                        {(categorys ?? []).map((cat) =>{
                      const slug = `${toSlug(cat.name)}-cat.${cat.id}`
                         return(
-                           <Link href={`/${slug}`} key={cat.id} className="w-[120px] text-gray-700 hover:text-black cursor-pointer">
-                           <p>{cat.name}</p>
+                           <Link href={`/${slug}`} key={cat.id} className="w-[120px] text-gray-700 hover:text-black cursor-pointer flex items-center justify-center">
+                           <div>
+                              <Image
+                                 width={100}
+                                 height={100}
+                                 alt=""
+                                 src={cat.urlimage}
+
+                                 className="max-w-[50px] min-w-[50px] max-h-[50px] min-h-[50px]"
+                              ></Image>
+                              <p>{cat.name}</p>
+                           </div>
                         </Link>
                         )
                        })}
@@ -184,7 +189,11 @@ return(
                      <Link href="http://localhost:3000/sellerregistration">Đăng kí bán hàng</Link>
                   )}
                </li>
+               <li className="hover:cursor-pointer hover:text-gray-400 transition-colors duration-300 py-[20px]">
+                  <Link href="http://localhost:3000">Hỗ trợ</Link>
+               </li>
             </ul>
+            
          </div>
       </div>
       <div className="flex gap-4 text-2xl max-w-[400px]">
