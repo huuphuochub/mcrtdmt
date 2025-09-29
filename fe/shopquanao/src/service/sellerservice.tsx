@@ -35,5 +35,33 @@ const getseller = async()=>{
         }
     }
 }
+const getAllSeller=async() =>{
+    try {
+        const sellers = await axiosClient.get('/seller/all');
+        return sellers 
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            message:'khong gui dc'
+        }
+    }
+}
 
-export {Registrationseller,getseller};
+const GetAllProductBySeller = async(id:number,page:number, limit:number)=>{
+    try {
+        const data = await axiosClient.get(`/seller/allproduct/${id}`,{
+            params:{
+                limit,page
+            }
+        })
+        return data
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            message:'khong gui dc'
+        }
+    }
+}
+export {Registrationseller,getseller,getAllSeller,GetAllProductBySeller};

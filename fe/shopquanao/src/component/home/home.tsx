@@ -27,7 +27,7 @@ export default function HomePage() {
         <Ratingproduct />
       </LazySection>
 
-      <CommentHome />
+      {/* <CommentHome /> */}
     </div>
   );
 }

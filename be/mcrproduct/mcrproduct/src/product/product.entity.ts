@@ -4,6 +4,7 @@ import { Color } from "src/size/color.entity";
 import { Size } from "src/size/size.entity";
 import { ProductVariants } from "src/size/product_variants.entity";
 import { Comment } from "src/comment/comment.entity";
+import { Favourite } from "./favouriteproduct.entity";
 @Entity('product')
 export class Product {
     @PrimaryGeneratedColumn()
@@ -75,6 +76,9 @@ export class Product {
 
     @CreateDateColumn({ type: "timestamp with time zone" })
   createdAt: Date;
+
+  @OneToMany(() => Favourite,favourite=> favourite.product)
+  favourite:Favourite[]
 //    @OneToMany(() => Color, (color) => color.products)
 //   colors: Color[];
 

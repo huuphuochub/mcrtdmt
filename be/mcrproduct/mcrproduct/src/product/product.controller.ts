@@ -142,9 +142,32 @@ export class ProductController {
         @Body() body:any
       
     ){
+        console.log(body);
+        
 
         return await this.productservice.FilterUser(body)
 
     }
 
+    @Post('addfavourite')
+    async Addfavourite(@Body() body:any){
+        console.log(body);
+        
+        return this.productservice.AddFavourite(body);
+    }
+
+    @Post('checkfavourite')
+    async Check(@Body() body:any){
+        return await this.productservice.CheckFavourite(body)
+    }
+
+    @Post('delete')
+    async Delete(@Body() body:any){
+        return await this.productservice.DeleteFv(body);
+    }
+
+    @Get('all/favourite')
+    async GetAllFavourite(@Query("user_id") user_id:string,@Query('page') page:string ){
+        return await this.productservice.GetAllFavourite(Number(user_id),Number(page))
+    }
 }

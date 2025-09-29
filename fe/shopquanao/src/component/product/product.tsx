@@ -2,13 +2,19 @@
 
 import React,{useEffect,useRef,useState} from "react";
 import Image from "next/image";
-import { getBesellerproduct, GetBestsell, GetNewProduct, GetRating } from "@/service/product.service";
+import { GetAllProductSeller, getBesellerproduct, GetBestsell, GetNewProduct, GetRating } from "@/service/product.service";
 import Link from "next/link";
 // import { Star } from 'lucide-react';
 import { interfaceProduct } from "@/interface/product.interface";
-import { Star } from "lucide-react";
+import { Star, X } from "lucide-react";
 import Button from "../ui/button";
 
+interface PropProductTag{
+  handleAddTag:() =>void;
+  seller_id:number;
+  handleProductId: (id: number,name:string,image:string) => void; 
+
+}
 //  hàm tạo slug
 function toSlug(name: string) {
   return name
@@ -242,10 +248,10 @@ useEffect(() => {
 
                 {/* Nội dung */}
                 <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
-                  <p className="font-medium text-gray-800 line-clamp-2">{prdd.name}</p>
+                  <p className="font-medium text-gray-800 line-clamp-2 m-0 p-0" >{prdd.name}</p>
 
                   {/* Rating sao */}
-                  <div className="flex items-center justify-center gap-1">
+                  <div className="flex items-center justify-center gap-1 my-0 py-0">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
@@ -257,15 +263,15 @@ useEffect(() => {
                         }
                       />
                     ))}
-                    <span className="text-xs sm:text-sm text-gray-500 ml-1">
+                    <span className="text-xs sm:text-sm text-gray-500 ml-1 my-0 py-0">
                       ({prdd.ratingCount || 0})
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm line-through text-gray-400">
+                  <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
                     {prdd.price.toLocaleString("vi-VN")} đ
                   </p>
-                  <p className="text-base sm:text-xl text-red-600 font-bold">
+                  <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
                     {prdd.discountprice.toLocaleString("vi-VN")} đ
                   </p>
                 </div>
@@ -362,10 +368,10 @@ useEffect(() => {
 
                 {/* Nội dung */}
                 <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
-                  <p className="font-medium text-gray-800 line-clamp-2">{prdd.name}</p>
+                  <p className="font-medium text-gray-800 line-clamp-2 m-0 p-0" >{prdd.name}</p>
 
                   {/* Rating sao */}
-                  <div className="flex items-center justify-center gap-1">
+                  <div className="flex items-center justify-center gap-1 my-0 py-0">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
@@ -377,15 +383,15 @@ useEffect(() => {
                         }
                       />
                     ))}
-                    <span className="text-xs sm:text-sm text-gray-500 ml-1">
+                    <span className="text-xs sm:text-sm text-gray-500 ml-1 my-0 py-0">
                       ({prdd.ratingCount || 0})
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm line-through text-gray-400">
+                  <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
                     {prdd.price.toLocaleString("vi-VN")} đ
                   </p>
-                  <p className="text-base sm:text-xl text-red-600 font-bold">
+                  <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
                     {prdd.discountprice.toLocaleString("vi-VN")} đ
                   </p>
                 </div>
@@ -482,10 +488,10 @@ useEffect(() => {
 
                 {/* Nội dung */}
                 <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
-                  <p className="font-medium text-gray-800 line-clamp-2">{prdd.name}</p>
+                  <p className="font-medium text-gray-800 line-clamp-2 m-0 p-0" >{prdd.name}</p>
 
                   {/* Rating sao */}
-                  <div className="flex items-center justify-center gap-1">
+                  <div className="flex items-center justify-center gap-1 my-0 py-0">
                     {Array.from({ length: 5 }).map((_, i) => (
                       <Star
                         key={i}
@@ -497,15 +503,15 @@ useEffect(() => {
                         }
                       />
                     ))}
-                    <span className="text-xs sm:text-sm text-gray-500 ml-1">
+                    <span className="text-xs sm:text-sm text-gray-500 ml-1 my-0 py-0">
                       ({prdd.ratingCount || 0})
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm line-through text-gray-400">
+                  <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
                     {prdd.price.toLocaleString("vi-VN")} đ
                   </p>
-                  <p className="text-base sm:text-xl text-red-600 font-bold">
+                  <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
                     {prdd.discountprice.toLocaleString("vi-VN")} đ
                   </p>
                 </div>
@@ -613,4 +619,73 @@ const DiscountProduct=()=>{
 
     )
 }
-export{BesellingProduct,NewProduct,Ratingproduct,DiscountProduct,FavouriteProduct};
+
+const ProductTag=({seller_id,handleAddTag,handleProductId}:PropProductTag) =>{
+    const [listprd,setlitsprd] = useState<interfaceProduct[]>([])
+  const [loading,setloading] = useState(true);
+  const [page,setPage] = useState(1);
+  
+  useEffect(() =>{
+fetchprd()
+  },[seller_id,page])
+
+  const Clickxemthem=()=>{
+    setPage(page + 1)
+  }
+  const fetchprd = async() =>{
+    try {
+      const prd =await GetAllProductSeller(seller_id,page);
+      // console.log(prd);
+      if(prd.data.success){
+        if(page === 1){
+          setlitsprd(prd.data.data)
+        }else{
+          setlitsprd((prev) => [...prev,...prd.data.data])
+        }
+      }
+      
+    } catch (error) {
+      setloading(false)
+    }finally{
+      setloading(false);
+    }
+  }
+  return(
+                      <div className="absolute bottom-[50px] left-0 bg-white border p-2 rounded-lg shadow-lg w-[400px] h-[300px] ">
+                               <div className="flex justify-between items-center border-b pb-2">
+                                    <p>chọn sản phẩm</p>
+                                    <X className="hover:cursor-pointer hover:text-red-500" onClick={handleAddTag} />
+                               </div>
+                               <div className="overflow-y-scroll h-[245px]">
+                                {loading ? (
+                                  <div>loading</div>
+                                ) : (
+                                    <div className="grid grid-cols-3 gap-2 mt-2 ">
+                                      {listprd.length > 0 && listprd.map((item) =>(
+                                        <div className="border p-2 rounded-lg hover:cursor-pointer hover:shadow-lg" key={item.id} onClick={()=>handleProductId(item.id,item.name,item.image)}>
+                                            <Image 
+                                                width={100}
+                                                height={100}
+                                                src={item.image}
+                                                alt="Chat Image"
+                                                className="rounded-lg max-w-[100px] max-h-[100px]"
+                                            ></Image>
+                                            <p className="font-bold text-xs">{item.name}</p>
+                                            <p className="text-red-500 font-bold">{item.discountprice} d</p>
+                                        </div>
+                                      ))}
+                                    </div>
+
+                                )}
+                                      
+                                    <div className="w-full flex justify-end mt-2">
+                                        <Button onClick={Clickxemthem}>xem thêm</Button>
+                                    </div>
+                               </div>
+                               <div>
+
+                               </div>
+                           </div>
+  )
+}
+export{ProductTag,BesellingProduct,NewProduct,Ratingproduct,DiscountProduct,FavouriteProduct};

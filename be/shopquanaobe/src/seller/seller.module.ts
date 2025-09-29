@@ -5,8 +5,9 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { Seller } from './seller.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { CommentSeller } from './commentseller.entity';
+import { Notification } from 'src/noti/noti.entity';
 @Module({
-  imports:[TypeOrmModule.forFeature([Seller,CommentSeller]),
+  imports:[TypeOrmModule.forFeature([Seller,CommentSeller,Notification]),
 AuthModule
 ],
   controllers:[SellerController],

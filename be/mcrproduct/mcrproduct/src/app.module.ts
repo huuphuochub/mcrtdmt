@@ -18,6 +18,7 @@ import { Subcategory } from './category/subcategory.entity';
 import { CommentController } from './comment/comment.controller';
 import { CommentModule } from './comment/comment.module';
 import { Comment } from './comment/comment.entity';
+import { Favourite } from './product/favouriteproduct.entity';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { Comment } from './comment/comment.entity';
       username:"postgres",
       password:"123456",
       database:"shopquanao",
-      entities:[Product,Subimg,Color,Size,ProductVariants,Category,Subcategory,Comment],
+      entities:[Product,Subimg,Color,Size,ProductVariants,Category,Subcategory,Comment,Favourite],
       synchronize:true,
 
     }),

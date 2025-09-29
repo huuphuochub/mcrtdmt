@@ -80,6 +80,8 @@ useEffect(() => {
       districtId: user.districtId || 0,
       wardsId: user.wardsId || 0,
     }));
+  }else{
+    window.location.href = '/login'
   }
 }, [user]);
 
@@ -282,17 +284,18 @@ useEffect(() => {
                 }
               });
 
-
+                if(!user) return
                   const update = {
-              username,
-              email,
-              // phone,
-              address:addresss,
-              provinceId,
-              districtId,
-              wardsId,
-              phoneorder,
-              avatarUrl:user?.avatarUrl || "",
+                  id:user.id,
+                  username,
+                  email,
+                  // phone,
+                  address:addresss,
+                  provinceId,
+                  districtId,
+                  wardsId,
+                  phoneorder,
+                  avatarUrl:user?.avatarUrl || "",
             }
             await Updateuser(update)
             setnote(note);

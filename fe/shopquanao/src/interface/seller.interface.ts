@@ -11,13 +11,16 @@ export interface SellerInterface{
     urltiktok:string;
     describe:string;
     phone:string;
-    createdAt:Date;
+    createdAt:string;
     status:number;
     // tổng số lượt đánh giá
     ratingCount:number;
     //tổng số sao đánh giá
     ratingSum:number;
     avatar:string;
+    soldcount:number;
+    follower:number;
+    totalproduct:number;
 }
 
 interface CommentsellerInterface{
@@ -25,5 +28,5 @@ interface CommentsellerInterface{
     user_id:number;
     content:string;
     star:number;
-    createdAt:Date;
+    createdAt:string;
 }

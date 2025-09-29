@@ -33,7 +33,6 @@ export class CommentProductController {
 
             }
 
-            console.log(bodypost);
             
             try {
                   const response = await firstValueFrom(
@@ -65,15 +64,12 @@ export class CommentProductController {
                   const response:any = await firstValueFrom(
                         this.httpService.post('http://localhost:3002/comment/getallcmt', body)
                   );
-                  // console.log(response.data.data.data.data.user_id);
-                  // console.log(response.data.data);
+
 
                   if(response){
                         const ok = response.data.data.map(item => item.user_id)
-                        // console.log(ok);
                         const Users:any = await this.httpService.post('http://localhost:3004/users/inforusers', { ok }).toPromise();
 
-                        // console.log(Users.data);
 
                           const usersMap = new Map(Users.data.map(u => [u.id, u]));
 
@@ -81,7 +77,6 @@ export class CommentProductController {
                               ...c,
                               user: usersMap.get(c.user_id) || null
                               }));
-                        console.log(merged);
                         return{
                               success:true,
                               data:merged,
@@ -106,7 +101,6 @@ export class CommentProductController {
 
       @Delete('delete/:id')
       async DeleteCmt(@Param('id') id:number){
-            console.log(id);
             
             const dev:any = await firstValueFrom(
             

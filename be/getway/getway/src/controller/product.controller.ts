@@ -150,7 +150,6 @@ async getAllProduct(@Query('limit') limit:string, @Query('page') page:string) {
    @UseGuards(JwtSellerAuthGuardFromCookie)
  @Get('getallproductseller')
 async getAllProductseller(@GetSeller() seller:any,  @Query('limit') limit:string, @Query('page') page:string) {
-  console.log(seller);
   
     if(!seller){
         return{
@@ -173,6 +172,22 @@ async getAllProductseller(@GetSeller() seller:any,  @Query('limit') limit:string
   
 }
 
+@Get('all/seller')
+async getAllProductcuasellerchouser( @Query('limit') limit:string, @Query('page') page:string,@Query('seller_id') seller_id:string) {
+      
+     const response = await this.httpservice
+    .get('http://localhost:3002/product/getallbyseller',{
+      params:{
+        page,limit,seller_id:seller_id
+      }
+    })
+    .toPromise();
+  
+  return response!.data; 
+  // } 
+  
+}
+
 
 @Get('bestseller')
 async getbeseller() {
@@ -186,7 +201,6 @@ async getbeseller() {
 async getproductdatil(@Param('id') id:number){
   const response:any = await this.httpservice.get(`http://localhost:3002/product/productdetail/${id}`)
   .toPromise()
-  // console.log(response.data);
   
   if(!response.data.success){
     return {
@@ -306,7 +320,6 @@ async getSizebyidprd(@Param('id') id:number){
 
     @Post('getbestselling')
     async GetBestsell(@Body() body:any){
-            console.log(body);
 
       try {
           const data:any =   await this.httpservice.post('http://localhost:3002/product/getbestselling',body).toPromise();
@@ -364,7 +377,6 @@ async getSizebyidprd(@Param('id') id:number){
    @UseGuards(JwtSellerAuthGuardFromCookie)
     @Post('searchbyseller')
     async Searchprdbyseller(@GetSeller() seller:any,@Body() body:any){
-      // console.log(body);
       
       if(!seller){
         return{
@@ -397,13 +409,7 @@ async getSizebyidprd(@Param('id') id:number){
     }
    @UseGuards(JwtSellerAuthGuardFromCookie)
     @Post('filterproduct')
-    async Filterproduct(@GetSeller() seller:any,@Body() body:any) {
-      // console.log(body);
-      // console.log(seller);
-      console.log(body);
-      
-      
-      
+    async Filterproduct(@GetSeller() seller:any,@Body() body:any) {  
       if(!seller){
         return{
           message:'loi roi ban oi',
@@ -411,7 +417,6 @@ async getSizebyidprd(@Param('id') id:number){
           data:null
         }
       }
-      // console.log(body);
       try {
         const bodydata = {
           category:body.body.category,
@@ -421,7 +426,6 @@ async getSizebyidprd(@Param('id') id:number){
           page:body.body.page
         }
           const data:any =   await this.httpservice.post('http://localhost:3002/product/filterproduct',bodydata).toPromise();
-            console.log(data.data);
             
            return data.data
 
@@ -436,6 +440,10 @@ async getSizebyidprd(@Param('id') id:number){
       }
       
     }
+
+
+
+
 
     @UseGuards(JwtSellerAuthGuardFromCookie)
     @Get('productdetailseller/:id')
@@ -470,10 +478,8 @@ async getSizebyidprd(@Param('id') id:number){
     @Get('sizeandcolor')
     async GetSizeColor(){
       try {
-        // console.log('da goi');
         
         const data:any = await this.httpservice.get('http://localhost:3002/size/sizeandcolor').toPromise()
-      // console.log(data.data);
         return data.data
       } catch (error) {
           return{
@@ -503,7 +509,6 @@ async getSizebyidprd(@Param('id') id:number){
       
 
     ){
-      console.log(body);
       try {
         const data:any  = await this.httpservice.post('http://localhost:3002/product/filteruser', body).toPromise()
         return data.data
@@ -517,5 +522,80 @@ async getSizebyidprd(@Param('id') id:number){
       }
       
     }
+   @UseGuards(JwtAuthGuardFromCookie)
+    @Post('favourite/add')
+    async AddFavourite(@Body() body:any,@GetUser() user:any){
+      
+      const databody = {
+          user_id:user.id,
+          product_id:body.product_id
+      }
+      try {
+        const data:any = await this.httpservice.post('http://localhost:3002/product/addfavourite',databody).toPromise()
+        return data.data
+      } catch (error) {
+        return{
+          success:false,
+          message:'loi gateway'
+        }
+      }
+    }
+
+       @UseGuards(JwtAuthGuardFromCookie)
+    @Post('favourite/delete')
+    async Delete(@Body() body:any,@GetUser() user:any){
+      
+      const databody = {
+          user_id:user.id,
+          product_id:body.product_id
+      }
+      try {
+        const data:any = await this.httpservice.post('http://localhost:3002/product/delete',databody).toPromise()
+        return data.data
+      } catch (error) {
+        return{
+          success:false,
+          message:'loi gateway'
+        }
+      }
+    }
+
+    @UseGuards(JwtAuthGuardFromCookie)
+    @Post('favourite/check')
+    async Checkfv(@Body() body:any,@GetUser() user:any){
+      const databody = {
+          user_id:user.id,
+          product_id:body.product_id
+      }
+      try {
+        const data:any = await this.httpservice.post('http://localhost:3002/product/checkfavourite',databody).toPromise()
+        return data.data
+      } catch (error) {
+        return{
+          success:false,
+          message:'loi gateway'
+        }
+      }
+    }
+
+
+        @UseGuards(JwtAuthGuardFromCookie)
+      @Get('all/favourite')
+      async GetAllFavourite(@GetUser() user:any,@Query('page') page:string){
+        try {
+          const data:any = await this.httpservice.get('http://localhost:3002/product/all/favourite',{
+            params:{user_id:user.id,page:page}
+          }).toPromise();
+
+          return data.data
+        } catch (error) {
+          return{
+            success:false,
+            message:'loi gateway',
+            data:null,
+          }
+        }
+      }
+
 }
   

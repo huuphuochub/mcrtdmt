@@ -215,7 +215,7 @@ useEffect(() =>{
                 <h1 className="text-xl font-semibold text-gray-700 mb-2">
                 {error}
                 </h1>
-                <Link href='cart' className="bg-red-500 text-white px-4 py-2 rounded-2xl mt-4 ">hủy</Link>
+                <Link href='cart' className="bg-red-500 text-white px-4 py-2 rounded-2xl mt-4 relative">hủy</Link>
                 
             </div>
             </div>

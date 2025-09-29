@@ -2,24 +2,29 @@
 
 import React,{useEffect,useMemo,useRef,useState} from "react";
 import Header from "@/component/header";
+import { useChat } from "@/app/context/chat.context";
 import FooterPage from "@/component/footer";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import Image from "next/image";
+import { AddFl, CheckFl, UnFl } from "@/service/folower.service";
 import Button from "@/component/ui/button";
 import { interfaceProduct } from "@/interface/product.interface";
 import { Star,Heart,EllipsisVertical, Trash } from "lucide-react";
-import { interfaceSeller } from "@/interface/user.interface";
+import { SellerInterface } from "@/interface/seller.interface";
 import { interfaceuser } from "@/interface/user.interface";
 import { interfacesubimg } from "@/interface/subimg.interface";
 import { Category,Subcategory } from "@/interface/category.interface";
 // import { getproductdetail } from "@/service/product.service";
-import { getsizebyidproduct } from "@/service/product.service";
+import { AddFavourite, CheckFv, deLeteFv, getsizebyidproduct } from "@/service/product.service";
 import { interfacecolor } from "@/interface/interfacecolor";
 import { interfacesize } from "@/interface/interfacesize";
 import { addcart } from "@/service/cartservice";
 import { Getuserbyid } from "@/service/userservice";
 import { useCart } from "@/app/context/cartcontext";
 import { useUser } from "@/app/context/usercontext";
+// import CreateRoomchat from "@/service/chat.service";
+import {checkRoom, CreateRoomchat} from "@/service/chat.service";
+
 import { CheckHasBought } from "@/service/order.service";
 import { addComment } from "@/service/comment.service";
    import { GetallCommentByProduct } from "@/service/comment.service";
@@ -27,6 +32,7 @@ import { addComment } from "@/service/comment.service";
 import toast from "react-hot-toast";
 import { ImagePreview } from "@/components/ui/enlargeimg";
 import { DeleteCmtProduct } from "@/service/comment.service";
+import Link from "next/link";
 // import { useCart } from "@/app/context/cartcontext";
 // import { interfacesize } from "@/interface/interfacesize";
 interface ProductResponse<T> {
@@ -57,7 +63,7 @@ interface ProductDetailData {
 
    seller:{
       success:boolean,
-      data:interfaceSeller | null,
+      data:SellerInterface ,
    }
 
 }
@@ -109,13 +115,13 @@ type ProductProps = { imgUrl: string };
 
 export default function Productdetailpage({productprop} :ProductDetailProps){
    const {  addToCart,getCartRect  } = useCart();
-   
+   const { setItemchatcontext,setRoom,setSellerchat} = useChat();
    const [product,setProduct] = useState<interfaceProduct | null >(null)
    const [category,setCategory] = useState<Category | null >(null);
    const [subcategory,setSubcategory] = useState<Subcategory |null>(null);
    const [subimg, setSubimg] = useState<interfacesubimg[] | null>(null);
    // const [userseler,setUserseller] = useState<interfaceuser | null>(null);
-   const [seller,setSeller] = useState<interfaceSeller | null>(null);
+   const [seller,setSeller] = useState<SellerInterface | null>(null);
 const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const [arrsize,setArrsize] = useState<interfacesize[]>([])
    const [arrcolor,setArrColor] = useState<interfacecolor[]>([])
@@ -123,15 +129,73 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const [selectedColorId, setSelectedColorId] = useState<number | null>(null);
    const [quantityitem,setQuantityitem] = useState<number | 1>(1);
    const [countlproduct,setCountlproduct] = useState<number|0>(0);
-   const {user} =useUser();
+   const {user,seller_id} =useUser();
    const [hasbought,setHasbought] = useState(false);
    const [rating,setRating] = useState(0);
    const [contencomment,setContetncomment] = useState<string | null >(null)
    const [pagecomment,setPagecomment] = useState(1);
    const [cmts,setCmts] = useState<commentdetail[] >([])
    const [loadingcmt,setLoadingcmt] = useState(true);
+   const [favourted,setFavourited] = useState(false);
+   const [ischatroom,setIschatroom] = useState(false);
+   const [roomId,setRoomId] = useState(0)
+   const [isFl,setIsFl] = useState(false);
+   const [loadingseller,setLoadinfseller]  = useState(true)
    // const average = ratingCount > 0 ? ratingSum / ratingCount : 0;
 //   const cartRef = useRef<HTMLDivElement>(null);
+
+const HandleAddFavourite =async(product_id:number) =>{
+   try {
+      const add = await AddFavourite(product_id);
+      setFavourited(true)
+      
+   } catch (error) {
+      
+   }
+}
+
+
+// mở chat item
+const HandleOpenChat = () =>{
+   // if(!seller) return;
+   console.log('mo chat');
+   
+   if(!user) return;
+   setItemchatcontext(true);
+   setRoom(roomId);
+   // setSellerchat(seller.id);
+
+   
+}
+const Createchat = async(seller_id:number) =>{
+   console.log('toa phong');
+   
+   
+   if(!user) return
+   const room = await CreateRoomchat(seller_id);
+   console.log(room);
+   if(room.data.success){
+      setRoom(room.data.data.id)
+      setItemchatcontext(true);
+
+   }
+   
+   
+   // setItemchat(true);
+   //  setRoom(roomId);
+   // setSellerchat(seller_id);
+}
+
+const handleDeleteFv = async(product_id:number) =>{
+   try {
+      const dlt = await deLeteFv(product_id)
+            setFavourited(false)
+
+      
+   } catch (error) {
+      
+   }
+}
 
 
 const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -173,11 +237,9 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
 
    const GetallCmt = async() =>{
       if(!product) return null;
-      console.log(pagecomment);
       
       try {
          const cmt = await GetallCommentByProduct(product.id,pagecomment)
-         console.log(cmt.data.data);
          
          if(cmt){
             setCmts(cmt.data.data);
@@ -213,18 +275,6 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
    useEffect(() =>{
       GetallCmt();
    },[product])
-  
-    // console.log(itemid,shopid);
-   // console.log(productprop);
-   // tính số ngày
-   // const ddate = (date:Date)=>{
-   //    const pasdate:Date = new Date(date);
-   //    const now :Date= new Date();
-   //    const s:number = now.getTime() - pasdate.getTime();
-   //    const day:number = Math.floor(s/(1000*60*60*24))
-   //    return day
-
-   // }
 
    const CART_KEY = "cart";
 
@@ -264,7 +314,6 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
    useEffect(() => {
   
     if (productprop.success && productprop.data?.product.success) {
-      // console.log(productprop.data.product.data);
       
       setProduct(productprop.data.product.data);
       setCategory(productprop.data.category.data);
@@ -272,13 +321,68 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
       setCountlproduct(productprop.data.countlproduct)
       setSubimg(productprop.data.images.data);
       setSeller(productprop.data.seller.data);
-      console.log(productprop.data.product.data?.id);
+
       
-  
+      
     }
   }, [productprop]); 
+
+  const CheckRoom=async()=>{
+   try {
+      if(!seller) return
+   const check = await checkRoom(seller.id);
+            // setIschatroom(check.data)
+            // console.log('xem da co phong chưa');
+            
+            // console.log(check.data.success);
+            
+
+      if(check.data.success){
+         setIschatroom(true)
+         setRoomId(check.data.data.id)
+      }
+   const checkfl = await CheckFl(seller.id);
+      console.log(checkfl);
+      
+   if(checkfl.data.success){
+      setIsFl(true)
+   }else{
+      setIsFl(false);
+   }
+   } catch (error) {
+         setLoadinfseller(false)
+
+   }finally{
+         setLoadinfseller(false)
+
+   }
+   
+      
+
+
+   
+  }
+  useEffect(() =>{
+   if(seller){
+      CheckRoom()
+   }
+  },[seller])
+
+  const CheckFavotite = async() =>{
+   if(!product) return
+      try {
+         const ok = await CheckFv(product.id)
+         if(ok.data.success){
+            setFavourited(ok.data.data)
+         }
+         
+      } catch (error) {
+         
+      }
+  }
          useEffect(()=>{
                if(product){
+                  CheckFavotite()
                   size(product.id)
                   checkhasbought(product.id)
                }
@@ -286,7 +390,6 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
 
       const checkhasbought = async(product_id:number)=>{
          const hasbought = await CheckHasBought(product_id);
-         console.log(hasbought);
          if(hasbought.data.data){
             setHasbought(true)
          }else{
@@ -296,7 +399,6 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
       }
          
   const size =async(id:number) =>{
-   // console.log(id);
    
       const sizes =  await  getsizebyidproduct(id)
       
@@ -307,13 +409,8 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
          setResponsesize([]);
 
          setSelectedColorId(1000)
-         setSelectedSizeId(1000)
-         
-         
-         
-      }
-
-      
+         setSelectedSizeId(1000)         
+      }      
   } 
 
   function getcolorbysize(sizeId:number){
@@ -327,19 +424,14 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
   const handlechangesize =(e:number) =>{
    setSelectedSizeId(e);
       const ARcolor = getcolorbysize(e)
-      // console.log(ARcolor);
       setArrColor(ARcolor);
       
   }
   const handleAddToCart =async() =>{
-   // console.log(product?.id);
-   // console.log(selectedColorId);
-   // console.log(selectedSizeId);
-   // console.log(quantityitem);
+
    
    const add = await Getuserbyid();
 
-   // console.log(add.data);
    if(product && selectedSizeId && selectedColorId){
        if(add.data.code === 404){
       saveCartToLocalStorage({
@@ -366,13 +458,9 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
       addToCart(add)
       // alert(quantityitem)
       await addcart(add);
-      // console.log(adds);
       
    }
-   }
-   
-   
-   
+   }   
   }
   const handleplusitem = () =>{
    setQuantityitem(quantityitem + 1);
@@ -382,6 +470,19 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
   }
   const handleerrminusitem =() =>{
    alert("k đủ số lượng size và màu, bui lòng chọn size hoặc màu khác")
+  }
+
+  const handleAddFl=async(seller_id:number)=>{
+   try {
+
+      const add = await AddFl(seller_id);
+      // console.log(add);
+      
+      setIsFl(true);
+   } catch (error) {
+            
+
+   }
   }
 
   const formatVN = (n: number) => new Intl.NumberFormat('vi-VN').format(n);
@@ -399,24 +500,13 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
 }, [selectedSizeId, selectedColorId, responsesize]);
 
 
-//   function getquantityproduct(sizeId:number,colorID:number){
-//          const quantity = Array.from(
-//             new Map(
-//                responsesize.filter(item => item.size.id === sizeId)
-//                .filter(item => item.color.id === colorID)
-//             ).values()
-//          )
-//          console.log(quantity);
-         
-//   }
+
   useEffect(() =>{
    if(responsesize?.length >=1){
-      // console.log(responsesize);
       const arsize = Array.from(
          new Map(responsesize.map(item =>[item.size.id,item.size])).values()
       );
       setArrsize(arsize);
-      // console.log("size:",arsize);
       
       
   }
@@ -436,14 +526,18 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
          
       }
       
+   }   
+
+   const HanfleFl=async(seller_id:number) =>{
+      setIsFl(false);
+         const  ok =await UnFl(seller_id);
+         console.log(ok);
+         
    }
-   
    const PostComment =async(e: React.FocusEvent<HTMLFormElement>) =>{
       e.preventDefault(); // chặn reload trang
       if (!product) return null;
 
-      console.log(rating);
-      console.log(contencomment);
       if(rating === 0){
          alert('vui lòng chọn sao')
          return
@@ -456,7 +550,6 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
          content:contencomment,
          product_id:product?.id
       }
-
       try {
          const post = await addComment(body);
       if(post.data.data.success){
@@ -464,16 +557,9 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
       }else{
          toast.error('lỗi khi gửi')
       }
-      } catch (error) {
-         
+      } catch (error) {  
       }
-      
-
-      }
-      
-
-      
-      
+      }     
    }
 return(
 <div>
@@ -712,7 +798,13 @@ return(
           
         )}
         <Button variant="secondary">Mua ngay</Button>
-        <Heart className="text-red-500 hover:scale-110 transition" />
+        {favourted ? (
+                 <Heart className="text-red-500 fill-red-500 hover:scale-110 transition hover:cursor-pointer relative" onClick={() => handleDeleteFv(product.id)}/>
+
+        ) : (
+                 <Heart className="text-red-500 hover:scale-110 transition hover:cursor-pointer relative" onClick={() =>HandleAddFavourite(product.id)}/>
+
+        )}
         
       </div>
     )}
@@ -722,7 +814,7 @@ return(
 
       </div>
       {/* nguoi ban */}
-      {!seller ? (
+      {loadingseller ? (
          <div className="shadow mt-4 p-2 flex animate-pulse">
             {/* avatar + tên */}
             <div className="flex gap-2 items-center max-w-[350px] w-[350px] border-r border-gray-300">
@@ -758,9 +850,13 @@ return(
                <div className="w-6 h-6 bg-gray-200 rounded-full"></div>
             </div>
          </div>
+         ) : !seller ? (
+            <div>
+
+            </div>
          ) : (
          // === UI thật ===
-         <div className="shadow mt-4 p-2 flex">
+            <div className="shadow mt-4 p-2 flex">
             {/* avatar + seller info */}
             <div className="flex gap-2 items-center max-w-[350px] w-[350px] border-r border-gray-300">
                <div>
@@ -776,7 +872,10 @@ return(
                />
                </div>
                <div>
+                           <Link href={`/page/sellerinfor?id=${seller.id}`} className="relative hover:underline">
                <p className="text-xl font-semibold">{seller?.usernameseller}</p>
+               </Link>
+
                <div className="flex items-center gap-1">
                   <p>
                      {seller?.ratingCount && seller.ratingCount > 0
@@ -792,10 +891,29 @@ return(
                   </ul>
                   <p className="m-0 p-0">{seller?.ratingCount} lượt đánh giá</p>
                </div>
-               <div className="flex gap-2 mt-2">
-                  <Button variant="primary">Chat ngay</Button>
-                  <Button variant="secondary">Theo dõi</Button>
+              {seller.id === seller_id ? (
+               <div>
+                     <Button>cửa hàng của bạn</Button>
                </div>
+              ) : (
+                <div className="flex gap-2 mt-2">
+                  {ischatroom ? (
+                     // nếu đã có phòng thì mở luôn
+                     <Button onClick={HandleOpenChat}>chat ngay</Button>
+                  ) : (
+                     // chưa có phòng thì tạo phòng
+                     <Button variant="primary" onClick={() =>Createchat(seller?.id)}>Chat Nggay</Button>
+                  )}
+                  {/* <Button variant="primary" onClick={() =>Createchat(seller?.id)}>Chat ngay</Button> */}
+                  {isFl ? (
+                  <Button variant="secondary" onClick={() =>HanfleFl(seller.id)}>Đang theo giõi</Button>
+
+                  ) : (
+                  <Button variant="secondary" onClick={() =>handleAddFl(seller.id)}>Theo dõi</Button>
+
+                  )}
+               </div>
+              )}
                </div>
             </div>
 
@@ -806,7 +924,7 @@ return(
                <p>Địa chỉ: {seller?.address}</p>
                </div>
                <div>
-               <p className="mb-2">Sản phẩm đã bán: {seller?.soldCount}</p>
+               <p className="mb-2">Sản phẩm đã bán: {seller?.soldcount}</p>
                <p>Ngày tham gia: ngày trước</p>
                </div>
                <div>
@@ -1109,8 +1227,9 @@ export function RatingStarscmt({ star }: RatingStarscmtProps) {
             className={item <= star ? `text-yellow-500 fill-yellow-500` : 'text-yellow-500'}/>
          </li>
          ))}
-        
+
          </ul>
     </div>
   );
+
 }

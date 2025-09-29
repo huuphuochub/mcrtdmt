@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Product } from './product.entity';
 import { In, Repository } from 'typeorm';
 import { CreateProductDto } from './product.dto';
-
+import { Favourite } from './favouriteproduct.entity';
 
 interface PaginationOptions{
   limit:number;
@@ -16,6 +16,9 @@ export class ProductService {
     constructor(
         @InjectRepository(Product)
         private productRepo:Repository<Product>,
+
+        @InjectRepository(Favourite)
+        private favouriteRepo:Repository<Favourite>,
 
 
     ){}
@@ -228,7 +231,7 @@ export class ProductService {
         query = query.andWhere('product.idCategory = :category',{category})
       }
       if(subcate !== 0) {
-        query = query.andWhere('product.subcate = :subcate',{subcate})
+        query = query.andWhere('product.subcategory = :subcate',{subcate})
       }
       if(body.bestselling !== 0) {
         query = query.orderBy('product.totalsold', 'DESC');      
@@ -263,7 +266,7 @@ export class ProductService {
       } catch (error) {
         return{
           success:false,
-          message:'loi service',
+          message:error,
           data:null
         }
       }
@@ -523,5 +526,121 @@ async ProductDetailSeller(id: number, seller_id: number) {
   }
 }
 
+async AddFavourite(body:any){
+    try {
+      const add = this.favouriteRepo.create({
+      user_id: body.user_id,
+      product: { id: body.product_id },
+    });
+      const ok = await this.favouriteRepo.save(add)
+      
+      return {
+        success:true,
+        message:'ok',
+        data:ok
+      }
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi service'
+      }
+    }
+}
+
+
+      async DeleteFv(body: any) {
+        try {
+          // Tìm favourite cần xóa
+          const fv = await this.favouriteRepo.findOne({
+            where: {
+              user_id: body.user_id,
+              product: { id: body.product_id },
+            },
+          });
+
+          if (!fv) {
+            return {
+              success: false,
+              message: 'Favourite không tồn tại',
+            };
+          }
+
+          // Xóa
+          await this.favouriteRepo.remove(fv);
+
+          return {
+            success: true,
+            message: 'Đã xóa favourite',
+            data: fv,
+          };
+        } catch (error) {
+          console.log(error);
+          return {
+            success: false,
+            message: 'Lỗi service',
+          };
+        }
+      }
+
+
+async CheckFavourite(body:any){
+  try {
+    const exist = await this.favouriteRepo.findOne({
+      where:{user_id:body.user_id,
+        product:{id:body.product_id}
+
+      }
+      
+    })
+
+    return{
+      success:true,
+      data:!!exist,
+      message:'ok'
+    }
+  } catch (error) {
+    return {
+      success:false,
+      message:'loi service',
+      data:null
+    }
+  }
+}
+
+async GetAllFavourite(user_id:number,page:number){
+  const take = 12
+  const skip = (page - 1) * take;
+  try {
+    const [prds] = await this.favouriteRepo.findAndCount(
+      {where:{user_id},
+      relations:['product'],
+      skip,take
+
+    
+    }, 
+    )
+
+    if(!prds || prds.length ===0){
+      return{
+        success:false,
+        data:null,
+        message:'khon thấy sản phâm rnaof'
+      }
+    }
+    return  {
+      success:true,
+      data:prds,
+      message:'ok'
+    }
+
+  } catch (error) {
+      return{
+        success:false,
+        message:'loi service',
+        data:null
+
+      }
+  }
+}
 
 }

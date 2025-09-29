@@ -63,6 +63,11 @@ async Registerseller(
         // console.log(selle?.data?.id);
     }
 
+    @Get('all')
+    async GetAllSeller() {
+        return await this.sellerservice.GetAllSeller();
+    }
+
     // @Post('getseller') 
     // async 
 

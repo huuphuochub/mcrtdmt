@@ -361,14 +361,10 @@ const orderforviettel = results.map(seller => {
     @Query('month') month?:string
   
   ){
-      // console.log('da họi lay page');
-      console.log(month);
-      
-        console.log(status);
+
         
         const parsedStatus = status !== undefined ? Number(status) : undefined;
 
-        // console.log(parsedStatus);
         
       const token = req.cookies?.access_token;
       if(!token){
@@ -462,7 +458,6 @@ const orderforviettel = results.map(seller => {
       }
 
     }catch(error){
-            console.log(error);
 
        return{
         success:false,

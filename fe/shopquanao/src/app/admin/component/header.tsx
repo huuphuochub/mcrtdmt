@@ -1,11 +1,11 @@
 
 
 "use client"
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { useSeller } from "../context/sellercontext";
-import { AlignJustify,Search,Settings ,Box,ChartArea,Bell,MessageCircleMore, Home,ChevronDown  } from 'lucide-react';
+import { AlignJustify,Search,Settings ,Box,ChartArea,Bell,MessageCircleMore, Home,ChevronDown, X  } from 'lucide-react';
 import Image from "next/image";
-
+import Chat from "./chat";
 
 import {
   Accordion,
@@ -14,9 +14,15 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion"
 import Link from "next/link";
+import ChatItem from "./chatitem";
 
 const Headeradmin1 =({ onToggleMenu }: { onToggleMenu: () => void }) =>{
   const {seller,loading} = useSeller();
+  const [isOpenChat,setIsOpenChat] = useState(false);
+   
+  const setIopen =() =>{
+    setIsOpenChat(!isOpenChat)
+  }
   useEffect(() => {
     console.log(seller);
     
@@ -67,7 +73,24 @@ const Headeradmin1 =({ onToggleMenu }: { onToggleMenu: () => void }) =>{
       {/* Right: Icons */}
       <div className="flex items-center gap-4">
         <Settings className="cursor-pointer hover:text-blue-500 text-xl transition  bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
-        <MessageCircleMore className="cursor-pointer hover:text-blue-500 text-xl transition bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
+        <div className="relative" >
+            <MessageCircleMore className="cursor-pointer hover:text-blue-500 text-xl transition bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl "  onClick={setIopen}/>
+            <div className="w-4 h-4 rounded-2xl bg-red-500 text-xs flex justify-center items-center text-white absolute bottom-[30px] right-0">
+              <p>1</p>
+            </div>
+
+            {/* doan chat */}
+
+            
+
+          {isOpenChat && (
+              <Chat setIopen={setIopen}/>
+            )}
+        </div>
+        {/* <ChatItem/> */}
+
+        
+
         <Bell className="cursor-pointer hover:text-blue-500 text-xl transition bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
         <div className="flex items-center">
             <Image

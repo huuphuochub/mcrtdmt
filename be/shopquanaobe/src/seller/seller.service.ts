@@ -75,4 +75,20 @@ export class SellerService {
     }
 
   }
+
+  async GetAllSeller(){
+    try {
+       const sellers = await this.sellerRepo.find()
+       return{
+        success:true,
+        data:sellers,
+        message:'ok'
+       }
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi service'
+      }
+    }
+  }
 }

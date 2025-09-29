@@ -7,7 +7,6 @@ import { Getdetailallcart } from "@/service/cartservice";
 // import { useUser } from "@/app/context/usercontext";
 import OrderProgress from "@/app/test/page";
 
-
 import FooterPage from "@/component/footer";
 import Image from "next/image";
 export default function OrderDetail() {
@@ -255,7 +254,7 @@ export default function OrderDetail() {
                     <tbody className="text-gray-700">
                         {products.length > 0 ? (
                                 products.map((pr,index)=>(
-                                    <tr className="border-b" key={`${pr.product}-${pr.color_id}-${pr.size_id}`}>
+                                    <tr className="border-b" key={`${pr.product}-${pr.color_id}-${pr.size_id}+${index}`}>
                                         <td className="px-4 py-2">{pr.product.name}</td>
                                         {/* <td></td> */}
                                         <td className="px-4 py-2"> <Image 

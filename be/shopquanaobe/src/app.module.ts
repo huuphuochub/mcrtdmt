@@ -26,6 +26,17 @@ import { CommentSeller } from './seller/commentseller.entity';
 import { HistorySearch } from './historysearch/historysearch.entity';
 import { CookiesuserController } from './cookiesuser/cookiesuser.controller';
 import { CookiesuserModule } from './cookiesuser/cookiesuser.module';
+import { ChatItem } from './chat/chatitem.entity';
+import { Roomchat } from './chat/chat.entity';
+import { FollowerController } from './follower/follower.controller';
+import { FollowerModule } from './follower/follower.module';
+import { Follower } from './follower/follow.entity';
+import { ChatController } from './chat/chat.controller';
+import { ChatModule } from './chat/chat.module';
+import { NotiController } from './noti/noti.controller';
+import { NotiService } from './noti/noti.service';
+import { NotiModule } from './noti/noti.module';
+import { Notification } from './noti/noti.entity';
 
 
 @Module({
@@ -41,15 +52,15 @@ import { CookiesuserModule } from './cookiesuser/cookiesuser.module';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities:[User,Seller,Cart,CartItem,Order,OrderItem,CommentSeller,HistorySearch],
+      entities:[User,Seller,Cart,CartItem,ChatItem, Order,OrderItem,Roomchat, CommentSeller,HistorySearch,Follower,Notification],
       synchronize:true,
     }),
     UsersModule, 
      
-    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule
+    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule, FollowerModule, ChatModule, NotiModule
   
   ],
-  controllers: [AppController, CookiesuserController],
+  controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}

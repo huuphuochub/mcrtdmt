@@ -3,13 +3,13 @@
 import React, { useEffect, useState } from "react";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import Header from "@/component/header";
-import { useRouter } from 'next/navigation';
+import { useRouter ,useSearchParams} from 'next/navigation';
 
 import FooterPage from "@/component/footer";
 import { Category } from "@/interface/category.interface";
 import { Subcategory } from "@/interface/category.interface";
 import { interfaceProduct } from "@/interface/product.interface";
-import { Search } from "lucide-react";
+import { Search, Star } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -43,13 +43,24 @@ interface propDetailCategoryPage{
 export default function Categorypage({categoryprop} : propDetailCategoryPage) {
   // console.log(categoryprop);
     const router = useRouter();
+  const searchParams = useSearchParams();
 
   const [subcates,setSubcates] = useState<Subcategory[] | null>(null)
   const [allcates,setAllcates] = useState<Category[] | null>(null);
   const [productss, setProductss] = useState<interfaceProduct[] |null>(null);
   const [cate,setCate] = useState<Category | null>(null);
     const [subcatedetail,setsubCatedetail] = useState<Subcategory | null>(null);
-
+  const [keyword,setKeyword] =useState('');
+  const [category,setCategory] = useState(0);
+  const [subcate,setSubcate] = useState(0);
+  const [page,setPage] =useState(1);
+  const [bestselling,setBestselling] = useState(1);
+  const [rating,setRating] =useState(0);
+  const [discount,setDiscount] = useState(1);
+  const [newproduct,setNewproduct] = useState(1);
+  const [minprice,setMinprice] = useState(0);
+  const [maxprice,setMaxprice] = useState(0);
+  const [star,setStar] = useState(0);
 //  hàm tạo slug
 function toSlug(name: string) {
   return name
@@ -59,8 +70,106 @@ function toSlug(name: string) {
     .replace(/[^a-z0-9]+/g, '-') // thay khoảng trắng & ký tự đặc biệt thành -
     .replace(/^-+|-+$/g, '');    // xóa - thừa đầu/cuối
 }
+
+const handleNextPage = () => {
+    const currentPage = Number(searchParams.get("page")) || 1;
+    const newPage = currentPage + 1;
+
+    // clone searchParams để giữ các tham số khác
+    const params = new URLSearchParams(searchParams);
+    params.set("page", newPage.toString());
+
+    router.push(`?${params.toString()}`);
+  };
+
+  const handlenewProduct =() =>{
+    // const currentPage = Number(searchParams.get('newdate')) || 0;
+
+    const params = new URLSearchParams(searchParams);
+
+    params.set('newdate',(1).toString());
+    params.set('discount',(0).toString());
+    params.set("page", (1).toString());
+    params.set('bestselling',(0).toString());
+        params.set('rating',(0).toString());
+    params.set('keyword',('').toString());
+    setNewproduct(0)
+    setDiscount(1);
+    setBestselling(1);
+    
+    router.push(`?${params.toString()}`)
+  }
+
+    const handleDiscount =() =>{
+    // const currentPage = Number(searchParams.get('newdate')) || 0;
+
+    const params = new URLSearchParams(searchParams);
+
+    params.set('discount',(1).toString());
+        params.set('newdate',(0).toString());
+            params.set("page", (1).toString());
+    params.set('bestselling',(0).toString());
+        params.set('rating',(0).toString());
+    params.set('keyword',('').toString());
+    setNewproduct(1)
+    setDiscount(0);
+    setBestselling(1);
+    
+    router.push(`?${params.toString()}`)
+  }
+
+
+
+      const handleBestsell =() =>{
+    // const currentPage = Number(searchParams.get('newdate')) || 0;
+    const params = new URLSearchParams(searchParams);
+
+    params.set('bestselling',(1).toString());
+        params.set('newdate',(0).toString());
+            params.set("page", (1).toString());
+    params.set('discount',(0).toString());
+        params.set('rating',(0).toString());
+    params.set('keyword',('').toString());
+    setNewproduct(1)
+    setDiscount(1);
+    setBestselling(0);
+ router.push(`?${params.toString()}`)
+  }
+
+
+  const Handlestar =(star:number) =>{
+    const params = new URLSearchParams(searchParams);
+
+    params.set('rating',(star).toString());
+        params.set('newdate',(0).toString());
+            params.set("page", (1).toString());
+    params.set('bestselling',(0).toString());
+    params.set('discount',(0).toString());
+    params.set('keyword',('').toString());
+
+
+    
+    router.push(`?${params.toString()}`)
+  }
+
+  const SearchKeyword = () =>{
+     const params = new URLSearchParams(searchParams);
+
+    params.set('keyword',(keyword).toString());
+        params.set('rating',(0).toString());
+
+        params.set('newdate',(0).toString());
+            params.set("page", (1).toString());
+    params.set('bestselling',(0).toString());
+    params.set('discount',(0).toString());
+
+
+    
+    router.push(`?${params.toString()}`)
+  }
+
   useEffect(() =>{
-    // console.log(categoryprop);
+    console.log(categoryprop);
     
     setAllcates(categoryprop.data?.allcate.data ?? []);
     setCate(categoryprop.data?.categorydetail ?? null);
@@ -73,7 +182,7 @@ function toSlug(name: string) {
     const id = Number(e.target.value);
     const dcate = allcates?.find(c=>c.id === id);
     if(dcate){
-      const slug = `${toSlug(dcate?.name)}-cat.${dcate?.id}`
+      const slug = `${toSlug(dcate?.name)}-cat.${dcate?.id}?page=1&keyword=&bestselling=0&rating=0&discount=0&newdate=0&minprice=0&maxprice=0`
       router.push(`/${slug}`);
     }
     
@@ -140,7 +249,7 @@ function toSlug(name: string) {
                 <div>
                   <ul>
                      {subcates && subcates.map((cate) =>{
-                      const slug = `${toSlug(cate?.name)}-subcat.${cate?.id}`
+                      const slug = `${toSlug(cate?.name)}-subcat.${cate?.id}?page=1&keyword=&bestselling=0&rating=0&discount=0&newdate=0&minprice=0&maxprice=0`
                       return(
                         <Link href={`/${slug}`} key={cate.id}>
                           <li  className="hover:cursor-pointer hover:underline relative">{cate.name}</li>
@@ -149,17 +258,47 @@ function toSlug(name: string) {
                      })}
                     
                   </ul>
+                                  <div className="space-y-2">
+                  {[5, 4, 3, 2, 1].map((star) => (
+                    <label
+                      key={star}
+                      className="flex items-center gap-2 cursor-pointer p-2 rounded-lg   hover:border-indigo-500 hover:bg-indigo-50 transition"
+                    >
+                      <input
+                        type="radio"
+                        name="rating"
+                        value={star}
+                        className="accent-indigo-600 w-4 h-4"
+                        onChange={(e) => Handlestar(Number(e.target.value))}
+                      />
+                      <span className="flex items-center gap-1 text-gray-700">
+                        {star} <Star className="w-4 h-4 text-yellow-400" />
+                      </span>
+                    </label>
+                  ))}
+
+                  {/* tất cả */}
+                  <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition">
+                    <input
+                      type="radio"
+                      name="rating"
+                      value={0}
+                      className="accent-indigo-600 w-4 h-4"
+                      onChange={(e) => Handlestar(Number(e.target.value))}
+                    />
+                    <span className="text-gray-700">Tất cả</span>
+                  </label>
+                </div>
                 </div>
               </div>
           </div>
          <div className="flex-1">
            <div className="flex gap-2 mb-4">
             
-            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm bg-blue-100 hover:cursor-pointer">Sản phẩm nổi bật</h3>
-            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm  bg-red-100 hover:cursor-pointer">Sản phẩm gia re</h3>
+             <h3 className={`${newproduct ===0 ? 'bg-white' : "bg-gray-200"} text-xl font-semibold py-2 px-4 relative rounded-sm  border-b-2 hover:cursor-pointer hover:bg-gray-100`} onClick={() =>handlenewProduct()}>Sản phẩm mới</h3>
+            <h3 className={`${discount ===0 ? 'bg-white' : "bg-gray-200"} text-xl font-semibold py-2 px-4 relative rounded-sm border-b-2  hover:cursor-pointer hover:bg-gray-100`} onClick={() =>handleDiscount()}>Sản phẩm giảm giá</h3>
 
-            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm bg-yellow-100 hover:cursor-pointer">Sản phẩm ban chay </h3>
-            <h3 className="text-xl font-semibold py-2 px-4 relative rounded-sm  bg-pink-100 hover:cursor-pointer">Sản phẩm chat luong</h3>
+            <h3 className={`${bestselling ===0 ? 'bg-white' : "bg-gray-200"} text-xl font-semibold py-2 px-4 relative rounded-sm border-b-2 hover:cursor-pointer hover:bg-gray-100`} onClick={() => handleBestsell()}>Sản phẩm ban chay </h3>
 
            </div>
 

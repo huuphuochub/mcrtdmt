@@ -85,7 +85,7 @@ export default function CategorySlider() {
         className="category-swiper"
       >
        {(categorys ?? []).map((cat) => {
-        const slug = `${toSlug(cat.name)}-cat.${cat.id}`
+        const slug = `${toSlug(cat.name)}-cat.${cat.id}?page=1&keyword=&bestselling=0&rating=0&discount=0&newdate=0&minprice=0&maxprice=0`
 
         return(
               <SwiperSlide key={cat.id}>

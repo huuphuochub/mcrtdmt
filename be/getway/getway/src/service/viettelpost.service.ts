@@ -20,7 +20,6 @@ export class ViettelpostService {
         USERNAME: process.env.VIETTEL_USERNAME,
         PASSWORD: process.env.VIETTEL_PASSWORD,
     }
-    // console.log(body);
     
     try {
         const response = await lastValueFrom(
@@ -28,9 +27,7 @@ export class ViettelpostService {
         headers: { 'Content-Type': 'application/json' },
       }),
     );
-            // console.log(response);
 
-        // console.log(response.data);
         
         const tokendata = {
             token:response.data.data.token,
@@ -41,9 +38,7 @@ export class ViettelpostService {
 
         return response.data.data.token; 
     } catch (error) {
-        console.log(
-          'Lỗi khi lấy token Viettel:', error.message
-        );
+
         
     }
   }

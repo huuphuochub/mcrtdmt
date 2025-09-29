@@ -4,6 +4,7 @@
 import Header from "@/component/header";
 import HomePage from "@/component/home/home";
 import FooterPage from "@/component/footer";
+import Chat from "./chat";
 
 export default function Home() {
   return (
@@ -17,6 +18,7 @@ export default function Home() {
       <Header/>
       <div className="mt-[80px]">
           <HomePage/>
+          {/* <Chat/> */}
       </div>
       <FooterPage/>
 

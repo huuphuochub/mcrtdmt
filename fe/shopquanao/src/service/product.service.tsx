@@ -208,5 +208,70 @@
         }
     }
 
+    const AddFavourite=async(product_id:number) =>{
+        try {
+            const ok = await axiosClient.post('/product/favourite/add',{product_id:product_id})
+            return ok
+        } catch (error) {
+            return {
+                success:false,
+                message:'khong gui dc',
+                data:null
+            }
+        }
+    }
 
-    export {FilterPrd,GetNewProduct,GetRating,GetBestsell,Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}
+        const deLeteFv=async(product_id:number) =>{
+        try {
+            const ok = await axiosClient.post('/product/favourite/delete',{product_id:product_id})
+            return ok
+        } catch (error) {
+            return {
+                success:false,
+                message:'khong gui dc',
+                data:null
+            }
+        }
+    }
+
+        const CheckFv=async(product_id:number) =>{
+        try {
+            const ok = await axiosClient.post('/product/favourite/check',{product_id:product_id})
+            return ok
+        } catch (error) {
+            return {
+                success:false,
+                message:'khong gui dc',
+                data:null
+            }
+        }
+    }
+
+    const GetAllFavourite =async(page:number) =>{
+        try {
+            const prds = await axiosClient.get('product/all/favourite',{params:{page:page}})
+            return prds 
+        } catch (error) {
+            return{
+                success:false,
+                data:null,
+                message:'loi k gui dc'
+            }
+        }
+    }
+
+    const GetAllProductSeller=async(seller_id:number,page:number) =>{
+        try {
+            const prds = await axiosClient.get('product/all/seller',{params:{seller_id:seller_id,page:page,limit:12}})
+            return prds 
+        } catch (error) {
+            return{
+                success:false,
+                data:null,
+                message:'loi k gui dc'
+            }
+        }
+    }
+
+
+    export {GetAllProductSeller,GetAllFavourite,deLeteFv,CheckFv,AddFavourite,FilterPrd,GetNewProduct,GetRating,GetBestsell,Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}

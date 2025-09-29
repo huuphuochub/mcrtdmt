@@ -13,6 +13,10 @@ import { OrderController } from './controller/order.controller';
 import { ViettelpostService } from './service/viettelpost.service';
 import { ConfigModule } from '@nestjs/config';
 import { CommentProductController } from './controller/commentproduct.controller';
+import { ChatGateway } from './service/socketio/socketio';
+// import { ChatService } from './service/chat.service';
+import { Chatcontroller } from './controller/chat.controller';
+import { FolowerController } from './controller/folower.controller';
 
 
 @Module({
@@ -54,13 +58,25 @@ import { CommentProductController } from './controller/commentproduct.controller
           queueOptions: { durable: false },
         },
       },
+
+       {
+        name: 'IMG_SENDMESS',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'],
+          //  urls: ['amqp://rabbitmq:5672'],
+
+          queue: 'img_sendmess',
+          queueOptions: { durable: false },
+        },
+      },
     ]),
     HttpModule,AuthModule
   ],
-    providers: [ViettelpostService],
+    providers: [ViettelpostService,ChatGateway],
       exports: [ViettelpostService], // nếu muốn dùng ở chỗ khác
 
 
-  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController ,CommentProductController]
+  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController ,CommentProductController,Chatcontroller,FolowerController]
 })
 export class AppModule {}

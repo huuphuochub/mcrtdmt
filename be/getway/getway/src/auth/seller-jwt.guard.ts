@@ -15,7 +15,6 @@ export class JwtSellerAuthGuardFromCookie implements CanActivate {
         const token = request.cookies?.['seller_token'];// tách 'Bearer xxx'
 
     if (!token) {
-      console.log('toekn k ton tai');
       
       throw new UnauthorizedException({
   success: false,
@@ -30,7 +29,6 @@ export class JwtSellerAuthGuardFromCookie implements CanActivate {
       request['seller'] = decoded;
       return true;
     } catch {
-      console.log('token k hop le');
       
       throw new UnauthorizedException({
   success: false,

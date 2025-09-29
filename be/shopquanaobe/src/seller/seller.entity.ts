@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany } from 'typeorm';
 import { User } from 'src/users/user.entity';
 import { CommentSeller } from './commentseller.entity';
+import { Notification } from 'src/noti/noti.entity';
 @Entity('sellers') // 👈 bảng tên là 'users'
 export class Seller {
   @PrimaryGeneratedColumn()
@@ -70,8 +71,16 @@ export class Seller {
   @Column({ default: 0 })
   soldCount: number;
 
+  @Column({default:0})
+  follower:number;
+
+  @Column({default:0})
+  totalproduct:number
 
   @OneToMany(() => CommentSeller,commentseller => commentseller.id)
   comments:CommentSeller[];
 
+
+   @OneToMany(() => Notification, (noti) => noti.seller)
+    notifications: Notification[];
 }

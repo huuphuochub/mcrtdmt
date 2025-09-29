@@ -7,7 +7,7 @@ import { SellerInterface } from '@/interface/seller.interface';
 import { updateuser } from '@/service/userservice';
 import { getseller } from '@/service/sellerservice';
 interface UserHeader {
-    id?:number ;
+    id:number ;
     username: string;
     // image: string;
     avatarUrl: string;
@@ -31,6 +31,7 @@ interface UserContextType {
   Updateuser: (data: UserHeader) => Promise<any>; 
   setnote: (note:string) =>void
   note:string | null;
+  seller_id:number;
 }
 
 const Usercontext = createContext<UserContextType | undefined>(undefined); 
@@ -39,17 +40,21 @@ export const UserProvider =({children} : { children: React.ReactNode}) =>{
     const [user,setUser] = useState<UserHeader | null>(null);
         const [note,setNote] = useState<string | null>(null);
         const [seller,setSeller] = useState(false);
+        const [seller_id,setSeller_id] = useState(0);
 
 
 
         useEffect(() =>{
             const fetchUser = async () =>{
                 const userData = await Getuserbyid();
-                const seller = await getseller();
-                console.log(seller);
+                console.log(userData);
                 
+                const seller = await getseller();
+                // console.log(seller);
                 if(seller.success){
                     setSeller(seller.success)
+                    setSeller_id(seller.data.id)
+
                 }
                 
                 // console.log(userData.data);
@@ -71,7 +76,7 @@ export const UserProvider =({children} : { children: React.ReactNode}) =>{
                 setNote(note)
         }
         return(
-            <Usercontext.Provider value = {{ user, setUser,Updateuser,setnote ,note,seller}}>
+            <Usercontext.Provider value = {{ user, setUser,Updateuser,setnote ,note,seller,seller_id}}>
                 {children}
             </Usercontext.Provider>
         )

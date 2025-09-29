@@ -1,6 +1,7 @@
 import { Entity, PrimaryGeneratedColumn, Column,OneToOne, OneToMany } from 'typeorm';
 import { Seller } from 'src/seller/seller.entity';
 import { HistorySearch } from 'src/historysearch/historysearch.entity';
+import { Notification } from 'src/noti/noti.entity';
 
 @Entity('users') // 👈 bảng tên là 'users'
 export class User {
@@ -51,4 +52,8 @@ export class User {
 
   @OneToMany(() => HistorySearch,search => search.user,{nullable:true})
   searchs?: HistorySearch[];
+
+    @OneToMany(() => Notification, (noti) => noti.user)
+  notifications: Notification[];
+
 } 

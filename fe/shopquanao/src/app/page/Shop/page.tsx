@@ -1,20 +1,47 @@
-import React from "react";
+"use client"
+
+import React, { useEffect, useState } from "react";
 import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import { Search } from "lucide-react";
-
+import Image from "next/image";
+import Button from "@/component/ui/button";
+import { SellerInterface } from "@/interface/seller.interface";
+import { getAllSeller } from "@/service/sellerservice";
+import Link from "next/link";
 export default function Shop() {
+  const [sellers,setSellers] = useState<SellerInterface[]>([]);
+  const [loading,setLoading] = useState(true)
+  useEffect(() =>{
+    fetchSeller()
+  },[])
+  const fetchSeller = async() =>{
+    try {
+      const seller = await getAllSeller();
+    console.log(seller);
+    
+    if(seller.data.success){
+      setSellers(seller.data.data)
+    }
+    } catch (error) {
+      setLoading(false)
+    }finally {
+      setLoading(false)
+    }
+  }
+
+  const formatteddate = (date:string)=>{
+    const dates = new Date(date);
+    return  `${dates.getDate().toString().padStart(2, '0')}/${(dates.getMonth() + 1).toString().padStart(2, '0')}/${dates.getFullYear()}`
+  }
   return (
     <div>
-      {/* <div id="Particles ">
-        <canvas id="fluid"></canvas>
-        <FluidSimulation />
-      </div> */}
+      
 
       <Header />
 
-      <div className="mt-[100px] max-w-[1200px] mx-auto px-4">
+      <div className="mt-[80px] max-w-[1200px] mx-auto px-4 min-h-[800px]">
         {/* PHẦN TÌM KIẾM */}
         <div className="bg-white p-6 rounded-xl shadow mb-8">
           <h2 className="text-2xl font-bold mb-4">Tìm nhà bán hàng</h2>
@@ -44,20 +71,85 @@ export default function Shop() {
         {/* GỢI Ý NHÀ BÁN HÀNG NỔI BẬT */}
         <div className="mb-12">
           <h3 className="text-xl font-semibold mb-4">Nhà bán hàng nổi bật</h3>
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {[1, 2, 3, 4, 5, 6].map((item) => (
-              <div
-                key={item}
-                className="bg-white p-4 rounded-xl shadow hover:shadow-lg transition cursor-pointer"
-              >
-                <h4 className="font-semibold text-lg mb-1">Shop {item}</h4>
-                <p className="text-sm text-gray-600 mb-2">
-                  Danh mục: Thời trang
-                </p>
-                <p className="text-gray-500 text-sm">Đánh giá: ★★★★☆ (124)</p>
-              </div>
+          {!loading ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+            {sellers.map((s) => (
+              <div className="w-full md:w-80 border rounded-xl shadow-md p-4 bg-white" key={s.id}>
+                    {/* Header */}
+                    <div className="flex items-center gap-4">
+                        <Image
+                        width={64}
+                        height={64}
+                        src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg"
+                        alt="Shop Avatar"
+                        className=" rounded-full border object-cover"
+                        />
+                        <div>
+                        <Link href={`/page/sellerinfor/?id=${s.id}`}><h2 className="text-lg font-semibold text-gray-800 hover:cursor-pointer hover:underline ">{s.usernameseller}</h2></Link>
+                        <p className="text-sm text-gray-500">Tham gia: {formatteddate(s.createdAt)}</p>
+                        </div>
+                    </div>
+
+                    {/* Thông tin */}
+                    <div className="mt-4 space-y-2 text-sm text-gray-600">
+                        <p>⭐ Đánh giá: <span className="font-medium text-gray-800">4.8/5</span></p>
+                        <p>📦 Tổng sản phẩm: <span className="font-medium text-gray-800">{s.totalproduct}</span></p>
+                        <p>📍 Địa chỉ: <span className="font-medium text-gray-800">{s.address}</span></p>
+                    </div>
+
+                    {/* Nút hành động */}
+                    <div className="mt-4 flex gap-3">
+                        <Button className="">
+                        💬 Chat ngay
+                        </Button>
+                        <Button className="">
+                        ➕ Theo dõi
+                        </Button>
+                    </div>
+
+                    {/* Tabs */}
+                    
+                    </div>
             ))}
-          </div>
+            </div>
+          ) : (
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3  gap-6 p-4">
+                { [1, 2, 3, 4, 5, 6].map((s) => (
+                      <div
+                        key={s}
+                        className="w-full border rounded-xl shadow-md p-4 bg-white animate-pulse flex flex-col justify-between"
+                      >
+                        {/* Header Skeleton */}
+                        <div className="flex items-center gap-4">
+                          <div className="w-16 h-16 bg-gray-300 rounded-full" />
+                          <div className="flex-1 space-y-2 py-1">
+                            <div className="h-4 bg-gray-300 rounded w-3/4"></div>
+                            <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                          </div>
+                        </div>
+
+                        {/* Info Skeleton */}
+                        <div className="mt-4 space-y-2">
+                          <div className="h-3 bg-gray-300 rounded w-1/2"></div>
+                          <div className="h-3 bg-gray-300 rounded w-2/3"></div>
+                          <div className="h-3 bg-gray-300 rounded w-1/3"></div>
+                        </div>
+
+                        {/* Button Skeleton */}
+                        <div className="mt-4 flex gap-3">
+                          <div className="flex-1 h-10 bg-gray-300 rounded-lg"></div>
+                          <div className="flex-1 h-10 bg-gray-300 rounded-lg"></div>
+                        </div>
+                      </div>
+                    ))
+
+                    }
+              </div>
+
+
+
+          )}
+          
         </div>
       </div>
 

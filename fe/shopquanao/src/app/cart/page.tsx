@@ -1,17 +1,20 @@
 "use client"
 
-import React from "react";
+import React, { use, useEffect } from "react";
 import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import { useCart } from "../context/cartcontext";
 import Image from "next/image";
 import Button from "@/component/ui/button";
 import Link from "next/link";
-
+import { useUser } from "../context/usercontext";
 export default function Cart(){
-
+         const {user} = useUser()
      const {  cartdetail,updateQuantity, removeFromCart,savecart,loading,deleteCart} = useCart();
      const [loadingcart,setLoadingcart] = React.useState(false);
+   //   useEffect(() =>{
+   //       if(!user)
+   //   })
    const clicksavecart=async ()=>{
       try {
          
@@ -163,9 +166,16 @@ return(
             </div>
 
             <div className="mt-6">
-               <Link href="/checkout" className="relative inline-block text-white bg-red-500 hover:bg-red-600 px-6 py-3 rounded-xl font-semibold shadow-sm transition w-full text-center">
+               {user ? (
+                     <Link href="/checkout" className="relative inline-block text-white bg-red-500 hover:bg-red-600 px-6 py-3 rounded-xl font-semibold shadow-sm transition w-full text-center">
                   Tiến hành thanh toán
                </Link>
+               ) : (
+                  <Link href="/login" className="relative inline-block text-white bg-red-500 hover:bg-red-600 px-6 py-3 rounded-xl font-semibold shadow-sm transition w-full text-center">
+                  Đăng nhập để thanh toán
+               </Link>
+               )}
+
             </div>
             </div>
 
