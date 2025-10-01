@@ -300,7 +300,13 @@ useEffect(() => {
             await Updateuser(update)
             setnote(note);
             // console.log(paymentmethod);
-            const itemproduct = cartdetail.map(item =>{
+           
+           
+            
+
+            if(String(paymentmethod) === "2"){
+              // console.log('ck');
+               const itemproduct = cartdetail.map(item =>{
               return{
                 id_product:item.product.id,
                 quantity:item.quantity,
@@ -309,16 +315,11 @@ useEffect(() => {
                 color_id:item.color_id,
                 size_id:item.size_id,
                 seller_id:item.product.idSeller,
+                status:0
 
               }
             })
 
-           
-            
-
-            if(String(paymentmethod) === "2"){
-              // console.log('ck');
-              
               const bodyorder = {
               total_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
               phone:phoneorder,
@@ -333,7 +334,7 @@ useEffect(() => {
               payable_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
             }
 
-            // console.log(bodyorder);
+            console.log(bodyorder);
             const orders =await createorderservice(bodyorder);
 
 
@@ -356,7 +357,20 @@ useEffect(() => {
             }else if(String(paymentmethod) === "1"){
 
               // console.log('tin mat');
-              
+               const itemproduct = cartdetail.map(item =>{
+              return{
+                id_product:item.product.id,
+                quantity:item.quantity,
+                unitprice:item.product.discountprice,
+                productname:item.product.name,
+                color_id:item.color_id,
+                size_id:item.size_id,
+                seller_id:item.product.idSeller,
+                status:1
+
+              }
+            })
+
                const bodyorder = {
               total_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
               phone:phoneorder,
@@ -370,6 +384,7 @@ useEffect(() => {
               email:email,
               payable_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
             }
+                        console.log(bodyorder);
 
               const ok = confirm('xác nhận đặt đơn hàng')
               if(ok){

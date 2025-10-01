@@ -9,6 +9,8 @@ import { GetAllProductBySeller } from "@/service/sellerservice";
 import { SellerInterface } from "@/interface/seller.interface";
 import { interfaceProduct } from "@/interface/product.interface";
 import { GetAllProductSeller } from "@/service/product.service";
+import { Star } from "lucide-react";
+import { OrderByUserWithSeller } from "@/service/order.service";
 export default function Sellerinfor(){
     const param = useSearchParams();
     const id = param.get('id');
@@ -18,6 +20,7 @@ export default function Sellerinfor(){
   const [loading,setloading] = useState(true);
   const [pageprd,setPageprd] = useState(1);
     const [page,setPage] = useState(1);
+   const [rating,setRating] = useState(0);
 
 
   useEffect(() =>{
@@ -50,6 +53,7 @@ fetchprd()
 
     useEffect(() =>{
         fetchSeller();
+        CheckOrder();
     },[id])
     const fetchSeller = async() =>{
         if(id){
@@ -60,6 +64,13 @@ fetchprd()
                 setProduct(seller.data.data.products.data)
             }
             
+        }
+    }
+    const CheckOrder = async() =>{
+        if(id){
+          const ord = await OrderByUserWithSeller(Number(id))
+          console.log(ord);
+          
         }
     }
 
@@ -96,104 +107,7 @@ fetchprd()
       images: [],
     },
 ]
-  const products = [
-    {
-      id: 1,
-      name: "Nhẫn bạc cao cấp",
-      price: 250000,
-      sold: 120,
-      rating: 4.8,
-      image: "/ring.jpg",
-    },
-    {
-      id: 2,
-      name: "Vòng tay phong thủy",
-      price: 180000,
-      sold: 95,
-      rating: 4.6,
-      image: "/bracelet.jpg",
-    },
-    {
-      id: 3,
-      name: "Dây chuyền nữ",
-      price: 320000,
-      sold: 210,
-      rating: 5,
-      image: "/necklace.jpg",
-    },
-    {
-      id: 4,
-      name: "Nhẫn bạc cao cấp",
-      price: 250000,
-      sold: 120,
-      rating: 4.8,
-      image: "/ring.jpg",
-    },
-    {
-      id: 5,
-      name: "Vòng tay phong thủy",
-      price: 180000,
-      sold: 95,
-      rating: 4.6,
-      image: "/bracelet.jpg",
-    },
-    {
-      id: 6,
-      name: "Dây chuyền nữ",
-      price: 320000,
-      sold: 210,
-      rating: 5,
-      image: "/necklace.jpg",
-    },
-    {
-      id: 7,
-      name: "Nhẫn bạc cao cấp",
-      price: 250000,
-      sold: 120,
-      rating: 4.8,
-      image: "/ring.jpg",
-    },
-    {
-      id: 8,
-      name: "Vòng tay phong thủy",
-      price: 180000,
-      sold: 95,
-      rating: 4.6,
-      image: "/bracelet.jpg",
-    },
-    {
-      id: 9,
-      name: "Dây chuyền nữ",
-      price: 320000,
-      sold: 210,
-      rating: 5,
-      image: "/necklace.jpg",
-    },
-    {
-      id: 10,
-      name: "Nhẫn bạc cao cấp",
-      price: 250000,
-      sold: 120,
-      rating: 4.8,
-      image: "/ring.jpg",
-    },
-    {
-      id: 11,
-      name: "Vòng tay phong thủy",
-      price: 180000,
-      sold: 95,
-      rating: 4.6,
-      image: "/bracelet.jpg",
-    },
-    {
-      id: 12,
-      name: "Dây chuyền nữ",
-      price: 320000,
-      sold: 210,
-      rating: 5,
-      image: "/necklace.jpg",
-    },
-  ];
+
 
   const categories = [
     { id: 1, name: "Nhẫn", image: "https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg" },
@@ -311,8 +225,72 @@ fetchprd()
                             </div>
                             ) : page ===2 ? (
                                  <div className="mt-6">
+                                  <div>
+                                     <form action="" className="bg-white p-4 rounded-2xl shadow-md space-y-4 w-full  relative">
+                                      {/* Rating */}
+                                      
+                                          <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">Đánh giá</label>
+                                            
+                                            <ul className="flex gap-2">
+                                              {[1, 2, 3, 4, 5].map((value) => (
+                                                <li
+                                                  key={value}
+                                                  onClick={() => setRating(value)}
+                                                  className="hover:scale-110 transition-transform"
+                                                >
+                                                  <Star
+                                                    className={`w-8 h-8 cursor-pointer ${
+                                                      value <= rating
+                                                        ? "fill-yellow-500 text-yellow-500"
+                                                        : "text-gray-300"
+                                                    }`}
+                                                  />
+                                                </li>
+                                              ))}
+                                            </ul>
+                                          </div>
+
+                                          {/* Comment */}
+                                          <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                              Viết bình luận
+                                            </label>
+                                            <textarea
+                                              rows={3}
+                                              className="w-full border border-gray-300 rounded-lg p-2 focus:outline-none focus:ring-2 focus:black resize-none"
+                                              placeholder="Chia sẻ trải nghiệm của bạn..."
+                                            />
+                                          </div>
+
+                                          {/* Upload */}
+                                          <div>
+                                            <label className="block text-sm font-medium text-gray-700 mb-2">
+                                              Thêm ảnh
+                                            </label>
+                                            <input
+                                              type="file"
+                                              className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 
+                                                        file:rounded-full file:border-0
+                                                        file:text-sm file:font-semibold
+                                                        file:bg-gray-200 file:black
+                                                        hover:file:bg-gray-100
+                                                        hover:cursor-pointer
+                                                        "
+                                            />
+                                          </div>
+
+                                          {/* Submit */}
+                                          <div className="flex justify-end">
+                                            <Button className="">
+                                              Gửi đánh giá
+                                            </Button>
+                                          </div>
+                                        </form>
+
+                                  </div>
                                     <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                                        ⭐ Đánh giá của khách hàng
+                                       5⭐ (600) 
                                     </h2>
                                     <div className="space-y-6">
                                         {reviews.map((r) => (
@@ -356,9 +334,20 @@ fetchprd()
                                                 ))}
                                                 </div>
                                             )}
+                                              <div className="flex flex-col">
+                                                <p className="bg-gray-200 p-2 mt-2 rounded w-fit ">Sản phẩm a - size: M  - Màu: Vàng</p>
+                                                <p className="bg-gray-200 p-2 mt-2 rounded w-fit ">Sản phẩm a - size: M  - Màu: Vàng</p>
+
+                                                <p className="bg-gray-200 p-2 mt-2 rounded w-fit ">Sản phẩm a - size: M  - Màu: Vàng</p>
+
+                                              </div>
                                             </div>
+                                            
                                         </div>
                                         ))}
+                                    </div>
+                                    <div className="flex justify-end">
+                                      <Button>xem thêm</Button>
                                     </div>
                                     </div>
                             ) : (

@@ -50,7 +50,7 @@ export default function RootLayout({
           </div>
       </div>
         {children}
-        <Chat />
+        {/* <Chat /> */}
         <Toaster position="top-right" reverseOrder={false} />
         </ChatProvider>
         </CartProvider>

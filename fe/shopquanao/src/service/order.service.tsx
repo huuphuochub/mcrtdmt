@@ -148,4 +148,17 @@ const CheckHasBought =async(product_id:number)=>{
         }
     }
 }
-export {getshipfee,CheckHasBought,creatqrpayos,checkordercode,createorderservice,getorderdetail,updatestatus,Getorderitembyid,getallorder,updateordermail};
+
+const OrderByUserWithSeller= async(seller_id:number)=>{
+    try {
+        const or = await axiosClient.post('order/GetOrderByUserWithSeller',{seller_id:seller_id})
+        return or
+    } catch (error) {
+        return { 
+            success:false,
+            data:null,
+            message:'k gui dc'
+        }
+    }
+}
+export {OrderByUserWithSeller,getshipfee,CheckHasBought,creatqrpayos,checkordercode,createorderservice,getorderdetail,updatestatus,Getorderitembyid,getallorder,updateordermail};

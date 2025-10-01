@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column, OneToOne, JoinColumn, OneToMany
 import { User } from 'src/users/user.entity';
 import { CommentSeller } from './commentseller.entity';
 import { Notification } from 'src/noti/noti.entity';
+import { OrderItem } from 'src/order/orderitem.entity';
 @Entity('sellers') // 👈 bảng tên là 'users'
 export class Seller {
   @PrimaryGeneratedColumn()
@@ -76,6 +77,9 @@ export class Seller {
 
   @Column({default:0})
   totalproduct:number
+
+  @OneToMany(() => OrderItem, item => item.seller)
+  items: OrderItem[];
 
   @OneToMany(() => CommentSeller,commentseller => commentseller.id)
   comments:CommentSeller[];

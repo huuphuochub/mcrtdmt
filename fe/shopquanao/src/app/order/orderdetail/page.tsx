@@ -9,13 +9,44 @@ import OrderProgress from "@/app/test/page";
 
 import FooterPage from "@/component/footer";
 import Image from "next/image";
+import { interfaceProduct } from "@/interface/product.interface";
+import { OrderInterface,OrderItemInterface } from "@/interface/order.interface";
+import { interfaceuser } from "@/interface/user.interface";
+import { interfacesize } from "@/interface/interfacesize";
+import { interfacecolor } from "@/interface/interfacecolor";
+import { SellerInterface } from "@/interface/seller.interface";
+ 
+
+interface DetailOrder extends OrderInterface{
+    items:OrderItemInterface[];
+    user:interfaceuser;
+}
+interface ProductOrderItem{
+    color_id:number;
+    size_id:number;
+    product_id:number;
+    quantity:number;
+    size:interfacesize;
+    color:interfacecolor;
+    product:interfaceProduct;
+    seller:SellerInterface;
+}
+
+interface GroupedBySeller {
+  sellerId: number;
+  seller: SellerInterface; // nếu bạn đã có object seller thì dùng interface riêng
+  products: (ProductOrderItem )[];
+  status:number;
+}
+
 export default function OrderDetail() {
   const searchParams = useSearchParams();
   const id = searchParams.get("id"); // sẽ ra "8" từ ?id=8
-      const [orders,setOrders] = useState<any | null>(null);
-      const [items,setItems] = useState<any[] | []>([]);
-      const [products,setProducts] = useState<any[] |[]>([])
+      const [orders,setOrders] = useState<DetailOrder >();
+      const [items,setItems] = useState<OrderItemInterface[]>([]);
+      const [products,setProducts] = useState<ProductOrderItem[] |[]>([])
       const [existorder,setExistorder] = useState<boolean>(false)
+      const [sellerItem,setSellerItem] = useState<GroupedBySeller[]>([])
     //   const {user} = useUser()
     //   const [login,setLogin] = useState<boolean>(false)
       const [loading,setLoading] = useState<boolean>(true);
@@ -26,60 +57,112 @@ export default function OrderDetail() {
     //         setLogin(true);
     //     }
     //   },[user])
-    useEffect(() =>{
+useEffect(() => {
+  if (!id) return;
+
+  const fetchOrder = async () => {
+    try {
+      const ok = await Getorderitembyid(Number(id));
+      console.log("Getorderitembyid:", ok.data);
+
+      if (ok.data.success) {
+        const order: DetailOrder = ok.data.data.order;
+        console.log(ok.data.data.order);
         
-        if(!id) return;
-        
-        const order = async() =>{
-            const ok = await Getorderitembyid(Number(id));
-            console.log(ok.data);
-            if(ok.data.success){
-                setOrders(ok.data.data.order)
-                console.log(ok.data.data.order);
-                // console.log(orders);
-                setExistorder(true);
-                setItems(ok.data.data.order.items)
-                
-                
-            }else{
-                setExistorder(false);
-                // alert("không tìm thấy order");
-                setLoading(false);
+        setOrders(order);
+        setExistorder(true);
 
-            }
+        // set items (OrderItemInterface[])
+        setItems(order.items);
+      } else {
+        setExistorder(false);
+        setLoading(false);
+      }
+    } catch (err) {
+      console.error("Lỗi khi lấy order:", err);
+      setExistorder(false);
+      setLoading(false);
+    }
+  };
 
-        }   
-        order()
-    },[id])
-        useEffect(() => {
-        if (items.length === 0) return;
+  fetchOrder();
+}, [id]);
 
-        const data = items.map((pr) => ({
-            product_id: Number(pr.id_product),
-            color_id: Number(pr.color_id),
-            size_id: Number(pr.size_id),
-            quantity: pr.quantity
-        }));
-        console.log(data);
-        
-        const fetchCartDetail = async () => {
-            try {
-            const product = await Getdetailallcart(data);
-            setProducts(product.data.data)
-            console.log(product.data.data);
-            
-            
-            } catch (err) {
-            console.error("Lỗi khi lấy chi tiết giỏ hàng:", err);
-            setLoading(false);
+useEffect(() => {
+  if (items.length === 0) return;
 
-            }finally{
-                setLoading(false);
-            }
-        };
+  const data = items.map((pr) => ({
+    product_id: Number(pr.id_product),
+    color_id: Number(pr.color_id),
+    size_id: Number(pr.size_id),
+    quantity: pr.quantity,
+  }));
 
-        fetchCartDetail();
-        }, [items]);
+  console.log("Payload gửi lên Getdetailallcart:", data);
+
+  const fetchCartDetail = async () => {
+    try {
+      const productRes = await Getdetailallcart(data);
+      const productList: ProductOrderItem[] = productRes.data.data;
+
+      setProducts(productList);
+      console.log("ProductOrderItem[]:", productList);
+    } catch (err) {
+      console.error("Lỗi khi lấy chi tiết giỏ hàng:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  fetchCartDetail();
+}, [items]);
+
+useEffect(() => {
+  if (products.length === 0) return;
+
+  const grouped = groupBySeller(items,products);
+  setSellerItem(grouped);
+}, [products]);
+
+
+
+function groupBySeller(
+  items: OrderItemInterface[],
+  products: ProductOrderItem[]
+): GroupedBySeller[] {
+  const grouped: Record<number, GroupedBySeller> = {};
+
+  for (const item of items) {
+    // tìm product chi tiết tương ứng
+    const productDetail = products.find(
+      (p) =>
+        p.product_id === item.id_product &&
+        p.color_id === item.color_id &&
+        p.size_id === item.size_id
+    );
+
+    if (!productDetail) continue;
+
+    const sellerId = productDetail.product.idSeller;
+
+    if (!grouped[sellerId]) {
+      grouped[sellerId] = {
+        sellerId,
+        seller: item.seller, // bạn có thể thay bằng object seller riêng
+        products: [],
+        status:item.status
+      };
+    }
+
+    grouped[sellerId].products.push({
+      ...productDetail
+      // gắn thêm status từ OrderItem
+    });
+  }
+
+  return Object.values(grouped);
+}
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -194,12 +277,11 @@ export default function OrderDetail() {
                                 <span className="text-blue-500">#{orders?.ordercode}</span></span></p>
                             
 
-                            <span className="font-semibold">Trạng thái: </span>
-                                <span><OrderProgress status={orders?.status} /></span>
+                            
                         </div>
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 bg-white p-6 rounded-2xl shadow-sm">
                             <div className="space-y-2">
-                            <p><span className="font-semibold">Khách hàng: </span>{orders?.user_id}</p>
+                            <p><span className="font-semibold">Khách hàng: </span>{orders?.user.username}</p>
                             <p><span className="font-semibold">Email: </span>{orders?.email || "không có"}</p>
                             <p><span className="font-semibold">SĐT: </span>{orders?.phone}</p>
                             </div>
@@ -236,77 +318,117 @@ export default function OrderDetail() {
                     )}
                 </div>
 
-                <div className="bg-white shadow rounded-2xl p-6">
-                <h2 className="text-xl font-semibold mb-4">Sản phẩm</h2>
-                <div className="overflow-x-auto">
-                    <table className="w-full border border-gray-200 rounded-lg overflow-hidden">
-                    <thead className="bg-gray-100 text-gray-700">
-                        <tr>
-                        <th className="px-4 py-2 text-left">Tên sản phẩm</th>
-                        <th className="px-4 py-2 text-left">hình</th>
-                        <th className="px-4 py-2 text-left">Giá</th>
-                        <th className="px-4 py-2 text-left">Size</th>
-                        <th className="px-4 py-2 text-left">Màu</th>
-                        <th className="px-4 py-2 text-left">Số lượng</th>
-                        <th className="px-4 py-2 text-left">Thành tiền</th>
-                        </tr>
-                    </thead>
-                    <tbody className="text-gray-700">
-                        {products.length > 0 ? (
-                                products.map((pr,index)=>(
-                                    <tr className="border-b" key={`${pr.product}-${pr.color_id}-${pr.size_id}+${index}`}>
-                                        <td className="px-4 py-2">{pr.product.name}</td>
-                                        {/* <td></td> */}
-                                        <td className="px-4 py-2"> <Image 
-                                            alt=""
-                                            src={pr.product.image}
-                                            height={100}
-                                            width={100}
-                                            className=""
-                                        ></Image></td>
-                                        <td className="px-4 py-2">{pr.product.discountprice.toLocaleString()} đ</td>
-                                        {pr.size ? (
-                                            <td className="px-4 py-2">{pr.size.name}</td>
-                                        ) : (
-                                            <td className="px-4 py-2">khoong co</td>
+                        <div className="bg-white shadow-md rounded-2xl p-6 space-y-6">
+                        <h2 className="text-2xl font-bold text-gray-800">Thông tin đơn hàng</h2>
 
-                                        )}
-                                        {pr.color ? (
-                                            <td className="px-4 py-2">{pr.color.name}</td>
-                                        ) : (
-                                            <td className="px-4 py-2">khon co</td>
+                        {sellerItem.length > 0 &&
+                            sellerItem.map((item, index) => (
+                            <div
+                                key={index}
+                                className="border border-gray-200 rounded-xl shadow-sm p-4 space-y-4"
+                            >
+                                {/* Trạng thái */}
+                                <div className="">
+                                <span className="font-semibold text-gray-700">Trạng thái:</span>
+                                <div className="w-full">
+                                    <OrderProgress status={item.status} />
+                                </div>
+                                </div>
 
-                                        )}
-                                        <td className="px-4 py-2">{pr.quantity}</td>
-                                        <td className="px-4 py-2">{(pr.product.discountprice * pr.quantity).toLocaleString()} đ</td>
+                                {/* Cửa hàng */}
+                                <div className="bg-gray-50 rounded-lg p-3">
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-semibold text-gray-800">Cửa hàng:</span>{" "}
+                                    {item.seller.usernameseller}
+                                </p>
+                                <p className="text-sm text-gray-600">
+                                    <span className="font-semibold text-gray-800">Địa chỉ:</span>{" "}
+                                    {item.seller.address}
+                                </p>
+                                </div>
+
+                                {/* Bảng sản phẩm */}
+                                <div className="overflow-x-auto">
+                                <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
+                                    <thead className="bg-gray-100 text-gray-700">
+                                    <tr>
+                                        <th className="px-4 py-2 text-left">Tên sản phẩm</th>
+                                        <th className="px-4 py-2 text-left">Hình</th>
+                                        <th className="px-4 py-2 text-left">Giá</th>
+                                        <th className="px-4 py-2 text-left">Size</th>
+                                        <th className="px-4 py-2 text-left">Màu</th>
+                                        <th className="px-4 py-2 text-left">Số lượng</th>
+                                        <th className="px-4 py-2 text-left">Thành tiền</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-200">
+                                    {item.products.length > 0 ? (
+                                        item.products.map((pr, index) => (
+                                        <tr
+                                            key={`${pr.product.id}-${pr.color_id}-${pr.size_id}+${index}`}
+                                            className="hover:bg-gray-50 transition"
+                                        >
+                                            <td className="px-4 py-2 font-medium text-gray-800">
+                                            {pr.product.name}
+                                            </td>
+                                            <td className="px-4 py-2">
+                                            <Image
+                                                alt={pr.product.name}
+                                                src={pr.product.image}
+                                                height={80}
+                                                width={80}
+                                                className="rounded-md border"
+                                            />
+                                            </td>
+                                            <td className="px-4 py-2 text-gray-700">
+                                            {pr.product.discountprice.toLocaleString()} đ
+                                            </td>
+                                            <td className="px-4 py-2 text-gray-700">
+                                            {pr.size ? pr.size.name : "—"}
+                                            </td>
+                                            <td className="px-4 py-2 text-gray-700">
+                                            {pr.color ? pr.color.name : "—"}
+                                            </td>
+                                            <td className="px-4 py-2 text-gray-700">{pr.quantity}</td>
+                                            <td className="px-4 py-2 font-semibold text-gray-900">
+                                            {(
+                                                pr.product.discountprice * pr.quantity
+                                            ).toLocaleString()}{" "}
+                                            đ
+                                            </td>
                                         </tr>
-                                ))
-                         ) : (
-                            <tr>
-                                <td colSpan={7} className="text-center py-4">
-                                Không có sản phẩm
-                                </td>
-                            </tr>
-                         )}
-                         <tr>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td></td>
-                            <td>
-                                
+                                        ))
+                                    ) : (
+                                        <tr>
+                                        <td colSpan={7} className="text-center py-4 text-gray-500">
+                                            Không có sản phẩm
+                                        </td>
+                                        </tr>
+                                    )}
 
-                            </td>
-                            <td><p>Tổng: {products?.reduce((total,item) =>total + (item.product.discountprice || 0 )* item.quantity,0 ).toLocaleString() }đ</p></td>
-                         </tr>
+                                    {/* Tổng tiền */}
+                                    <tr className="bg-gray-50 font-semibold text-gray-900">
+                                        <td colSpan={6} className="px-4 py-3 text-right">
+                                        Tổng:
+                                        </td>
+                                        <td className="px-4 py-3">
+                                        {item.products
+                                            .reduce(
+                                            (total, p) =>
+                                                total + (p.product.discountprice || 0) * p.quantity,
+                                            0
+                                            )
+                                            .toLocaleString()}{" "}
+                                        đ
+                                        </td>
+                                    </tr>
+                                    </tbody>
+                                </table>
+                                </div>
+                            </div>
+                            ))}
+                        </div>
 
-                    </tbody>
-                    </table>
-                    
-                </div>
-                
-                </div>
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 bg-white p-6 rounded-2xl shadow-sm">
                             <p><span className="font-semibold">Phí ship: </span>{orders?.ship_fee.toLocaleString()} đ</p>
                             <p>
@@ -338,6 +460,7 @@ export default function OrderDetail() {
             {/* Footer */}
             <FooterPage />
             </div>
+        
 
     )
 }

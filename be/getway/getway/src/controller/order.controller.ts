@@ -1,8 +1,12 @@
 import { HttpService } from "@nestjs/axios";
-import { Body, Controller, Get, Inject, Param, Post, Query, Req, UnauthorizedException } from "@nestjs/common";
+import { Body, Controller, Get, Inject, Param, Post, Query, Req, UnauthorizedException, UseGuards } from "@nestjs/common";
 import { ClientProxy } from "@nestjs/microservices";
 import { response } from "express";
 import { firstValueFrom, lastValueFrom } from "rxjs";
+import { JwtAuthGuardFromCookie } from "src/auth/jwt-auth.guard";
+import { JwtSellerAuthGuardFromCookie } from "src/auth/seller-jwt.guard";
+import { GetSeller } from "src/common/decorators/get-seller.decorator";
+import { GetUser } from "src/common/decorators/get-user.decorator";
 import { ViettelpostService } from "src/service/viettelpost.service";
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
@@ -129,7 +133,7 @@ const orderforviettel = results.map(seller => {
     const callapi = async(token) =>{
          return await Promise.all(
               orderforviettel.map(order =>
-                
+                 
                 lastValueFrom(
                   this.httpService.post(url, order, {
                     headers: {
@@ -466,8 +470,101 @@ const orderforviettel = results.map(seller => {
       }
       
     }
-    
-  
-
   }  
+
+   @UseGuards(JwtAuthGuardFromCookie)
+  @Post('GetOrderByUserWithSeller')
+  async OrderByUserWithSeller(@Body() body:any,@GetUser() user:any){
+      if(!user){
+        return{
+          success:false,
+          data:null,
+          message:'dang nhap'
+        }
+      }
+
+      try {
+        const data:any = await this.httpService.post('http://localhost:3004/order/GetOrderByUserWithSeller',{seller_id:body.seller_id,user_id:user.id}).toPromise()
+        return data.data
+      } catch (error) {
+        return{
+          success:false,
+          message:'loi gateway',
+          data:null,
+        }
+      }
+  }
+
+
+  @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('orderitembyseller')
+  async GetOrderItemBySeller(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'bạn k phải seller',
+        data:null,
+      }
+    }
+    try {
+        const data:any = await this.httpService.post('http://localhost:3004/order/orderitembyseller',{seller_id:seller.seller_id,page:body.page,limit:body.limit,month:body.month,year:body.year}).toPromise()
+        return{
+          success:true,
+          data:data.data.data,
+          message:'thanh cong',
+        }
+    } catch (error) {
+        return{
+          success:false,
+          message:'loi gateway',
+          dataa:null 
+        }
+    }
+  }
+
+  @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('orderdetailseller')
+  async GetOrderDetailBySeller(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        data:null,
+        message:'k phai seller'
+      }
+    }
+
+    try {
+      const order:any = await this.httpService.post('http://localhost:3004/order/orderdetailbyseller',{order_id:body.order_id,seller_id:seller.seller_id}).toPromise()
+      return order.data
+    } catch (error) {
+      return{
+        success:false,
+        data:null,
+        message:'loi gateway'
+      }
+    }
+  }
+
+  @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('updatestatusorderitem')
+  async UpdateStatusOrderItem(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'loi',
+        data:null,
+      }
+    }
+
+    try {
+      const up:any = await this.httpService.post('http://localhost:3004/order/updatestatusorderitem',{order_id:body.order_id,seller_id:seller.seller_id,status:body.status}).toPromise()
+      return up.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null,
+      }
+    }
+  }
 }

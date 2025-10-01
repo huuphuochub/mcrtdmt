@@ -2,6 +2,7 @@ import { Entity, PrimaryGeneratedColumn, Column,OneToOne, OneToMany } from 'type
 import { Seller } from 'src/seller/seller.entity';
 import { HistorySearch } from 'src/historysearch/historysearch.entity';
 import { Notification } from 'src/noti/noti.entity';
+import { Order } from 'src/order/order.entity';
 
 @Entity('users') // 👈 bảng tên là 'users'
 export class User {
@@ -31,6 +32,11 @@ export class User {
 
   @Column({default:""})
   email:string;
+
+
+   @OneToMany(() => Order, order => order.user)
+  orders: Order[];
+
 
   @Column({default:null})
   phoneorder:string;

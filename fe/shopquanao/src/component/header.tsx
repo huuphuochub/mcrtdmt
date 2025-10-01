@@ -153,6 +153,8 @@ return(
 
 <div className="flex justify-between items-center max-w-[1200px] mx-auto">
 <div className="flex items-center gap-4">
+   <Chat/>
+
    {/* 
    <div className="logo hover:cursor-pointer">
       Danh mục

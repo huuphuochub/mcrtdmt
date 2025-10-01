@@ -85,7 +85,7 @@ export default function Shop() {
                         className=" rounded-full border object-cover"
                         />
                         <div>
-                        <Link href={`/page/sellerinfor/?id=${s.id}`}><h2 className="text-lg font-semibold text-gray-800 hover:cursor-pointer hover:underline ">{s.usernameseller}</h2></Link>
+                        <Link href={`/page/sellerinfor/?id=${s.id}`}><h2 className="text-lg relative font-semibold text-gray-800 hover:cursor-pointer hover:underline ">{s.usernameseller}</h2></Link>
                         <p className="text-sm text-gray-500">Tham gia: {formatteddate(s.createdAt)}</p>
                         </div>
                     </div>

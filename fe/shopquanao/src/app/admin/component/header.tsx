@@ -146,7 +146,7 @@ const Headeradmin2 =() =>{
         <AccordionItem value="products">
           <div className="flex items-center gap-2">
             <Box />
-            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Sản phẩm</AccordionTrigger>
+            <AccordionTrigger className="flex-1 text-gray-700 text-xl font-medium">Sản phẩm</AccordionTrigger>
           </div>
           <AccordionContent className="ml-6 flex flex-col gap-1">
             <Link href="/admin/page/product/list" className="hover:text-blue-500 text-xl">Danh sách</Link>
@@ -160,12 +160,12 @@ const Headeradmin2 =() =>{
         <AccordionItem value="other">
           <div className="flex items-center gap-2">
             <ChartArea />
-            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+            <AccordionTrigger className="flex-1 text-gray-700 text-xl font-medium">Đơn hàng</AccordionTrigger>
           </div>
           <AccordionContent className="ml-6 flex flex-col gap-1">
-            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
-            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
-            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+            <Link href="/admin/page/order/list" className="hover:text-blue-500 text-xl">Tất cả</Link>
+            <a href="#" className="hover:text-blue-500 text-xl">Chờ xác nhận</a>
+            <a href="#" className="hover:text-blue-500 text-xl">Lịch sử</a>
           </AccordionContent>
         </AccordionItem>
       </Accordion>

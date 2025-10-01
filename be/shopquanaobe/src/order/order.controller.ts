@@ -109,8 +109,67 @@ export class OrderController {
         return haha
         
     }
-
+// check xem khách hàng đã mua hàng chưa để cho phép đánh giá cửa hàng
+    @Post('GetOrderByUserWithSeller')
+    async OrderByUserWithSeller(@Body() body:any){
+        return  await this.orderService.GetOrderByUserWithSeller(body.user_id,body.seller_id)
     }
+
+
+    @Post('orderitembyseller')
+    async OrderItemSeller(@Body() body:any){
+        return await this.orderService.getOrderItemsBySeller(body.seller_id,body.page,body.limit,body.month,body.year)
+    }
+
+
+     @Post('orderdetailbyseller')
+    async OrderDetailSeller(@Body() body:any){
+        return await this.orderService.OrderDetailSeller(body)
+    }
+
+    @Post('updatestatusorderitem')
+    async UpdateStatusOrderItem(@Body() body:any){
+        console.log(body);
+        
+        return await this.orderService.UpdateStatusOrderItemBySeller(body.order_id,body.seller_id,body.status);
+    }
+
+
+    // dem order trong thang của seller
+    @Get('demorder')
+    async demOrder(){
+        return await this.orderService.countOrdersBySeller(2,10,2025)
+    }
+
+    @Get('demkhachhang')
+    async demkhach(){
+        return await this.orderService.countNewCustomers(10,2025,2)
+    }
+
+    @Get('demdoanhthu')
+    async đemoanhthu(){
+        return await this.orderService.getRevenueBySeller(2,10,2025)
+    }
+
+    @Get('demtongsanpham')
+    async demsanpham(){
+        return await this.orderService.countTotalProductsBySeller(2,10,2025)
+    }
+
+
+        @Get('laydoashdonhang')
+    async ok(){
+        return await this.orderService.getDailyStats(2,10,2025)
+    }
+
+
+    
+
+
+    
+    }
+
+   
 
 
 

@@ -66,7 +66,7 @@ const [month, setMonth] = useState<string | undefined>(undefined);
       <div className="mt-[100px] max-w-[1200px] mx-auto px-4 min-h-[600px]">
         <h1 className="text-2xl font-bold mb-6 ">Đơn hàng của bạn</h1>
 
-        <div className="sticky top-[98px] bg-white z-10 pb-2 border-b">
+        <div className="sticky top-[68px] bg-white z-10 pb-2 border-b">
         <div className="flex gap-4 bg-gray-200 rounded-l px-4 py-2">
           <div >
               <Button variant={ status === undefined ? `primary` : 'secondary'} onClick={() =>handleFilter(undefined)}>Tất cả</Button>

@@ -1,5 +1,7 @@
-import { Column, CreateDateColumn, Entity, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, Entity, JoinColumn, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { OrderItem } from "./orderitem.entity";
+import { User } from "src/users/user.entity";
+import { Seller } from "src/seller/seller.entity";
 
 @Entity("order")
 export class Order {
@@ -8,6 +10,13 @@ export class Order {
 
   @Column()
   user_id: number;
+
+  @ManyToOne(() => User, user => user.orders)
+  @JoinColumn({ name: "user_id" })
+  user: User;
+
+
+
 
   @Column({ unique: true })
   ordercode:number;
@@ -40,7 +49,8 @@ export class Order {
   payment_method: number;
 
     @Column()
-    ship_fee:number;
+    ship_fee:number; 
+    
 
     @Column({default:false})
     emailsend:boolean
