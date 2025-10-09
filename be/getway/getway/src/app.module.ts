@@ -17,6 +17,7 @@ import { ChatGateway } from './service/socketio/socketio';
 // import { ChatService } from './service/chat.service';
 import { Chatcontroller } from './controller/chat.controller';
 import { FolowerController } from './controller/folower.controller';
+import { Notification } from './controller/notification.controller';
 
 
 @Module({
@@ -77,6 +78,6 @@ import { FolowerController } from './controller/folower.controller';
       exports: [ViettelpostService], // nếu muốn dùng ở chỗ khác
 
 
-  controllers: [ProductController,UserController,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController ,CommentProductController,Chatcontroller,FolowerController]
+  controllers: [ProductController,UserController,Notification,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController ,CommentProductController,Chatcontroller,FolowerController]
 })
 export class AppModule {}

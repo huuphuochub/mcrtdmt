@@ -116,7 +116,7 @@ export default function ListOrderPage(){
                                      <span className="px-2 py-1 text-sm rounded-full bg-yellow-100 text-yellow-700 font-medium">
                                 Đã xác nhận
                                 </span>
-                                ) : item.items[0].status  ==2  ? (
+                                ) : item.items[0].status  ==3  ? (
                                     <span className="px-2 py-1 text-sm rounded-full bg-green-100 text-green-700 font-medium">
                                 Hoàn thành
                                 </span>

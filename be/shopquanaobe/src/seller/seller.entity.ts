@@ -81,7 +81,7 @@ export class Seller {
   @OneToMany(() => OrderItem, item => item.seller)
   items: OrderItem[];
 
-  @OneToMany(() => CommentSeller,commentseller => commentseller.id)
+  @OneToMany(() => CommentSeller,commentseller => commentseller.seller)
   comments:CommentSeller[];
 
 

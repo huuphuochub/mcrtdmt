@@ -6,7 +6,12 @@ import React, { useEffect, useState } from "react";
 import { Check,Circle,CircleX } from "lucide-react";
 import Button from "@/component/ui/button";
 
-const OrderProgress = ({ status }: { status: number }) => {
+interface orderProgressprop {
+  status:number,
+  CLickOpenCancel:() => void;
+}
+
+const OrderProgress = ({ status,CLickOpenCancel } :orderProgressprop) => {
   const steps = ["Đã thanh toán", "Đang soạn hàng", "Đang vận chuyển", "Đã giao xong"];
   const [progress, setProgress] = useState(0);
 
@@ -46,16 +51,6 @@ const OrderProgress = ({ status }: { status: number }) => {
         </div>
         ) : status === 3 ? (
           <div className="progress-bar flex justify-between relative mb-[30px] bg-gray-300 h-[6px] items-center">
-                <div className="progress-lines absolute  left-0 h-[6px] bg-green-600 z-10 rounded-[3px] w-[66%]" ></div>
-                <div className="progress-line absolute  left-[66%] h-[6px] bg-green-600 z-10 rounded-[3px] w-[33%]"></div>
-                <div className="step completed relative z-20"><div className="circle w-[28px] h-[28px] bg-green-600 rounded-[50px] m-auto flex justify-center items-center text-[16px] text-white"><Check/></div></div>
-                <div className="step completed relative z-20"><div className="circle w-[28px] h-[28px] bg-green-600 rounded-[50px] m-auto flex justify-center items-center text-[16px] text-white"><Check/></div></div>
-                <div className="step completed relative z-20"><div className="circle w-[28px] h-[28px] bg-green-600 rounded-[50px] m-auto flex justify-center items-center text-[16px] text-white"><Check/></div></div>
-                <div className="step completed relative z-20"><div className="circle w-[28px] h-[28px] bg-green-600 rounded-[50px] m-auto flex justify-center items-center text-[16px] text-white"><Circle/></div></div>
-
-        </div>
-        ) : status === 4 ?(
-          <div className="progress-bar flex justify-between relative mb-[30px] bg-gray-300 h-[6px] items-center">
                 <div className="progress-lines absolute  left-0 h-[6px] bg-green-600 z-10 rounded-[3px] w-[100%]" ></div>
                 <div className="step completed relative z-20"><div className="circle w-[28px] h-[28px] bg-green-600 rounded-[50px] m-auto flex justify-center items-center text-[16px] text-white"><Check/></div></div>
                 <div className="step completed relative z-20"><div className="circle w-[28px] h-[28px] bg-green-600 rounded-[50px] m-auto flex justify-center items-center text-[16px] text-white"><Check/></div></div>
@@ -63,21 +58,40 @@ const OrderProgress = ({ status }: { status: number }) => {
                 <div className="step completed relative z-20"><div className="circle w-[28px] h-[28px] bg-green-600 rounded-[50px] m-auto flex justify-center items-center text-[16px] text-white"><Check/></div></div>
 
         </div>
-        ) : (
+        ) :(
           <div className="progress-bar flex justify-between relative mb-[30px] bg-gray-300 h-[6px] items-center">
-                <div className="progress-lines absolute  left-0 h-[6px] bg-red-600 z-10 rounded-[3px] w-[100%]" ></div>
-                {/* <div className="progress-line absolute  left-[0] h-[6px] bg-green-600 z-10 rounded-[3px] w-[33%]"></div> */}
+              <div className="progress-lines absolute  left-0 h-[6px] bg-red-600 z-10 rounded-[3px] w-[100%]" ></div>
+                 {/* <div className="progress-line absolute  left-[0] h-[6px] bg-green-600 z-10 rounded-[3px] w-[33%]"></div> */}
                 
-                <div className="step completed bg-red-600 rounded-[50px] z-20"><div className="circle rounded-[50px] text-white"><Circle/></div></div>
-                <div className="step completed bg-red-600 rounded-[50px] z-20"><div className="circle rounded-[50px] text-white"><CircleX/></div></div>
+                 <div className="step completed bg-red-600 rounded-[50px] z-20"><div className="circle rounded-[50px] text-white"><Circle/></div></div>
+                 <div className="step completed bg-red-600 rounded-[50px] z-20"><div className="circle rounded-[50px] text-white"><CircleX/></div></div>
 
-        </div>
-        )}
+         </div>
+        ) 
+        
+        
+        // : (
+        //   <div className="progress-bar flex justify-between relative mb-[30px] bg-gray-300 h-[6px] items-center">
+        //         <div className="progress-lines absolute  left-0 h-[6px] bg-red-600 z-10 rounded-[3px] w-[100%]" ></div>
+        //         {/* <div className="progress-line absolute  left-[0] h-[6px] bg-green-600 z-10 rounded-[3px] w-[33%]"></div> */}
+                
+        //         <div className="step completed bg-red-600 rounded-[50px] z-20"><div className="circle rounded-[50px] text-white"><Circle/></div></div>
+        //         <div className="step completed bg-red-600 rounded-[50px] z-20"><div className="circle rounded-[50px] text-white"><CircleX/></div></div>
 
-        {status !== 5 ? (
+        // </div>
+        // )
+        
+        
+        }
+
+        {status !== 4 ? (
           <div className="flex justify-between">
           <div>Đã đặt hàng</div>
-          <div>đang soạn hàng</div>
+          {status === 1 ? (
+            <div>Chờ xác nhận</div>
+          ) : (
+            <div>Đã xác nhận</div>
+          )} 
           <div>đang vận chuyển</div>
           <div>đã hoàn thành</div>
         </div>
@@ -87,9 +101,9 @@ const OrderProgress = ({ status }: { status: number }) => {
                 <div>đã thanh toán</div>
                 <div>đã hủy</div>
             </div>
-          <div className="text-center">
+          <div className="text-center mt-2">
 
-            <Button>xem lý do</Button>
+            <Button onClick={CLickOpenCancel}>xem lý do</Button>
           </div>
           
         </div>

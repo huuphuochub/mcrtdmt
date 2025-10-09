@@ -40,14 +40,18 @@ const sellerIds = Object.keys(grouped).map(id => parseInt(id));
 // lấy thông tin chi tiết các seller từ id_user
 const sellers:any = await this.httpService.post('http://localhost:3004/seller/inforseller', { sellerIds }).toPromise();
 
+console.log(sellers);
 
 // gom product và seller thành các mảng dựa theo id_seller
+console.log(bodys);
+
 const results  = sellers.data.map(seller =>{
   return{
     ...seller,
-    product:bodys.product.filter(p => p.id_seller === seller.user_id)
+    product:bodys.product.filter(p => p.id_seller === seller.id)
   }
 })
+console.log(results);
 
 //  lấy token ở file
     const tokenfile =await this.ViettelpostService.getToken();
@@ -61,19 +65,30 @@ const results  = sellers.data.map(seller =>{
 //  nếu có token tạo body theo fomat của viettepost
     if(token){
 const orderforviettel = results.map(seller => {
-  const listproduct = seller.product.map(p => ({
+  const listproduct = seller.product.map(p => (
+    
+    {
+    // console.log();
+    
     PRODUCT_NAME: p.name,
     PRODUCT_PRICE: p.price,
-    PRODUCT_WEIGHT: 200,
+    PRODUCT_WEIGHT: p.weight,
     PRODUCT_QUANTITY: p.quantity
-  }));
+  })
+// console.log(p.weigth);
+
+);
 
   
 
   const totalWeight = seller.product.reduce(
-    (sum, p) => sum + p.weight * p.quantity,
+    (sum:any, p:any) => sum + (Number(p.weight) * Number(p.quantity)), 
     0
   );
+  console.log('totalweithg');
+  console.log(totalWeight);
+  
+  
 
   return {
     ORDER_NUMBER: "12",
@@ -557,7 +572,13 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const up:any = await this.httpService.post('http://localhost:3004/order/updatestatusorderitem',{order_id:body.order_id,seller_id:seller.seller_id,status:body.status}).toPromise()
+      const up:any = await this.httpService.post('http://localhost:3004/order/updatestatusorderitem',{order_id:body.order_id,seller_id:seller.seller_id,status:body.status,cancelReason:body.cancelReason}).toPromise()
+      if(body.status === 3){
+        const updatevariant = await this.httpService.post('http://localhost:3002/size/updatevariant',{variant:body.variant}).toPromise()
+        const updatequantiryproduct = await this.httpService.post('http://localhost:3002/product/updatequantity',{variant:body.variant}).toPromise()
+        const updatetotalsold = await this.httpService.post('http://localhost:3004/seller/updatetotalsold',{seller_id:seller.seller_id,variant:body.variant}).toPromise();
+          
+      }
       return up.data
     } catch (error) {
       return{
@@ -566,5 +587,171 @@ const orderforviettel = results.map(seller => {
         data:null,
       }
     }
+  } 
+
+// dem tong don hang theo seller
+  @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('countorder')
+  async CountOrderBySeller(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'khong phai seller',
+        data:null
+      }
+    }
+
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/order/conutorder',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      return data.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null
+      }
+    }
   }
+
+@UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('countcustomer')
+  async CountCustomerBySeller(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'khong phai seller',
+        data:null
+      }
+    }
+
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/order/countcustomer',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      return data.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null
+      }
+    }
+  }  
+
+
+  @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('countrevenue')
+  async CountRevenueBySeller(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'khong phai seller',
+        data:null
+      }
+    }
+
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/order/countrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      return data.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null
+      }
+    }
+  }  
+
+
+    @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('countproduct')
+  async CountProductBySeller(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'khong phai seller',
+        data:null
+      }
+    }
+
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/order/countproduct',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      return data.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null
+      }
+    }
+  }  
+
+   @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('doashboardrevenue')
+  async DoashboardRevenue(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'khong phai seller',
+        data:null
+      }
+    }
+
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/order/doashboardrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      return data.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null
+      }
+    }
+  }  
+
+     @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('doashboardtopproductsell')
+  async DoashboardTopproductsell(@GetSeller() seller:any,@Body() body:any){
+    console.log(body);
+    
+    if(!seller){
+      return{
+        success:false,
+        message:'khong phai seller',
+        data:null
+      }
+    }
+
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/order/doashboardtopproductsell',{seller_id:seller.seller_id,month:body.month,year:body.year,limit:body.limit}).toPromise()
+      return data.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null
+      }
+    }
+  }  
+     @UseGuards(JwtSellerAuthGuardFromCookie)
+  @Post('doashboardtopproductrevenue')
+  async DoashboardTopproductrevenue(@GetSeller() seller:any,@Body() body:any){
+    if(!seller){
+      return{
+        success:false,
+        message:'khong phai seller',
+        data:null
+      }
+    }
+
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/order/doashboardtopproductrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      return data.data
+    } catch (error) {
+      return{
+        success:false,
+        message:'loi gateway',
+        data:null
+      }
+    }
+  }  
+
 }

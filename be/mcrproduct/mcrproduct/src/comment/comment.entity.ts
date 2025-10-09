@@ -21,6 +21,9 @@ export class Comment{
     @Column()
     star:number;
 
+    @Column("simple-array", { nullable: true })
+    imageurl:string[];
+
     @Column()
     content:string;
 

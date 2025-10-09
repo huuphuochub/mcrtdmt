@@ -54,6 +54,8 @@ this.payos = payos;
   }
 
   async Createorder(  user_id:number,body:any){
+    console.log('tao order');
+    
     console.log(body);
     
      const order = this.orderRepo.create({
@@ -276,7 +278,7 @@ this.payos = payos;
       .createQueryBuilder('order')
       .innerJoin('order.items','item')
       .where('order.user_id = :user_id',{user_id})
-      .andWhere('order.status = :status',{status:5})
+      .andWhere('item.status = :status',{status:3})
       .andWhere('item.id_product = :product_id',{product_id})
       .getExists();
       return {
@@ -441,26 +443,32 @@ async countOrdersBySeller(
   }
 
   // Đếm DISTINCT order_id
-  const count = await qb
+  try {
+    const count = await qb
     .select("COUNT(DISTINCT item.order_id)", "count")
     .getRawOne();
 
-  return {
+     return {
     success: true,
-    sellerId,
-    totalOrders: Number(count.count) || 0,
+    message:'ok',
+    data: Number(count.count) || 0,
   };
+
+  } catch (error) {
+    
+  }
+ 
 }
 
 // cap nhat don hang item dua theo seller
-async UpdateStatusOrderItemBySeller(order_id:number,seller_id:number,status:number){
+async UpdateStatusOrderItemBySeller(order_id:number,seller_id:number,status:number,cancelReason:string){
   try {
     const up = await this.orderItemRepo.update({
       
       order:{id:order_id},
       seller:{id:seller_id},
     },
-    {status:status}
+    {status:status ,cancel_reason:cancelReason}
   )
 
   return{
@@ -498,14 +506,23 @@ async countNewCustomers(month: number, year: number, sellerId: number) {
     .addSelect("MIN(o.created_at)", "first_order_date");
 
   // Wrap lại để count
-  const result = await this.orderRepo
+  try {
+    const result = await this.orderRepo
     .createQueryBuilder()
     .select("COUNT(*)", "new_customers")
     .from("(" + subQb.getQuery() + ")", "sub")
     .setParameters(subQb.getParameters())
     .getRawOne();
 
-  return Number(result.new_customers) || 0;
+      return{
+        success:true,
+        message:'ok',
+        data:Number(result.new_customers) || 0
+      } 
+
+  } catch (error) {
+    
+  }
 }
 // dem doanh thu dụa theo seller và nam thang
 async getRevenueBySeller(sellerId: number, month?: number, year?: number) {
@@ -524,9 +541,21 @@ async getRevenueBySeller(sellerId: number, month?: number, year?: number) {
     qb.andWhere("EXTRACT(YEAR FROM o.created_at) = :year", { year });
   }
 
-  const result = await qb.getRawOne();
-  return Number(result.revenue) || 0;
+  try {
+    const result = await qb.getRawOne();
+      return {
+        success:true,
+        data:Number(result.revenue) || 0,
+        message:'ok',
+      }
+
+  } catch (error) {
+    
+  }
 }
+
+
+// dem tong san pham
 
 async countTotalProductsBySeller(sellerId: number, month?: number, year?: number) {
   const qb = this.orderItemRepo
@@ -544,11 +573,20 @@ async countTotalProductsBySeller(sellerId: number, month?: number, year?: number
     qb.andWhere("EXTRACT(YEAR FROM o.created_at) = :year", { year });
   }
 
-  const result = await qb.getRawOne();
-  return Number(result.totalProducts) || 0;
+  try {
+    const result = await qb.getRawOne();
+      return {
+        data: Number(result.totalProducts) || 0,
+      success:true,
+      message:'ok'
+      }
+
+  } catch (error) {
+    
+  }
 }
 
-
+// tinh doashboard doanh thu
 async getDailyStats(sellerId: number, month: number, year: number) {
   const qb = this.orderItemRepo
     .createQueryBuilder("item")
@@ -574,8 +612,72 @@ async getDailyStats(sellerId: number, month: number, year: number) {
     revenue: Number(r.revenue),          // doanh thu trong ngày
   }));
 }
+// lấy top 10 sản phẩm bán chạy
+async getTopSellingProducts(sellerId: number, month?: number, year?: number,limit?:number) {
+  console.log(limit);
+  
+  const qb = this.orderItemRepo
+    .createQueryBuilder("item")
+    .innerJoin("item.order", "order")
+    .where("item.seller_id = :sellerId", { sellerId })
+    .andWhere("item.status = :status", { status: 3 }) // chỉ tính đơn đã hoàn thành
 
+  .andWhere("EXTRACT(MONTH FROM item.updated_at) = :month", { month })
+    .andWhere("EXTRACT(YEAR FROM item.updated_at) = :year", { year })
 
+  const topProducts = await qb
+    .select("item.id_product", "productId")
+    .addSelect("item.productname", "productName")
+    .addSelect("SUM(item.quantity)", "totalSold")
+    .groupBy("item.id_product")
+    .addGroupBy("item.productname")
+    .orderBy("SUM(item.quantity)", "DESC")
+    .limit(limit ? limit: 10)
+    .getRawMany();
 
+    // console.log(topProducts);
+    
+
+  return topProducts.map(p => ({
+    productId: p.productId,
+    productName: p.productName,
+    totalSold: Number(p.totalSold),
+  }));
+}
+
+// tính doanh thu của top 10 sản phẩm cao nhất
+
+async getTopdoanhthuProducts(sellerId: number, month?: number, year?: number) {
+  const qb = this.orderItemRepo
+    .createQueryBuilder("item")
+    .innerJoin("item.order", "order")
+    .where("item.seller_id = :sellerId", { sellerId })
+    .andWhere("item.status = :status", { status: 3 }) // chỉ tính đơn đã hoàn thành
+
+  .andWhere("EXTRACT(MONTH FROM item.updated_at) = :month", { month })
+    .andWhere("EXTRACT(YEAR FROM item.updated_at) = :year", { year })
+
+  const topProducts = await qb
+    .select("item.id_product", "productId")
+    .addSelect("item.productname", "productName")
+    .addSelect("SUM(item.quantity)", "totalSold")
+
+    .addSelect("SUM(item.quantity * item.unitprice)", "totalprice")
+    .groupBy("item.id_product")
+    .addGroupBy("item.productname")
+    .orderBy("SUM(item.quantity)", "DESC")
+    .limit(10)
+    .getRawMany();
+
+    console.log(topProducts);
+    
+
+  return topProducts.map(p => ({
+    productId: p.productId,
+    productName: p.productName,
+    tongdoanhthu: Number(p.totalprice),
+    soluong:Number(p.totalSold),
+  }));
+}
 
 }

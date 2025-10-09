@@ -25,6 +25,15 @@ export default function Cart(){
          setLoadingcart(false);
       }
    }
+
+
+        function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
+
+  return today >= start && today <= end;
+}
    const clickDeletecart =async(produt_id:number,size_id:number,color_id:number)=>{
       if(cartdetail.length===1){
          const xacnhan = confirm('ban co muon xoa gio hang k')
@@ -103,8 +112,18 @@ return(
                </div>
             </div>
             <div className="text-right">
-               <p className="font-medium text-red-600">{cat.product.discountprice.toLocaleString()} đ</p>
-               <p className="text-sm text-gray-500 line-through">{cat.product.price.toLocaleString()} đ</p>
+               {isInPromotion(cat.product.promo_start,cat.product.promo_end) ? (
+                  <div>
+                        <p className="font-medium text-red-600">{cat.product.discountprice.toLocaleString()} đ</p>
+                        <p className="text-sm text-gray-500 line-through">{cat.product.price.toLocaleString()} đ</p>
+                  </div>
+               ) : (
+                  <div>
+                     <p className="font-medium text-red-600">{cat.product.price.toLocaleString()} đ</p>
+                     {/* <p className="text-sm text-gray-500 line-through">{cat.product.price.toLocaleString()} đ</p> */}
+                  </div>
+               )}
+               
                <button className="text-sm relative text-red-500 mt-2 hover:underline"
                onClick={() => clickDeletecart(cat.product.id, cat.size_id, cat.color_id)}
                >Xóa</button>
@@ -126,43 +145,63 @@ return(
 
 
       {/* Tổng tiền & nút thanh toán */}
-            <div className="mt-6 p-6 rounded-2xl bg-white shadow-md border border-gray-100">
+            <div className="mt-4 p-6 rounded-2xl bg-white shadow-md border border-gray-100">
             <div className="space-y-3">
                <div className="flex justify-between text-gray-600">
                   <span>Tạm tính</span>
                   <span>{cartdetail.length} sản phẩm</span>
                </div>
 
-               <div className="flex justify-between text-sm text-gray-500">
-                  <span>Giá gốc</span>
-                  <span className="line-through">
+               {/* Giá gốc */}
+               <div className="flex justify-between text-gray-600 font-medium">
+               <span>Giá gốc</span>
+               <span>
                   {cartdetail
-                     .reduce((total, item) => total + item.product.price * item.quantity, 0)
-                     .toLocaleString()}đ
-                  </span>
+                     .reduce((total, item) => {
+                     const { price = 0, quantity } = item.product;
+                     return total + price * item.quantity;
+                     }, 0)
+                     .toLocaleString("vi-VN")}đ
+               </span>
                </div>
 
+               {/* Giá khuyến mãi */}
                <div className="flex justify-between font-semibold text-red-600 text-lg">
-                  <span>Giá khuyến mãi</span>
-                  <span>
+               <span>Giá khuyến mãi</span>
+               <span>
                   {cartdetail
-                     .reduce((total, item) => total + item.product.discountprice * item.quantity, 0)
-                     .toLocaleString()}đ
-                  </span>
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // Nếu còn khuyến mãi → dùng discountprice, ngược lại dùng price
+                     const effectivePrice = isInPromotion(promo_start, promo_end)
+                        ? discountprice
+                        : price;
+
+                     return total + effectivePrice * item.quantity;
+                     }, 0)
+                     .toLocaleString("vi-VN")}đ
+               </span>
                </div>
 
+               {/* Tiết kiệm */}
                <div className="flex justify-between text-green-600 font-medium">
-                  <span>Tiết kiệm</span>
-                  <span>
+               <span>Tiết kiệm</span>
+               <span>
                   {cartdetail
-                     .reduce(
-                        (total, item) =>
-                        total + (item.product.price - item.product.discountprice) * item.quantity,
-                        0
-                     )
-                     .toLocaleString()}đ
-                  </span>
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // chỉ tính tiết kiệm nếu còn khuyến mãi
+                     if (isInPromotion(promo_start, promo_end)) {
+                        return total + (price - discountprice) * item.quantity;
+                     }
+                     return total;
+                     }, 0)
+                     .toLocaleString("vi-VN")}đ
+               </span>
                </div>
+
             </div>
 
             <div className="mt-6">

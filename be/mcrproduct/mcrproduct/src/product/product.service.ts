@@ -312,7 +312,7 @@ export class ProductService {
     }
 
     // Cộng dồn rating
-    pr.ratingSum = (pr.ratingSum || 0) + body.star;
+    pr.ratingSum = (pr.ratingSum || 0) + Number(body.star);
     pr.ratingCount = (pr.ratingCount || 0) + 1;
 
     // Tính lại averageRating
@@ -642,5 +642,28 @@ async GetAllFavourite(user_id:number,page:number){
       }
   }
 }
+
+async UpdateQuantitys(body: any) {
+  console.log(body);
+  try {
+    for (const element of body.variant) {
+      await this.productRepo.decrement(
+        { id: Number(element.product_id) }, // điều kiện
+        "quantity",                         // cột cần trừ
+        element.quantity                    // số lượng cần trừ
+      );
+      await this.productRepo.increment(
+        { id: Number(element.product_id) }, // điều kiện
+        "totalsold",                         // cột cần trừ
+        element.quantity                    // số lượng cần trừ
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+}
+
+
 
 }

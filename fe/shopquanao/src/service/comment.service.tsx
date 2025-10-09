@@ -1,14 +1,14 @@
 import axiosClient from "@/lib/axiosclient"
 
-interface bodyaddcomment{
-    content:string;
-    star:number;
-    product_id:number;
+// interface bodyaddcomment{
+//     content:string;
+//     star:number;
+//     product_id:number;
 
 
-}
+// }
 
-const addComment=async(body:bodyaddcomment)=>{
+const addComment=async(body:FormData)=>{
     try {
         const add = await axiosClient.post('/commentproduct/addcomment',body)
         return add
@@ -20,6 +20,35 @@ const addComment=async(body:bodyaddcomment)=>{
         }
     }
 }
+
+const GetCmtSeller =async(seller_id:number,page:number) =>{
+    try {
+        const cmts = await axiosClient.get(`commentproduct/getcmtseller/${seller_id}`,{params:{page:page}})
+        return cmts
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            message:'loi fe'
+        }
+    }
+}
+
+
+const addCmtSeller=async(body:FormData)=>{
+    try {
+        const add = await axiosClient.post('/commentproduct/addcmtseller',body)
+        return add
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            message:'loi k gui dc'
+        }
+    }
+}
+
+
 const GetallCommentByProduct = async(product_id:number,page:number)=>{
     try {
         const body = {
@@ -49,4 +78,4 @@ const DeleteCmtProduct = async(id:number)=>{
     }
 }
 
-export {addComment,GetallCommentByProduct,DeleteCmtProduct}
+export {addComment,addCmtSeller,GetallCommentByProduct,DeleteCmtProduct,GetCmtSeller}

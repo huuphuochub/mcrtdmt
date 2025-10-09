@@ -25,6 +25,15 @@ export default function Cartheader({ onClose, isOpen }: CartheaderProps) {
     }
   };
 
+
+     function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
+
+  return today >= start && today <= end;
+}
+
   const deletecart = async (product_id: number, size_id: number, color_id: number) => {
     if (cartdetail.length === 1) {
       const xacnhan = confirm("Bạn có muốn xóa sản phẩm khỏi giỏ hàng?");
@@ -167,7 +176,17 @@ export default function Cartheader({ onClose, isOpen }: CartheaderProps) {
                 <span className="font-semibold text-lg text-green-600">
                   {cartdetail
                     ?.reduce((total, item) => {
-                      const price = item.product.discountprice || 0;
+
+                          let price = 0;
+
+
+                      if(isInPromotion(item.product.promo_start,item.product.promo_end)){
+                         price = item.product.discountprice || 0;
+
+                      }else{
+                         price = item.product.price || 0;
+
+                      }
                       return total + price * item.quantity;
                     }, 0)
                     .toLocaleString("vi-VN")}
@@ -179,15 +198,18 @@ export default function Cartheader({ onClose, isOpen }: CartheaderProps) {
                 <span className="text-red-500">
                   {cartdetail
                     ?.reduce((total, item) => {
-                      const originalPrice = item.product.price || 0;
-                      const discountPrice = item.product.discountprice || 0;
-                      return total + (originalPrice - discountPrice) * item.quantity;
+                      const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                      // chỉ tính tiết kiệm nếu còn trong thời gian khuyến mãi
+                      if (isInPromotion(promo_start, promo_end)) {
+                        return total + (price - discountprice) * item.quantity;
+                      }
+                      return total;
                     }, 0)
                     .toLocaleString("vi-VN")}
                   ₫
                 </span>
               </p>
-
               <Button
                 className="w-full rounded-2xl"
                 variant="primary"

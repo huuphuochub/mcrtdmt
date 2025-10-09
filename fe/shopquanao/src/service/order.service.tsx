@@ -24,6 +24,13 @@ interface body{
     ]
 }
 
+interface variants {
+    product_id:number;
+    quantity:number;
+    color_id:number;
+    size_id:number;
+} 
+
 
 const getshipfee = async(body:body)=>{
     try {

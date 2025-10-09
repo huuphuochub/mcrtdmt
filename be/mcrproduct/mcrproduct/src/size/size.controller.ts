@@ -56,5 +56,10 @@ export class SizeController {
         return ok
         
     }
+
+    @Post('updatevariant')
+    async UpdateQuantityVariants(@Body() body:any){
+        return await this.sizeService.UpdateQuantityVariant(body);
+    }
 }
  

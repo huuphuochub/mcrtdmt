@@ -33,4 +33,7 @@ export class Notification {
 
   @CreateDateColumn()
   createdAt: Date;
+
+  @Column()
+  order_id:number;
 }

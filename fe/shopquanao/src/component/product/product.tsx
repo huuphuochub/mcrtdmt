@@ -2,7 +2,7 @@
 
 import React,{useEffect,useRef,useState} from "react";
 import Image from "next/image";
-import { GetAllProductSeller, getBesellerproduct, GetBestsell, GetNewProduct, GetRating } from "@/service/product.service";
+import { GetAllProductSeller, getBesellerproduct, GetBestsell, GetNewProduct, GetProductByCategory, GetRating } from "@/service/product.service";
 import Link from "next/link";
 // import { Star } from 'lucide-react';
 import { interfaceProduct } from "@/interface/product.interface";
@@ -173,7 +173,13 @@ const Htmlload = () => {
   const [loading, setLoading] = useState(true); // Thêm state 'loading', mặc định là true khi component mount
   const [page,setPage] = useState(1);
 
+function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
 
+  return today >= start && today <= end;
+}
 
 useEffect(() => {
   // if (calledOnce.current[page]) return; // nếu page này đã gọi rồi thì bỏ qua
@@ -241,10 +247,17 @@ useEffect(() => {
                   />
 
                   {/* Tag giảm giá */}
-                  <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
-                    -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+                    {(isInPromotion(prdd.promo_start,prdd.promo_end)) ? (
+                        <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
+                          -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+                        </div>
+                    ) : (
+                      <div>
+
+                      </div>
+                    )}
+                    
                   </div>
-                </div>
 
                 {/* Nội dung */}
                 <div className="p-3 sm:p-4 space-y-1 sm:space-y-2 text-center">
@@ -267,13 +280,29 @@ useEffect(() => {
                       ({prdd.ratingCount || 0})
                     </span>
                   </div>
-
-                  <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
+                    {isInPromotion(prdd.promo_start,prdd.promo_end) ? (
+                     <div>
+                       <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
                     {prdd.price.toLocaleString("vi-VN")} đ
                   </p>
                   <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
                     {prdd.discountprice.toLocaleString("vi-VN")} đ
                   </p>
+                     </div>
+                    ) : (
+                      <div>
+                       <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
+                    {prdd.price.toLocaleString("vi-VN")} đ
+                  </p>
+                  <p >
+                    
+                  </p>
+                     </div>
+                    )}
+
+
+                    
+                 
                 </div>
               </Link>
             );
@@ -296,7 +325,13 @@ useEffect(() => {
 
 
 const calledOnce = useRef<{ [key: number]: boolean }>({});
+function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
 
+  return today >= start && today <= end;
+}
 useEffect(() => {
   if (calledOnce.current[page]) return; // nếu page này đã gọi rồi thì bỏ qua
   calledOnce.current[page] = true;
@@ -361,9 +396,15 @@ useEffect(() => {
                   />
 
                   {/* Tag giảm giá */}
-                  <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
-                    -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
-                  </div>
+                  {(isInPromotion(prdd.promo_start,prdd.promo_end)) ? (
+                        <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
+                          -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+                        </div>
+                    ) : (
+                      <div>
+
+                      </div>
+                    )}
                 </div>
 
                 {/* Nội dung */}
@@ -388,12 +429,25 @@ useEffect(() => {
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
+                  {isInPromotion(prdd.promo_start,prdd.promo_end) ? (
+                     <div>
+                       <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
                     {prdd.price.toLocaleString("vi-VN")} đ
                   </p>
                   <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
                     {prdd.discountprice.toLocaleString("vi-VN")} đ
                   </p>
+                     </div>
+                    ) : (
+                      <div>
+                       <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
+                    {prdd.price.toLocaleString("vi-VN")} đ
+                  </p>
+                  <p >
+                    
+                  </p>
+                     </div>
+                    )}
                 </div>
               </Link>
             );
@@ -416,7 +470,13 @@ useEffect(() => {
 
 
 const calledOnce = useRef<{ [key: number]: boolean }>({});
+function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
 
+  return today >= start && today <= end;
+}
 useEffect(() => {
   if (calledOnce.current[page]) return; // nếu page này đã gọi rồi thì bỏ qua
   calledOnce.current[page] = true;
@@ -481,9 +541,15 @@ useEffect(() => {
                   />
 
                   {/* Tag giảm giá */}
-                  <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
-                    -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
-                  </div>
+                  {(isInPromotion(prdd.promo_start,prdd.promo_end)) ? (
+                        <div className="absolute top-2 right-2 bg-red-500 px-2 sm:px-3 py-1 rounded-full text-white text-xs sm:text-sm font-semibold shadow">
+                          -{Math.round((1 - prdd.discountprice / prdd.price) * 100)}%
+                        </div>
+                    ) : (
+                      <div>
+
+                      </div>
+                    )}
                 </div>
 
                 {/* Nội dung */}
@@ -508,12 +574,25 @@ useEffect(() => {
                     </span>
                   </div>
 
-                  <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
+                  {isInPromotion(prdd.promo_start,prdd.promo_end) ? (
+                     <div>
+                       <p className="text-xs sm:text-sm line-through text-gray-400 my-0 py-0">
                     {prdd.price.toLocaleString("vi-VN")} đ
                   </p>
                   <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
                     {prdd.discountprice.toLocaleString("vi-VN")} đ
                   </p>
+                     </div>
+                    ) : (
+                      <div>
+                       <p className="text-base sm:text-xl text-red-600 font-bold my-0 py-0">
+                    {prdd.price.toLocaleString("vi-VN")} đ
+                  </p>
+                  <p >
+                    
+                  </p>
+                     </div>
+                    )}
                 </div>
               </Link>
             );
@@ -688,4 +767,90 @@ fetchprd()
                            </div>
   )
 }
-export{ProductTag,BesellingProduct,NewProduct,Ratingproduct,DiscountProduct,FavouriteProduct};
+interface SimilarproductsProp{
+  category_id:number;
+}
+const Similarproducts= ({category_id}:SimilarproductsProp) =>{
+  const [page,setPage] = useState(1);
+  const [products,setProducts] = useState<interfaceProduct[]>([])
+
+  useEffect(() =>{
+    fetchdata();
+  },[category_id,page])
+
+  const ClickPage =()=>{
+    setPage(page + 1)
+  }
+  const fetchdata = async()=>{
+    try {
+      const data = await GetProductByCategory(category_id,page);
+      if(page === 1) {
+        if(data.data.data.products.success){
+        setProducts(data.data.data.products.data)
+      }
+      }else{
+        setProducts((prev) => [...prev,...data.data.data.products.data])
+      }
+      // console.log(data.data.data.products);
+      
+    } catch (error) {
+      
+    }
+  }
+  return(
+    <div className="shadow mt-8 p-6 bg-white rounded-2xl">
+      {/* Tiêu đề */}
+      <div className="mb-4">
+        <h1 className="text-2xl font-bold text-gray-800 tracking-wide">
+          Sản phẩm tương tự
+        </h1>
+      </div>
+
+      {/* Grid sản phẩm */}
+      <div className="grid py-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {products.map((pr, index) => (
+          <div
+            key={index}
+            className="rounded-2xl shadow-md hover:shadow-xl transition duration-300 bg-white group cursor-pointer overflow-hidden"
+          >
+            {/* Hình ảnh */}
+            <div className="w-full h-[220px] flex justify-center items-center bg-gray-50">
+              <Image
+                width={300}
+                height={300}
+                src={pr.image}
+                alt="product"
+                className="object-contain max-h-[200px] group-hover:scale-105 transition-transform duration-300"
+              />
+            </div>
+
+            {/* Nội dung */}
+            <div className="p-4 text-center space-y-1">
+              <p className="font-medium text-gray-700 truncate">{pr.name}</p>
+              <p className="text-sm line-through text-gray-400">
+                {pr.price} đ
+              </p>
+              <p className="text-lg text-red-500 font-semibold">
+                {pr.discountprice} đ
+              </p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Nút xem thêm */}
+      <div className="w-full flex justify-end">
+        <Button
+          variant="primary"
+          className=""
+          onClick={ClickPage}
+        >
+          Xem thêm
+        </Button>
+      </div>
+    </div>
+
+  )
+
+}
+export{Similarproducts,ProductTag,BesellingProduct,NewProduct,Ratingproduct,DiscountProduct,FavouriteProduct};

@@ -9,7 +9,7 @@ import Image from "next/image";
 import { AddFl, CheckFl, UnFl } from "@/service/folower.service";
 import Button from "@/component/ui/button";
 import { interfaceProduct } from "@/interface/product.interface";
-import { Star,Heart,EllipsisVertical, Trash } from "lucide-react";
+import { Star,Heart,EllipsisVertical, Trash, Images, X } from "lucide-react";
 import { SellerInterface } from "@/interface/seller.interface";
 import { interfaceuser } from "@/interface/user.interface";
 import { interfacesubimg } from "@/interface/subimg.interface";
@@ -33,6 +33,8 @@ import toast from "react-hot-toast";
 import { ImagePreview } from "@/components/ui/enlargeimg";
 import { DeleteCmtProduct } from "@/service/comment.service";
 import Link from "next/link";
+import PromotionTimer from "@/component/ui/formattime";
+import { Similarproducts } from "@/component/product/product";
 // import { useCart } from "@/app/context/cartcontext";
 // import { interfacesize } from "@/interface/interfacesize";
 interface ProductResponse<T> {
@@ -141,6 +143,8 @@ const [responsesize, setResponsesize] = useState<ResponseSize>([]);
    const [roomId,setRoomId] = useState(0)
    const [isFl,setIsFl] = useState(false);
    const [loadingseller,setLoadinfseller]  = useState(true)
+         const [images, setImages] = useState<File[]>([])  ;
+   
    // const average = ratingCount > 0 ? ratingSum / ratingCount : 0;
 //   const cartRef = useRef<HTMLDivElement>(null);
 
@@ -326,6 +330,24 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
       
     }
   }, [productprop]); 
+
+
+   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files || []);
+      if (!files.length) return;
+  
+      // Gộp ảnh cũ + ảnh mới nhưng không quá 3
+      const newImages = [...images, ...files].slice(0, 3);
+      setImages(newImages);
+  
+      // Reset input để chọn lại cùng file cũng được
+      e.target.value = "";
+    };
+  
+    const removeImage = (index:number) => {
+      const newImages = images.filter((_, i) => i !== index);
+      setImages(newImages);
+    };
 
   const CheckRoom=async()=>{
    try {
@@ -534,6 +556,26 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
          console.log(ok);
          
    }
+// kiem tra thoi gian khuyen mai
+   function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
+
+  return today >= start && today <= end;
+}
+
+function fomartdaymonth(time:string){
+   const now = new Date(time);
+   console.log(time);
+   
+   const day = now.getDate();
+   const month = now.getMonth() + 1;
+
+   return (`${day}/${month}`)
+
+}
+
    const PostComment =async(e: React.FocusEvent<HTMLFormElement>) =>{
       e.preventDefault(); // chặn reload trang
       if (!product) return null;
@@ -545,13 +587,22 @@ const handleAddToCartcss = (e: React.MouseEvent<HTMLButtonElement>) => {
          alert('vui lòng nhập bình luận')
          return
       }else{
-      const body = {
-         star:rating,
-         content:contencomment,
-         product_id:product?.id
+         const formdata = new FormData()
+         formdata.append('star',rating.toLocaleString());
+         formdata.append('content',contencomment);
+         formdata.append('product_id',product.id.toLocaleString());
+         if(images && images.length>0){
+        images.forEach((file:File,index:number) =>{
+            formdata.append('files',file)
+        })
       }
+      // const body = {
+      //    star:rating,
+      //    content:contencomment,
+      //    product_id:product?.id
+      // }
       try {
-         const post = await addComment(body);
+         const post = await addComment(formdata);
       if(post.data.data.success){
          toast.success('đã gửi bình luận')
       }else{
@@ -583,9 +634,27 @@ return(
                   className="max-h-[500px] min-h-[500px] hover:cursor-pointer"
 
                   />
-               <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl">
+               {/* <div className="absolute top-0 right-0 bg-red-400 rounded-l-2xl">
                   <p className="text-white">-25%</p>
-               </div>
+               </div> */}
+
+               {product ? (
+                  <div>
+                     {(isInPromotion(product.promo_start,product.promo_end)) ? (
+                        <div className="absolute top-0 right-0 bg-red-500 rounded-l-2xl text-white">
+                          -{Math.round((1 - product.discountprice / product.price) * 100)}%
+                        </div>
+                    ) : (
+                      <div>
+
+                      </div>
+                    )}
+                  </div>
+               ) : (
+                  <div>
+
+                  </div>
+               )}
             </div>
             <div  className="flex gap-5 mt-2">
                {subimg ? subimg.map((urlimg,index) =>(
@@ -667,9 +736,19 @@ return(
         <div className="h-7 w-24 bg-gray-200 rounded animate-pulse"></div>
       </div>
     ) : (
-      <div className="flex items-baseline gap-4">
+      <div>
+      {isInPromotion(product.promo_start,product.promo_end) ? (
+         <div className="flex items-baseline gap-4">
+         
         <p className="text-lg text-gray-500 line-through">{formatVN(product.price)} đ</p>
         <p className="text-2xl text-red-600 font-bold">{formatVN(product.discountprice)} đ</p>
+      </div>
+      ) : (
+         <div className="flex items-baseline gap-4">
+         
+        <p className="text-2xl text-red-600 font-bold">{formatVN(product.price)} đ</p>
+      </div>
+      )}
       </div>
     )}
 
@@ -677,10 +756,19 @@ return(
     {!product ? (
       <div className="h-14 w-full bg-gray-200 rounded animate-pulse"></div>
     ) : (
-      <div className="bg-yellow-100 p-3 rounded-md text-sm">
-        <p>Thời gian khuyến mãi: <span className="font-medium">17/10 - 27/10</span></p>
-        <p className="text-red-600">Còn lại: <span className="font-semibold">10 ngày 16 giờ 10 phút 6 giây</span></p>
+      <div>
+         {(isInPromotion(product.promo_start,product.promo_end)) ? (
+               <PromotionTimer start={product.promo_start} end={product.promo_end} />
+
+         ) : (
+            <div>
+
+            </div>
+         )}
+        
+
       </div>
+      
     )}
 
     {/* Select size/màu */}
@@ -775,7 +863,7 @@ return(
 
       <div className="flex gap-2 items-center">
          <span className="">Tổng:</span>
-         <span className="text-red-600 text-2xl font-bold">{formatVN(product.discountprice * quantityitem)} đ</span>
+         <span className="text-red-600 text-2xl font-bold">{isInPromotion(product.promo_start,product.promo_end) ? formatVN(product.discountprice * quantityitem) : formatVN(product.price * quantityitem)} đ</span>
       </div>
     )}
 
@@ -805,6 +893,8 @@ return(
                  <Heart className="text-red-500 hover:scale-110 transition hover:cursor-pointer relative" onClick={() =>HandleAddFavourite(product.id)}/>
 
         )}
+
+        <span>đã bán: {product.totalsold}</span>
         
       </div>
     )}
@@ -924,7 +1014,7 @@ return(
                <p>Địa chỉ: {seller?.address}</p>
                </div>
                <div>
-               <p className="mb-2">Sản phẩm đã bán: {seller?.soldcount}</p>
+               <p className="mb-2">Sản phẩm đã bán: {seller?.soldCount}</p>
                <p>Ngày tham gia: ngày trước</p>
                </div>
                <div>
@@ -1025,10 +1115,50 @@ return(
             ></textarea>
          </div>
 
+
+ {images.length > 0 && (
+                            <div className="flex bg-white gap-2 ">
+                            {images.map((file, index) => (
+                                <div key={index} className="relative ">
+                                <img
+                                    src={URL.createObjectURL(file)}
+                                    alt="preview"
+                                    className="w-20 h-20 object-cover rounded-lg border"
+                                />
+                                
+                                    <X size={24} 
+                                    className="absolute top-0 right-0 bg-black bg-opacity-50 text-white rounded-full p-1 hover:cursor-pointer"
+                                    onClick={() => removeImage(index)}
+
+                                    />
+                                </div>
+                            ))}
+                            <div className="flex items-center justify-center w-20 h-20 border-2 border-dashed rounded-lg text-gray-500">
+                                {images.length}/3
+                            </div>
+                            </div>
+                        )}
+
          {user ? (
             hasbought ?(
-               <div className="text-right">
+               <div className="text-right flex gap-4 ">
+
+                
+                       
+
+
+                  <label className="cursor-pointer  p-2 rounded-full hover:bg-gray-100 relative">
+                                <input
+                                type="file"
+                                accept="image/*"
+                                multiple
+                                className="hidden"
+                                onChange={(e)=>handleFileChange(e)}
+                            />
+                            <Images/>
+                            </label>
             <Button variant="primary">gui binh luan</Button>
+             
          </div>
             ) : (
                <div className="text-right">
@@ -1104,11 +1234,26 @@ return(
                            </div>
                            <div className="mt-4">
                               <p className="  rounded-2xl">{item.content}</p>
+                              <div className="flex gap-2 mt-2">
+                                 {item.imageurl && item.imageurl.map((items) =>(
+                                  <Image
+                              width={100}
+                              height={100}
+                              src={items}
+                              alt=""
+                              key={items}
+                              className=" max-h-[100px] max-w-[100px] min-h-[100px] min-w-[100px] rounded "
+                              >
+
+                                 
+                              </Image>
+                              ))}
+                              </div>
                               <div className="flex gap-2 justify-end mr-2">
                                     <p className="border-r border-gray-200 pr-2">{item.createAt.toLocaleString()}</p>
                                     <EllipsisVertical className="hover:cursor-pointer"/>
                                     {user && item.user.id === user.id && (
-                                       <Trash className="hover:cursor-pointer" onClick={() =>handleDeleteCmt(item.id)}/>
+                                       <Trash className="hover:cursor-pointer relative" onClick={() =>handleDeleteCmt(item.id)}/>
                                     ) } 
                               </div>
                            </div>
@@ -1140,44 +1285,10 @@ return(
 
 
 {/* san pham tuong tu */}
-   <div className="shadow mt-4 p-4">
-      <div>
-         <h1 className="text-2xl font-semibold">
-            san pham tuong tu
-         </h1>
-      </div>
-      <div>
-                         <div className="grid py-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2 ">
-                             {[1, 2, 3, 4].map((_, index) => (
-                             <div
-                                 key={index}
-                                 className=" rounded-2xl shadow hover:shadow-md transition duration-300"
-                             >
-                                 <div className="w-full h-[200px] flex justify-center items-center  ">
-                                 <Image
-                                     width={300}
-                                     height={300}
-                                     src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1751188519/17.3-removebg-preview_efb0ga.png"
-                                     alt="product"
-                                     className="object-contain"
-                                 />
-                                 </div>
-         
-                                 <div className="mt-4 space-y-1 text-center">
-                                 <p className="font-medium py-0 my-0">Vòng bạc</p>
-                                 <p className="text-sm line-through text-gray-400 py-0 my-0">200.000 đ</p>
-                                 <p className="text-lg text-red-500 font-semibold py-0 my-0">180.000 đ</p>
-         
-         
-                                 </div>
-                             </div>
-                             ))}
-                         </div>
-      </div>
-      <div className="w-full text-end">
-         <Button variant="primary">xem them</Button>
-      </div>
-   </div>
+      {product && (
+                  <Similarproducts category_id={product.idCategory}/>
+
+      )}
 
    </div>
    <FooterPage/>

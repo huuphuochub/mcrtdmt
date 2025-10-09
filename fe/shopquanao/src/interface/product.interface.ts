@@ -16,4 +16,12 @@ export interface interfaceProduct{
     quantity:number;
     totalsold:number;
     weigth:number;
+    promo_start:string;
+    promo_end:string;
+}
+
+export interface Subimginterface {
+    id:number,
+    product_id:number,
+    url:string,
 }

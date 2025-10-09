@@ -10,6 +10,7 @@ import Button from "@/component/ui/button";
 import { useUser } from "../context/usercontext";
 import Link from "next/link";
 import { deletecart } from "@/service/cartservice";
+import { AddNotufication } from "@/service/notification.service";
 
 
 interface Province {
@@ -310,7 +311,7 @@ useEffect(() => {
               return{
                 id_product:item.product.id,
                 quantity:item.quantity,
-                unitprice:item.product.discountprice,
+                unitprice:((isInPromotion(item.product.promo_start,item.product.promo_end) ? item.product.discountprice : item.product.price) * item.quantity),
                 productname:item.product.name,
                 color_id:item.color_id,
                 size_id:item.size_id,
@@ -321,7 +322,17 @@ useEffect(() => {
             })
 
               const bodyorder = {
-              total_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
+              total_amount:(cartdetail
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // Nếu còn khuyến mãi → dùng discountprice, ngược lại dùng price
+                     const effectivePrice = isInPromotion(promo_start, promo_end)
+                        ? discountprice
+                        : price;
+
+                     return total + effectivePrice * item.quantity;
+                     }, 0) + shipfees),
               phone:phoneorder,
               ordercode:orderCode,
               note:formData.note,
@@ -331,7 +342,17 @@ useEffect(() => {
               payment_method:paymentmethod,
               items:itemproduct,
               email:email,
-              payable_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
+              payable_amount:(cartdetail
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // Nếu còn khuyến mãi → dùng discountprice, ngược lại dùng price
+                     const effectivePrice = isInPromotion(promo_start, promo_end)
+                        ? discountprice
+                        : price;
+
+                     return total + effectivePrice * item.quantity;
+                     }, 0) + shipfees),
             }
 
             console.log(bodyorder);
@@ -361,7 +382,7 @@ useEffect(() => {
               return{
                 id_product:item.product.id,
                 quantity:item.quantity,
-                unitprice:item.product.discountprice,
+                unitprice:((isInPromotion(item.product.promo_start,item.product.promo_end) ? item.product.discountprice : item.product.price) * item.quantity),
                 productname:item.product.name,
                 color_id:item.color_id,
                 size_id:item.size_id,
@@ -372,7 +393,16 @@ useEffect(() => {
             })
 
                const bodyorder = {
-              total_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
+              total_amount:(cartdetail
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     const effectivePrice = isInPromotion(promo_start, promo_end)
+                        ? discountprice
+                        : price;
+
+                     return total + effectivePrice * item.quantity;
+                     }, 0) + shipfees),
               phone:phoneorder,
               ordercode:orderCode,
               note:formData.note,
@@ -382,13 +412,33 @@ useEffect(() => {
               payment_method:paymentmethod,
               items:itemproduct,
               email:email,
-              payable_amount:(cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees,
+              payable_amount:(cartdetail
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // Nếu còn khuyến mãi → dùng discountprice, ngược lại dùng price
+                     const effectivePrice = isInPromotion(promo_start, promo_end)
+                        ? discountprice
+                        : price;
+
+                     return total + effectivePrice * item.quantity;
+                     }, 0) + shipfees),
             }
-                        console.log(bodyorder);
+                        // console.log(bodyorder);
 
               const ok = confirm('xác nhận đặt đơn hàng')
               if(ok){
                 const orders =await createorderservice(bodyorder);
+                // console.log(orders);
+
+              const databody =   splitOrderBySeller(orders.data);
+              // console.log(databody);
+              const addnoti = await AddNotufication(databody);
+
+              // console.log(addnoti);
+              
+              
+                
 
             await deletecart();
             window.location.href = `/order/orderdetail/?id=${orders.data.id}`;
@@ -426,13 +476,39 @@ useEffect(() => {
   // const updateuser =()=>{
 
   // }
+                function splitOrderBySeller(order:any) {
+                // Nhóm items theo seller_id
+                const grouped = order.items.reduce((acc:any, item:any) => {
+                  const sid = item.seller_id;
+                  if (!acc[sid]) acc[sid] = [];
+                  acc[sid].push(item);
+                  return acc;
+                }, {});
 
+                // Tạo danh sách order con cho từng seller
+                return Object.entries(grouped).map(([seller_id, items]) => ({
+                  content:'bạn có 1 đơn hàng mới',
+                  title:'đơn hàng',
+                  isRead:false,
+                  order_id:order.id,
+                  seller_id: Number(seller_id),
+                }));
+              }
 
   function generateOrderCode(): number {
   // Lấy timestamp cuối 6 chữ số + 3 chữ số random
   const timestampPart = Date.now() % 1000000; // 6 chữ số cuối của timestamp
   const randomPart = Math.floor(Math.random() * 900) + 100; // 3 chữ số random
   return Number(`${timestampPart}${randomPart}`);
+}
+
+
+        function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
+
+  return today >= start && today <= end;
 }
   function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) {
     const { name, value } = e.target;
@@ -675,8 +751,18 @@ useEffect(() => {
                     <div className="flex items-center justify-between border-b pb-2" key={item.product.id + item.size_id + item.color_id}>
                 <Link className="relative hover:cursor-pointer hover:text-red-500" href={`/${slug}`}>{item.product.name} * {item.quantity}</Link>
                 <div className="text-right">
-                  <span className="line-through text-gray-400 text-sm block">{item.product.price.toLocaleString()} đ</span>
+                  {isInPromotion(item.product.promo_start,item.product.promo_end) ? (
+                    <div>
+                        <span className="line-through text-gray-400 text-sm block">{item.product.price.toLocaleString()} đ</span>
                   <span className="text-red-500 font-semibold">{item.product.discountprice.toLocaleString()} đ</span>
+                    </div>
+                  ) : (
+                    <div>
+                      {/* <span className="line-through text-gray-400 text-sm block">{item.product.price.toLocaleString()} đ</span> */}
+                  <span className="text-red-500 font-semibold">{item.product.price.toLocaleString()} đ</span>
+                    </div>
+                  )}
+                  
                 </div>
               </div>
                   )
@@ -704,12 +790,33 @@ useEffect(() => {
               {/* Tổng kết */}
               <div className="flex items-center justify-between border-b pb-2">
                 <span>Tạm tính</span>
-                <span>{cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0).toLocaleString()} đ</span>
+                <span>{cartdetail
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // Nếu còn khuyến mãi → dùng discountprice, ngược lại dùng price
+                     const effectivePrice = isInPromotion(promo_start, promo_end)
+                        ? discountprice
+                        : price;
+
+                     return total + effectivePrice * item.quantity;
+                     }, 0)
+                     .toLocaleString("vi-VN")} đ</span>
               </div>
               
               <div className="flex items-center justify-between border-b pb-2 text-green-600">
                 <span>Tiết kiệm</span>
-                <span>{cartdetail.reduce((total,item) => total + (item.product.price - item.product.discountprice) * item.quantity,0).toLocaleString()} đ</span>
+                <span> {cartdetail
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // chỉ tính tiết kiệm nếu còn khuyến mãi
+                     if (isInPromotion(promo_start, promo_end)) {
+                        return total + (price - discountprice) * item.quantity;
+                     }
+                     return total;
+                     }, 0)
+                     .toLocaleString("vi-VN")} đ</span>
               </div>
               <div className="flex items-center justify-between border-b pb-2">
                 <span>Phí vận chuyển</span>
@@ -717,7 +824,18 @@ useEffect(() => {
               </div>
               <div className="flex items-center justify-between font-semibold text-lg">
                 <span>Tổng cộng</span>
-                <span>{((cartdetail.reduce((total,item) => total + item.product.discountprice * item.quantity,0) + 0) + shipfees).toLocaleString()} đ</span>
+                <span>{(cartdetail
+                     .reduce((total, item) => {
+                     const { price = 0, discountprice = 0, promo_start, promo_end } = item.product;
+
+                     // Nếu còn khuyến mãi → dùng discountprice, ngược lại dùng price
+                     const effectivePrice = isInPromotion(promo_start, promo_end)
+                        ? discountprice
+                        : price;
+
+                     return total + effectivePrice * item.quantity;
+                     }, 0) + shipfees)
+                     .toLocaleString("vi-VN")} đ</span>
               </div>
             </div>
 

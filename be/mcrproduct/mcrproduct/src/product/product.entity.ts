@@ -79,6 +79,12 @@ export class Product {
 
   @OneToMany(() => Favourite,favourite=> favourite.product)
   favourite:Favourite[]
+
+  @Column({default:'2025-10-20 16:30:58.170258+07'})
+  promo_end:string;
+ 
+  @Column({default:'2025-10-01 16:30:58.170258+07'})
+  promo_start:string
 //    @OneToMany(() => Color, (color) => color.products)
 //   colors: Color[];
 

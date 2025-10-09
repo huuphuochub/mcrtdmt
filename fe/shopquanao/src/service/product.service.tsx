@@ -114,6 +114,19 @@
         }
     }
 
+    const GetProductByCategory = async(category_id:number,page:number) =>{
+        try {
+            const prd = await axiosClient.get(`category/getjsoncategory/${category_id}?page=${page}&keyword=&bestselling=0&rating=0&discount=0&newdate=0&minprice=0&maxprice=0&subcate=0`);
+            return prd;
+        } catch (error) {
+            return{
+                success:false,
+                data:null,
+                message:'loi'
+            }
+        }
+    }
+
     const getHistorysearch = async() =>{
         try {
             const search = await axiosClient.get('/users/gethistorysearch');
@@ -274,4 +287,4 @@
     }
 
 
-    export {GetAllProductSeller,GetAllFavourite,deLeteFv,CheckFv,AddFavourite,FilterPrd,GetNewProduct,GetRating,GetBestsell,Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}
+    export {GetProductByCategory,GetAllProductSeller,GetAllFavourite,deLeteFv,CheckFv,AddFavourite,FilterPrd,GetNewProduct,GetRating,GetBestsell,Addproduct,getAllproduct,getBesellerproduct,getproductdetail,getsizebyidproduct,searchproduct,AddKeywordSearch,getHistorysearch,deletehistory}

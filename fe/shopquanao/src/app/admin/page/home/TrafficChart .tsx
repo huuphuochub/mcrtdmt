@@ -1,8 +1,52 @@
 "use client";
-import React from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import Chart from "react-apexcharts";
+import { DoashboardRevenue } from "../../service/order.service";
 
-const TrafficChart = () => {
+interface TrafficChartProp {
+  month: number;
+  year: number;
+}
+
+const TrafficChart = ({ month, year }: TrafficChartProp) => {
+  const [chartData, setChartData] = useState<{ day: string; revenue: number; totalOrders: number }[]>([]);
+
+  // Tính số ngày trong tháng
+  const daysInMonth = useMemo(() => {
+    return new Date(year, month, 0).getDate(); 
+  }, [month, year]);
+
+  const labels = Array.from({ length: daysInMonth }, (_, i) =>
+    (i + 1).toString().padStart(2, "0")
+  );
+
+  useEffect(() => {
+    fetchData();
+  }, [month, year]);
+
+  const fetchData = async () => {
+    try {
+      const data = await DoashboardRevenue(month, year);
+      setChartData(data.data || []);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  // Chuẩn bị dữ liệu cho chart
+  const { revenueData, ordersData } = useMemo(() => {
+    const revenueArr = Array(daysInMonth).fill(0);
+    const ordersArr = Array(daysInMonth).fill(0);
+
+    chartData.forEach((item) => {
+      const dayIndex = new Date(item.day).getDate() - 1; // chuyển ngày -> index
+      revenueArr[dayIndex] = item.revenue;
+      ordersArr[dayIndex] = item.totalOrders;
+    });
+
+    return { revenueData: revenueArr, ordersData: ordersArr };
+  }, [chartData, daysInMonth]);
+
   const options: ApexCharts.ApexOptions = {
     chart: {
       id: "traffic-chart",
@@ -24,22 +68,14 @@ const TrafficChart = () => {
         formatter: (value: number) => value.toLocaleString("vi-VN") + " đ",
       },
     },
-    labels: [
-      "01","02 ","03","04","05","06",
-      "07","08","09","10","11","12","13","14",
-      "15","16","17","18","19","20","21","22","23","24","25","26","26","27","28","29","30"
-    ],
+    labels,
     yaxis: [
       {
-        title: { text: "Thu nhập" },
+        title: { text: "Doanh thu" },
         labels: {
-        formatter: (value: number) => {
-          // format số thành dạng có dấu chấm ngăn cách + " đ"
-          return value.toLocaleString("vi-VN") + " đ";
+          formatter: (value: number) => value.toLocaleString("vi-VN") + " đ",
         },
       },
-      },
-       
       {
         opposite: true,
         title: { text: "Số đơn" },
@@ -49,22 +85,18 @@ const TrafficChart = () => {
 
   const series = [
     {
-      name: "Thu nhập",
+      name: "Doanh thu",
       type: "column",
-      data: [440000000, 505000000, 414000000, 671, 227, 413, 201, 352, 752, 320, 257, 160,220,170,345,215,323,424,342,543,511,422,250000000,231,421,412,0,0,0,321,212],
+      data: revenueData,
     },
     {
       name: "Số đơn",
       type: "line",
-      data: [23, 42, 35, 27, 43, 22, 17, 31, 22, 22, 12, 16,22,43,0,23,44,33,11,33,23,14,31,54,23,55,0,0,34,42,12],
+      data: ordersData,
     },
   ];
 
   return <Chart options={options} series={series} type="line" height={350} />;
 };
-
-// const Piechart=() =>{
-    
-// }
 
 export default TrafficChart;

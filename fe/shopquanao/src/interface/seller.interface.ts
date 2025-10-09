@@ -18,7 +18,7 @@ export interface SellerInterface{
     //tổng số sao đánh giá
     ratingSum:number;
     avatar:string;
-    soldcount:number;
+    soldCount:number;
     follower:number;
     totalproduct:number;
 }

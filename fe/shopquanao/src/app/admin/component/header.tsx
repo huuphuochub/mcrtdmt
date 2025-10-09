@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/accordion"
 import Link from "next/link";
 import ChatItem from "./chatitem";
+import Notification from "./notification";
 
 const Headeradmin1 =({ onToggleMenu }: { onToggleMenu: () => void }) =>{
   const {seller,loading} = useSeller();
@@ -91,7 +92,7 @@ const Headeradmin1 =({ onToggleMenu }: { onToggleMenu: () => void }) =>{
 
         
 
-        <Bell className="cursor-pointer hover:text-blue-500 text-xl transition bg-gray-200 w-[35px] h-[35px] p-[5px] rounded-2xl" />
+        <Notification/>
         <div className="flex items-center">
             <Image
             width={35}

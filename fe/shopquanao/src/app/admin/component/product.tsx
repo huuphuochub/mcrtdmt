@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import { useQuery, keepPreviousData } from "@tanstack/react-query";
 import { getListProduct, SearchProduct,filterprd, GetDetailProduct, GetSizeColor } from "../service/product.service";
-import { interfaceProduct } from "@/interface/product.interface";
+import { interfaceProduct, Subimginterface } from "@/interface/product.interface";
 import Button from "@/component/ui/button";
 import { Funnel, Search  } from "lucide-react";
 import { getAllcate } from "../service/category.service";
@@ -308,7 +308,7 @@ useEffect(() =>{
                             </span>
                             </td>
                             <td className="px-4 py-3 border-b text-center space-x-2">
-                            <Link href={`/admin/page/product/edit/?id=${product.id}`} className="px-3 py-1 text-sm rounded bg-blue-500 text-white hover:bg-blue-600 hover:cursor-pointer">
+                            <Link href={`/admin/page/product/edit/?id=${product.id}`} className="px-3 py-1 text-sm rounded bg-blue-500 text-white hover:bg-blue-600 hover:cursor-pointer relative">
                                 Sửa
                             </Link>
                             <button className="px-3 py-1 text-sm rounded bg-red-500 text-white hover:bg-red-600">
@@ -346,10 +346,13 @@ useEffect(() =>{
     )
 }
 
-
+interface ProductDetailEdit extends productdetail{
+  subImages:Subimginterface[];
+  
+}
 const Editproduct=() =>{
   const searchParams = useSearchParams();
-  const [productdetail,setProductdetail] = useState<productdetail | null>(null)
+  const [productdetail,setProductdetail] = useState<ProductDetailEdit | null>(null)
   const [id,setId] = useState<String | null> (null)
   const [addvarriant,setAddvariant] = useState(0)
   const [sizes,setSizes] = useState<interfacesize[]>([])
@@ -384,7 +387,9 @@ const Editproduct=() =>{
     if(id){
       console.log('goi fetch');
       
-      const product = await GetDetailProduct(Number(id))
+      const product = await GetDetailProduct(Number(id));
+      console.log(product);
+      
       if(product.data.success){
         setProductdetail(product.data.data)
       }
@@ -393,7 +398,7 @@ const Editproduct=() =>{
     }
   }
     return(
-  <div className="w-full mx-auto p-6">
+  <div className="w-full mx-auto p-6 relative">
       <div className="bg-white rounded-xl shadow-lg p-6">
         <h2 className="text-2xl font-semibold text-gray-800 border-b pb-4 mb-6">
           Chỉnh sửa sản phẩm
@@ -632,7 +637,7 @@ const Editproduct=() =>{
               </label>
               <div className="w-full h-64 bg-gray-100 border rounded-lg overflow-hidden flex items-center justify-center">
                 <img
-                  src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1757932092/shopquanao/gir3ad7haeyvzrjyddtl.webp"
+                  src={productdetail?.image}
                   className="object-cover w-full h-full"
                 />
               </div>
@@ -644,17 +649,13 @@ const Editproduct=() =>{
                 Ảnh phụ
               </label>
               <div className="grid grid-cols-3 gap-3">
-                {[
-                  "https://res.cloudinary.com/dnjakwi6l/image/upload/v1757932093/shopquanao/apsc0xpewqsnie2yu0uw.webp",
-                  "https://res.cloudinary.com/dnjakwi6l/image/upload/v1757932095/shopquanao/pmjvlcifre3jkz0enq32.webp",
-                  "https://res.cloudinary.com/dnjakwi6l/image/upload/v1757932094/shopquanao/tvr8bqkw4aguhuaekyni.webp",
-                ].map((url, i) => (
+                {productdetail?.subImages.map((url, i) => (
                   <div
                     key={i}
                     className="w-full h-24 border rounded-lg overflow-hidden"
                   >
                     <img
-                      src={url}
+                      src={url.url}
                       alt={`sub-${i}`}
                       className="w-full h-full object-cover"
                     />

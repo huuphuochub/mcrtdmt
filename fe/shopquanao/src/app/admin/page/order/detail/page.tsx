@@ -30,6 +30,12 @@ interface ProductOrderItem{
     product:interfaceProduct;
     // seller:SellerInterface;
 }
+interface variants {
+    product_id:number;
+    quantity:number;
+    color_id:number;
+    size_id:number;
+} 
 export default function OrderDetailPage(){
          const searchParams = useSearchParams();
          const [loading,setLoading] = useState(true);
@@ -38,7 +44,8 @@ export default function OrderDetailPage(){
          const [status,setStatus] = useState<number>()
            const [showCancelReason, setShowCancelReason] = useState(false);
   const [cancelReason, setCancelReason] = useState("");
-  const [statusinput,setStatusinput] = useState(1)
+  const [statusinput,setStatusinput] = useState(1);
+  const [variantid,setVariantid] = useState<variants[]>([])
 
 
       const id = searchParams.get("id");
@@ -68,10 +75,14 @@ export default function OrderDetailPage(){
 
       const updatestatus = async() =>{
         if(!id) return
-        console.log(status);
-    console.log(statusinput);
+        if(statusinput === 4 && cancelReason === ''){
+            alert('vui long nhap ly do')
+            return;
+        }
+    //     console.log(status);
+    // console.log(statusinput);
     try {
-        const upda = await UpdateStatusOrderItem(Number(id),statusinput)
+        const upda = await UpdateStatusOrderItem(Number(id),statusinput,variantid,cancelReason)
         console.log(upda);
         if(upda.data.success){
             toast.success('da cap nhat don hang')
@@ -99,6 +110,16 @@ export default function OrderDetailPage(){
             
         }
       }
+
+
+  function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
+
+  return today >= start && today <= end;
+}
+
       useEffect(() =>{
         console.log(orderdetails);
  
@@ -113,6 +134,9 @@ export default function OrderDetailPage(){
     size_id: Number(pr.size_id),
     quantity: pr.quantity,
   }));
+//   console.log(data);
+  setVariantid(data)
+  
         okss(data)
       },[orderdetails])
 
@@ -232,40 +256,50 @@ export default function OrderDetailPage(){
                         <tr>
                         <td className="p-3 font-medium text-gray-700">Tổng</td>
                         <td className="p-3 text-right">
-                            {(
-                            products.reduce(
-                                (total, item) =>
-                                total + item.product.discountprice * item.quantity,
-                                0
-                            )
-                            ).toLocaleString("vi-VN")}
-                            ₫
+                            {products
+                                            .reduce(
+                                            (total, p) =>{
+                                              const  { price = 0, discountprice = 0, promo_start, promo_end } = p.product
+                                              const ok = isInPromotion(promo_start,promo_end) ? discountprice : price;
+                                              return total + ok * p.quantity;
+                                            },
+                                               
+                                            0
+                                            )
+                                            .toLocaleString()}{" "}
+                                        đ
                         </td>
                         </tr>
                         <tr>
                         <td className="p-3 font-medium text-gray-700">Chiết khấu (10%)</td>
                         <td className="p-3 text-right text-yellow-600">
-                            {(
-                            products.reduce(
-                                (total, item) =>
-                                total + item.product.discountprice * item.quantity,
-                                0
-                            ) * 0.1
-                            ).toLocaleString("vi-VN")}
-                            ₫
+                            {(products.reduce(
+                                            (total, p) =>{
+                                              const  { price = 0, discountprice = 0, promo_start, promo_end } = p.product
+                                              const ok = isInPromotion(promo_start,promo_end) ? discountprice : price;
+                                              return total + ok * p.quantity;
+                                            },
+                                               
+                                            0
+                                            ) * 0.1)
+                                            .toLocaleString()}{" "}
+                                        đ
                         </td>
                         </tr>
                         <tr>
                         <td className="p-3 font-semibold text-gray-800">Thu nhập</td>
                         <td className="p-3 text-right font-bold text-green-600">
-                            {(
-                            products.reduce(
-                                (total, item) =>
-                                total + item.product.discountprice * item.quantity,
-                                0
-                            ) * 0.9
-                            ).toLocaleString("vi-VN")}
-                            ₫
+                             {(products.reduce(
+                                            (total, p) =>{
+                                              const  { price = 0, discountprice = 0, promo_start, promo_end } = p.product
+                                              const ok = isInPromotion(promo_start,promo_end) ? discountprice : price;
+                                              return total + ok * p.quantity;
+                                            },
+                                               
+                                            0
+                                            ) * 0.9)
+                                            .toLocaleString()}{" "}
+                                        đ
                         </td>
                         </tr>
                     </tbody>
@@ -298,7 +332,7 @@ export default function OrderDetailPage(){
 
                     <option value="2">Xác nhận</option>
                     {/* <option value="2">Hoàn thành</option> */}
-                    <option value="3">Hủy</option>
+                    <option value="4">Hủy</option>
                 </select>
                 ) : status === 2 ? (
                      <select

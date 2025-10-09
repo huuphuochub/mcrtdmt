@@ -1,4 +1,4 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { SellerService } from './seller.service';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
@@ -63,13 +63,25 @@ async Registerseller(
         // console.log(selle?.data?.id);
     }
 
-    @Get('all')
+    @Get('all') 
     async GetAllSeller() {
         return await this.sellerservice.GetAllSeller();
     }
 
+    @Post('updatetotalsold')
+    async UpdateTotalSold(@Body() body:any){
+        return await this.sellerservice.UpdateTotalSold(body);
+    }
     // @Post('getseller') 
     // async 
+    @Post('addcmtseller')
+    async AddCmtSeller(@Body() body:any){
+        return await this.sellerservice.AddCmtSeller(body);
+    }
 
+    @Get('getcmtseller/:id')
+    async GetCmtSeller(@Param('id') id:number,@Query('page') page:number){
+        return await this.sellerservice.GetCmtSeller(id,page);
+    }
 
 }

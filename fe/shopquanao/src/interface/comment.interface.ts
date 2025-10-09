@@ -5,4 +5,5 @@ export interface Comment{
     createAt:Date;
     product_id:number;
     star:number;
+    imageurl:string[];
 }

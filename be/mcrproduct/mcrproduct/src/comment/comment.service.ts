@@ -21,6 +21,7 @@ export class CommentService {
                 user_id: body.user_id,
                 star: body.star,
                 content: body.content,
+                imageurl:body.imageurl,
                 product: { id: body.product_id } as Product, // gán relation
                 });
 

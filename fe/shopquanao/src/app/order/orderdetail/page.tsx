@@ -15,6 +15,7 @@ import { interfaceuser } from "@/interface/user.interface";
 import { interfacesize } from "@/interface/interfacesize";
 import { interfacecolor } from "@/interface/interfacecolor";
 import { SellerInterface } from "@/interface/seller.interface";
+import Link from "next/link";
  
 
 interface DetailOrder extends OrderInterface{
@@ -37,6 +38,7 @@ interface GroupedBySeller {
   seller: SellerInterface; // nếu bạn đã có object seller thì dùng interface riêng
   products: (ProductOrderItem )[];
   status:number;
+  cancel_reason:string;
 }
 
 export default function OrderDetail() {
@@ -47,6 +49,7 @@ export default function OrderDetail() {
       const [products,setProducts] = useState<ProductOrderItem[] |[]>([])
       const [existorder,setExistorder] = useState<boolean>(false)
       const [sellerItem,setSellerItem] = useState<GroupedBySeller[]>([])
+      const  [cancelreason,setCancelreason] = useState(false);
     //   const {user} = useUser()
     //   const [login,setLogin] = useState<boolean>(false)
       const [loading,setLoading] = useState<boolean>(true);
@@ -57,6 +60,15 @@ export default function OrderDetail() {
     //         setLogin(true);
     //     }
     //   },[user])
+
+            function isInPromotion(promo_start:string,promo_end:string) {
+  const today = new Date(); // ngày hiện tại
+  const start = new Date(promo_start);
+  const end = new Date(promo_end);
+
+  return today >= start && today <= end;
+}
+
 useEffect(() => {
   if (!id) return;
 
@@ -88,6 +100,9 @@ useEffect(() => {
   fetchOrder();
 }, [id]);
 
+const CLickOpenCancel = () =>{
+  setCancelreason(!cancelreason)
+}
 useEffect(() => {
   if (items.length === 0) return;
 
@@ -117,10 +132,21 @@ useEffect(() => {
   fetchCartDetail();
 }, [items]);
 
+function toSlug(name: string) {
+  return name
+    .normalize('NFD') // xóa dấu tiếng Việt
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // thay khoảng trắng & ký tự đặc biệt thành -
+    .replace(/^-+|-+$/g, '');    // xóa - thừa đầu/cuối
+}
+
 useEffect(() => {
   if (products.length === 0) return;
 
   const grouped = groupBySeller(items,products);
+  console.log(grouped);
+  
   setSellerItem(grouped);
 }, [products]);
 
@@ -150,7 +176,8 @@ function groupBySeller(
         sellerId,
         seller: item.seller, // bạn có thể thay bằng object seller riêng
         products: [],
-        status:item.status
+        status:item.status,
+        cancel_reason:item.cancel_reason,
       };
     }
 
@@ -331,21 +358,42 @@ function groupBySeller(
                                 <div className="">
                                 <span className="font-semibold text-gray-700">Trạng thái:</span>
                                 <div className="w-full">
-                                    <OrderProgress status={item.status} />
+                                    <OrderProgress status={item.status} CLickOpenCancel={CLickOpenCancel}/>
+                                    {cancelreason && (
+                                      <div className="w-full h-[200px] bg-white border mt-4 p-2">
+
+                                            <p className="text-xl font-bold ">{item.cancel_reason}</p>
+                                    </div>
+                                    )}
+                                    
                                 </div>
                                 </div>
 
                                 {/* Cửa hàng */}
-                                <div className="bg-gray-50 rounded-lg p-3">
-                                <p className="text-sm text-gray-600">
-                                    <span className="font-semibold text-gray-800">Cửa hàng:</span>{" "}
-                                    {item.seller.usernameseller}
-                                </p>
-                                <p className="text-sm text-gray-600">
-                                    <span className="font-semibold text-gray-800">Địa chỉ:</span>{" "}
-                                    {item.seller.address}
-                                </p>
-                                </div>
+                                <Link href={`/page/sellerinfor?id=${item.seller.id}`} className="relative hover:cursor-pointer hover:bg-gray-200 hover:underline">
+                                    <div className="bg-gray-50 rounded-lg p-3  flex gap-2 items-center">
+                                      <Image
+                                      width={50}
+                                      height={50}
+                                      alt=''
+                                      src={item.seller.avatar}
+                                      className="rounded-full"
+                                      >
+
+
+                                      </Image>
+                                    <div>
+                                      <p className="text-sm text-gray-600">
+                                        <span className="font-semibold text-gray-800">Cửa hàng:</span>{" "}
+                                        {item.seller.usernameseller}
+                                    </p>
+                                    <p className="text-sm text-gray-600">
+                                        <span className="font-semibold text-gray-800">Địa chỉ:</span>{" "}
+                                        {item.seller.address}
+                                    </p>
+                                    </div>
+                                    </div>
+                                </Link>
 
                                 {/* Bảng sản phẩm */}
                                 <div className="overflow-x-auto">
@@ -368,8 +416,10 @@ function groupBySeller(
                                             key={`${pr.product.id}-${pr.color_id}-${pr.size_id}+${index}`}
                                             className="hover:bg-gray-50 transition"
                                         >
-                                            <td className="px-4 py-2 font-medium text-gray-800">
-                                            {pr.product.name}
+                                            <td className="px-4 py-2 font-medium text-gray-800 hover:underline hover:cursor-pointer relative">
+                                            <Link href={`/${toSlug(pr.product.name)}-i.${pr.product.idSeller}.${pr.product.id}`}>
+                                              {pr.product.name}
+                                            </Link>
                                             </td>
                                             <td className="px-4 py-2">
                                             <Image
@@ -380,9 +430,18 @@ function groupBySeller(
                                                 className="rounded-md border"
                                             />
                                             </td>
-                                            <td className="px-4 py-2 text-gray-700">
+                                             {isInPromotion(pr.product.promo_start,pr.product.promo_end) ? (
+                                                <td className="px-4 py-2 text-gray-700">
+                                             
                                             {pr.product.discountprice.toLocaleString()} đ
                                             </td>
+                                             ) : (
+                                              <td className="px-4 py-2 text-gray-700">
+                                             
+                                            {pr.product.price.toLocaleString()} đ
+                                            </td>
+                                             )}
+                                            
                                             <td className="px-4 py-2 text-gray-700">
                                             {pr.size ? pr.size.name : "—"}
                                             </td>
@@ -414,8 +473,12 @@ function groupBySeller(
                                         <td className="px-4 py-3">
                                         {item.products
                                             .reduce(
-                                            (total, p) =>
-                                                total + (p.product.discountprice || 0) * p.quantity,
+                                            (total, p) =>{
+                                              const  { price = 0, discountprice = 0, promo_start, promo_end } = p.product
+                                              const ok = isInPromotion(promo_start,promo_end) ? discountprice : price;
+                                              return total + ok * p.quantity;
+                                            },
+                                               
                                             0
                                             )
                                             .toLocaleString()}{" "}

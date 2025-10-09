@@ -4,12 +4,15 @@ import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Seller } from './seller.entity';
 import { In, Repository } from 'typeorm';
+import { CommentSeller } from './commentseller.entity';
 
 @Injectable()
 export class SellerService {
     constructor(
         @InjectRepository(Seller)
         private sellerRepo:Repository<Seller>,
+        @InjectRepository(CommentSeller)
+        private CmtsellerRepo:Repository<CommentSeller>,
     ){}
   async Registerseller(user_id:number,usernameseller:string,  email:string, provinceId:number, districtId:number, wardsId:number, address:string){
     const newUser = this.sellerRepo.create({
@@ -91,4 +94,77 @@ export class SellerService {
       }
     }
   }
+
+  async UpdateTotalSold(body:any){
+    console.log(body);
+const totalquantity = body.variant.reduce(
+    (total, item) => total + item.quantity,
+    0
+  );
+    try {
+    await this.sellerRepo.increment(
+      { id: body.seller_id }, // điều kiện where
+      "soldCount",            // cột cần tăng
+      totalquantity           // số lượng cần tăng
+    );
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+    
+  }
+
+async AddCmtSeller(body: any) {
+  console.log('BODY:', body);
+
+  const cmt = this.CmtsellerRepo.create({
+    content: body.content,
+    star: Number(body.star),
+    imageurl: body.imageurl,
+    seller: { id: Number(body.seller_id) }, // ✅ quan hệ đúng
+    user: { id: Number(body.user_id) },     // ✅ quan hệ đúng
+  });
+
+  try {
+    const add = await this.CmtsellerRepo.save(cmt);
+    return {
+      success: true,
+      message: 'ok',
+      data: add,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      success: false,
+      message: error.message,
+      data: null,
+    };
+  }
+}
+
+
+  async GetCmtSeller(seller_id:number,page:number){
+    const take = 12;
+    const skip = (page - 1) * take
+    try {
+      const cmt = await this.CmtsellerRepo.find({
+        where:{seller:{id:seller_id}},
+        take,
+        skip,
+        relations:['user']
+      })
+      return{
+        success:true,
+        message:'ok',
+        data:cmt
+      }
+    } catch (error) {
+      return{
+        success:false,
+        data:null,
+        message:error,
+      }
+    }
+  }
+
 }

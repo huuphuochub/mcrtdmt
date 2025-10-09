@@ -29,6 +29,7 @@ export interface OrderItemInterface {
     size_id:number;
     status:number;
     seller:SellerInterface;
+    cancel_reason:string;
     
 
 }

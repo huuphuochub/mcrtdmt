@@ -67,6 +67,8 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
           const data = await Getallcartitem();
           if (data?.data?.data) {
             setCart(data.data.data);
+            console.log(data);
+            
           }
         } catch (err) {
           console.error("Fetch cart error:", err);
@@ -95,7 +97,7 @@ export const CartProvider = ({ children }: { children: ReactNode }) => {
       
       try {
         const data = await Getdetailallcart(cart);
-        // console.log(data.data);
+        console.log(data.data);
         
         setCartdetail(data.data.data || []);
       } catch (err) {

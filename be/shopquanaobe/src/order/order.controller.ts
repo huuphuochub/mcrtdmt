@@ -131,39 +131,52 @@ export class OrderController {
     async UpdateStatusOrderItem(@Body() body:any){
         console.log(body);
         
-        return await this.orderService.UpdateStatusOrderItemBySeller(body.order_id,body.seller_id,body.status);
+        return await this.orderService.UpdateStatusOrderItemBySeller(body.order_id,body.seller_id,body.status,body.cancelReason);
     }
 
 
     // dem order trong thang của seller
-    @Get('demorder')
-    async demOrder(){
-        return await this.orderService.countOrdersBySeller(2,10,2025)
+    @Post('conutorder')
+    async demOrder(@Body() body:any){
+        return await this.orderService.countOrdersBySeller(body.seller_id,body.month,body.year)
     }
 
-    @Get('demkhachhang')
-    async demkhach(){
-        return await this.orderService.countNewCustomers(10,2025,2)
+    // dem khach hang
+    @Post('countcustomer')
+    async demkhach(@Body() body:any){
+        return await this.orderService.countNewCustomers(body.month,body.year,body.seller_id)
     }
 
-    @Get('demdoanhthu')
-    async đemoanhthu(){
-        return await this.orderService.getRevenueBySeller(2,10,2025)
+    // dem doanh thu
+    @Post('countrevenue')
+    async đemoanhthu(@Body() body:any){
+        return await this.orderService.getRevenueBySeller(body.seller_id,body.month,body.year)
     }
 
-    @Get('demtongsanpham')
-    async demsanpham(){
-        return await this.orderService.countTotalProductsBySeller(2,10,2025)
-    }
-
-
-        @Get('laydoashdonhang')
-    async ok(){
-        return await this.orderService.getDailyStats(2,10,2025)
+    // dem tong san pham
+    @Post('countproduct')
+    async demsanpham(@Body() body:any){
+        return await this.orderService.countTotalProductsBySeller(body.seller_id,body.month,body.year)
     }
 
 
+        @Post('doashboardrevenue')
+    async DoashboardRevenue(@Body() body:any){
+        return await this.orderService.getDailyStats(body.seller_id,body.month,body.year)
+    }
+
+        @Post('doashboardtopproductsell')
+    async Doashboardbestproduct(@Body() body:any){
+        return await this.orderService.getTopSellingProducts(body.seller_id,body.month,body.year,body.limit)
+    }
     
+
+            @Post('doashboardtopproductrevenue')
+    async DoashboardBestRevenue(@Body() body:any){
+        return await this.orderService.getTopdoanhthuProducts(body.seller_id,body.month,body.year)
+    }
+
+    // getTopdoanhthuProducts
 
 
     

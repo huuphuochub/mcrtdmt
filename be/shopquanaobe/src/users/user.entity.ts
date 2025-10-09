@@ -3,6 +3,7 @@ import { Seller } from 'src/seller/seller.entity';
 import { HistorySearch } from 'src/historysearch/historysearch.entity';
 import { Notification } from 'src/noti/noti.entity';
 import { Order } from 'src/order/order.entity';
+import { CommentSeller } from 'src/seller/commentseller.entity';
 
 @Entity('users') // 👈 bảng tên là 'users'
 export class User {
@@ -18,7 +19,7 @@ export class User {
   @Column({default:null})
   avatarUrl: string;
 
-  @Column()
+  @Column({ select: false })
   password: string;
 
   @Column({default:0})
@@ -61,5 +62,8 @@ export class User {
 
     @OneToMany(() => Notification, (noti) => noti.user)
   notifications: Notification[];
+
+  @OneToMany(() => CommentSeller,commentseller => commentseller.id)
+  commentseller:CommentSeller[];
 
 } 

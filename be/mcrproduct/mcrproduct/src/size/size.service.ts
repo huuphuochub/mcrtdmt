@@ -89,4 +89,24 @@ export class SizeService {
       }
     }
   }
+
+  async UpdateQuantityVariant(body:any){
+    try {
+    for (const element of body.variant) {
+      await this.productVariantsrepo.decrement(
+        {
+          product: { id: Number(element.product_id) },
+          color: { id: Number(element.color_id) },
+          size: { id: Number(element.size_id) },
+        }, // điều kiện where
+        "quantity", // cột cần trừ
+        element.quantity // số lượng cần trừ
+      );
+    }
+  } catch (error) {
+    console.error(error);
+    throw error;
+  }
+    
+  }
 }

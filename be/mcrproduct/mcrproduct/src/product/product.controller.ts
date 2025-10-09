@@ -170,4 +170,10 @@ export class ProductController {
     async GetAllFavourite(@Query("user_id") user_id:string,@Query('page') page:string ){
         return await this.productservice.GetAllFavourite(Number(user_id),Number(page))
     }
+
+    @Post('updatequantity')
+    async UpdateQuantitys(@Body() body:any) {
+        return await this.productservice.UpdateQuantitys(body);
+    }
 }
+ 
