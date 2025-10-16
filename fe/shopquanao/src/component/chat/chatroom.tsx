@@ -8,11 +8,14 @@ import ChatItem from "./chatitem";
 
 import { GetChatRoom, socket } from "@/service/chat.service";
 import { Chatroominterface } from "@/interface/chat.interface";
-export default function ChatRoom({user_id} : {user_id:number}) {
+import ChatAI from "./chatAI";
+import Link from "next/link";
+export default function ChatRoom({user_id} : {user_id:number | null}) {
     const { setavt,setusn ,setRoomchat,setItemchatcontext,setSellerchat,setRoom} = useChat();
     const [loading,setLoading] = useState(true);
     const [lastrole,setLastrole] = useState();
     const [roomchats,setRoomchats] = useState<Chatroominterface[]>([])
+    const [openchatAI,setOpenchatAI] = useState(false);
 // const [isOpen, setIsOpen] = React.useState(false);
     // const [isOpenItem, setIsOpenItem] = React.useState(false);
     const ClickOpenChatItem=(room_id:number,avatar:string,username:string,seller_id:number) =>{
@@ -31,7 +34,9 @@ export default function ChatRoom({user_id} : {user_id:number}) {
     const senMessItemClick=(room_id:number)=>{
         socket.emit('watchitem_click',{room_id:room_id})
     }
-
+    const openCHatAi =()=>{
+        setOpenchatAI(!openchatAI)
+    }
     
     useEffect(() => {
       const handleMessage = (msg: any) => {
@@ -100,9 +105,15 @@ export default function ChatRoom({user_id} : {user_id:number}) {
     }
     return(
                     <div className="absolute bottom-12 right-0 bg-white border rounded-lg shadow-lg p-2 w-[300px] h-[500px]">
-                <div className="border-b pb-2 flex justify-between items-center">
+                <div className="border-b relative pb-2 flex justify-between items-center">
                     <p className="text-2xl ">Đoạn chat</p>
                     <X className="hover:text-red-500 hover:cursor-pointer" onClick={() => setRoomchat(false)}/> 
+                                                            
+                    {openchatAI && (
+                       <ChatAI openCHatAi={openCHatAi}/>
+
+                    )}
+
                 </div>
                 <div className="h-[438px] overflow-y-auto">
                     {loading ? (
@@ -111,6 +122,29 @@ export default function ChatRoom({user_id} : {user_id:number}) {
                         </div>
                     ) : (
                         <ul>
+                            <li className="mt-2 relative" onClick={openCHatAi}>
+                                <div className=" flex justify-between items-center p-2 rounded hover:bg-gray-100 hover:cursor-pointer">
+                                    <div className=" flex gap-2 ">
+                                    <Image 
+                                        width={50}
+                                        height={50}
+                                        src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg"
+                                        alt="Chat Image"
+                                        className="rounded-full"
+                                    ></Image>
+                                    <div>
+                                        <p className="font-bold">Chat với AI</p>
+                                        <div className="flex gap-2 items-center">
+                                            <p>
+                                                Hỗ trợ 24/7
+                                            </p>
+                                           
+                                            
+                                        </div>
+                                    </div>
+                                </div>
+                                </div>
+                            </li>
                         {roomchats.length>0 && roomchats.map((item) =>(
                             <li className="mt-2 relative" onClick={() => ClickOpenChatItem(item.id,item.seller.avatar,item.seller.usernameseller,item.seller.id)} key={item.id}>
                             <div className=" flex justify-between items-center p-2 rounded hover:bg-gray-100 hover:cursor-pointer">
@@ -118,7 +152,7 @@ export default function ChatRoom({user_id} : {user_id:number}) {
                                     <Image 
                                         width={50}
                                         height={50}
-                                        src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg"
+                                        src={item.seller.avatar}
                                         alt="Chat Image"
                                         className="rounded-full"
                                     ></Image>
@@ -147,13 +181,26 @@ export default function ChatRoom({user_id} : {user_id:number}) {
                         </li>
                         ))}
 
+                        {!user_id && (
+                            <div className="flex justify-center items-center ">
+                                <div>
+                                    <p>đăng nhập để sử dụng tính năng này</p>
+                                <div className="bg-black text-white flex justify-center items-center py-2 px-4 rounded-xl  mt-2 hover:cursor-pointer hover:bg-white hover:text-black hover:border hover:border-black">
+                                    <Link href='/login' className="inline-block">
+                                    Đăng nhập
+                                    </Link>
+                                </div>
+                                </div>
+                            </div>
+                        )}
+
                         
                     </ul>
                     )}
-                    
+
                 </div>
                 
-                
+
             
             </div>
     )

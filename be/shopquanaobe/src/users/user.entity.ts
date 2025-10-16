@@ -19,7 +19,7 @@ export class User {
   @Column({default:null})
   avatarUrl: string;
 
-  @Column({ select: false })
+  @Column()
   password: string;
 
   @Column({default:0})

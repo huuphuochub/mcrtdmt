@@ -151,7 +151,7 @@ const Headeradmin2 =() =>{
           </div>
           <AccordionContent className="ml-6 flex flex-col gap-1">
             <Link href="/admin/page/product/list" className="hover:text-blue-500 text-xl">Danh sách</Link>
-            <a href="#" className="hover:text-blue-500 text-xl">Thêm sản phẩm</a>
+            <a href="/admin/page/product/addproduct" className="hover:text-blue-500 text-xl">Thêm sản phẩm</a>
             <a href="#" className="hover:text-blue-500 text-xl">Thêm biến thể</a>
           </AccordionContent>
         </AccordionItem>

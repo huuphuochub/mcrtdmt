@@ -42,7 +42,6 @@ export class UsersController {
  },
     ){
         // const avatarUrl = await this.uploadservice.uploadImage(file)
-        // console.log(body);
         
         return this.usersService.Registersuser(body.username,body.password,body.phone,body.provinceId,body.districId,body.wardsId)
     }
@@ -61,7 +60,6 @@ export class UsersController {
          if (!result.success || !result.user) {
     return result;
     }
-    // console.log(result);
     
   // Set cookie
      const token = this.authService.generateToken({ 
@@ -80,7 +78,6 @@ export class UsersController {
     // });
 
   // Trả về thông tin người dùng (không bao gồm token)
-  // console.log("da dang nhap va luu coookie");
   
  return { success: true, message: 'Đăng nhập thành công',token };
 
@@ -90,8 +87,7 @@ export class UsersController {
  @UseGuards(JwtAuthGuardFromCookie)
   @Get('me')
   async getProfile(@GetUser() user: any) {
-    // console.log('da goi me');
-    // console.log(user);
+
     
     return await this.usersService.GetuserById(user.id);
   }
@@ -99,8 +95,7 @@ export class UsersController {
 //  @UseGuards(JwtAuthGuardFromCookie)
 //   @Get('user')
 //   async getProfleuser(@GetUser() user: any) {
-//     console.log('da goi me');
-//     console.log(user);
+
     
 //     return await this.usersService.findById(user.id);
 //   }    
@@ -136,7 +131,6 @@ logout(@Res({ passthrough: true }) res: Response) {
       //   lay thong tin user tu mang id user
   @Post('inforusers')
   async InforUsers(@Body() ids:{ok:number[]}){
-    console.log(ids);
     
     return await this.usersService.InForUsers(ids.ok)
     

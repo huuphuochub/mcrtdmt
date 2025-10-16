@@ -14,6 +14,8 @@ import { OrderByUserWithSeller } from "@/service/order.service";
 import { addCmtSeller, GetCmtSeller } from "@/service/comment.service";
 import { Commentsellerinterface } from "@/interface/commentseller.interface";
 import { interfaceuser } from "@/interface/user.interface";
+import toast from "react-hot-toast";
+import { useUser } from "@/app/context/usercontext";
 
 interface cmtseller extends Commentsellerinterface{
   user:interfaceuser;
@@ -21,6 +23,7 @@ interface cmtseller extends Commentsellerinterface{
 export default function Sellerinfor() {
   const param = useSearchParams();
   const id = param.get("id");
+  const {user} = useUser();
   const [seller, setSeller] = useState<SellerInterface>();
   const [product, setProduct] = useState<interfaceProduct[]>([]);
   const [listprd, setlitsprd] = useState<interfaceProduct[]>([]);
@@ -33,6 +36,7 @@ export default function Sellerinfor() {
   const [content,setContent] = useState<string | null>(null);
   const [pagecmt,setPagecmt] = useState(1);
   const [cmts,setCmts] = useState<cmtseller[]>([]);
+  const [starfill,setStarfill] = useState(0)
 
   useEffect(() => {
     fetchprd();
@@ -44,14 +48,14 @@ export default function Sellerinfor() {
 
    useEffect(() => {
     fetchcmt();
-  }, [id, pagecmt]);
+  }, [id, pagecmt,starfill]);
 
 
 
   const fetchcmt = async()=>{
     if(!id) return
     try {
-      const cmt = await GetCmtSeller(Number(id),pagecmt);
+      const cmt = await GetCmtSeller(Number(id),pagecmt,starfill);
       if(cmt.data.success){
         setCmts(cmt.data.data)
       }
@@ -87,6 +91,8 @@ export default function Sellerinfor() {
         
       } catch (error) {
         
+      }finally{
+        toast.success('da gui binh luan')
       }
 
 
@@ -132,11 +138,14 @@ export default function Sellerinfor() {
     }
   };
   const CheckOrder = async () => {
-    if (id) {
+    if (id && user) {
       const ord = await OrderByUserWithSeller(Number(id));
       // console.log(ord);
       setIsbought(ord.data.success);
+    }else{
+      setIsbought(false);
     }
+
   };
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -173,31 +182,7 @@ export default function Sellerinfor() {
 
   // },[seller])
   // const [page,setPage] = useState(1);
-  const reviews = [
-    {
-      id: 1,
-      user: "Nguyễn Văn A",
-      avatar:
-        "https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg",
-      date: "20/09/2025",
-      rating: 5,
-      comment: "Sản phẩm rất đẹp, giao hàng nhanh. Shop tư vấn nhiệt tình!",
-      images: [
-        "https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg",
-        "https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg",
-      ],
-    },
-    {
-      id: 2,
-      user: "Trần Thị B",
-      avatar:
-        "https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg",
-      date: "18/09/2025",
-      rating: 4,
-      comment: "Chất lượng ổn, đóng gói cẩn thận nhưng giao hơi chậm.",
-      images: [],
-    },
-  ];
+  
 
   const categories = [
     {
@@ -259,7 +244,10 @@ export default function Sellerinfor() {
           {/* Info */}
           <div className="mt-16 grid grid-cols-2 md:grid-cols-4 gap-6 text-center border-b pb-3">
             <div>
-              <p className="text-xl font-semibold text-gray-800">4.8/5</p>
+              <p className="text-xl font-semibold text-gray-800">
+                  {seller?.ratingCount && seller.ratingCount > 0
+                     ? (seller.ratingSum! / seller.ratingCount).toFixed(1)
+                     : 0}</p>
               <p className="text-gray-500 text-sm">Đánh giá</p>
             </div>
             <div>
@@ -465,7 +453,7 @@ export default function Sellerinfor() {
                             />
                             <Images />
                           </label>
-                          <Button variant="primary">
+                          <Button variant="danger" type="button">
                             mua hang de danh gia
                           </Button>
                         </div>
@@ -473,10 +461,41 @@ export default function Sellerinfor() {
                     )}
                   </form>
                 </div>
-                <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                  5⭐ (600)
-                </h2>
-                <div className="space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 p-4 border-b bg-white rounded-lg shadow-sm">
+  {seller && (
+    <div className="flex items-center gap-2 sm:border-r border-gray-200 sm:pr-4">
+      <p className="text-5xl font-bold text-yellow-600 leading-none">
+        {seller.ratingCount > 0 
+          ? (seller.ratingSum / seller.ratingCount).toFixed(1)
+          : "0.0"}
+      </p>
+      <Star size={36} className="text-yellow-500 fill-yellow-500" />
+    </div>
+  )}
+
+  <div className="flex flex-wrap gap-2 sm:gap-3">
+    {[
+      { label: "Tất cả", value: 0 },
+      { label: "5 sao", value: 5 },
+      { label: "4 sao", value: 4 },
+      { label: "3 sao", value: 3 },
+      { label: "2 sao", value: 2 },
+      { label: "1 sao", value: 1 },
+    ].map((btn) => (
+      <Button
+        key={btn.value}
+        variant={starfill === btn.value ? "primary" : "secondary"}
+        onClick={() => setStarfill(btn.value)}
+        className="text-sm sm:text-base px-4 py-2 transition-all"
+      >
+        {btn.label}
+      </Button>
+    ))}
+  </div>
+</div>
+
+               
+                <div className="space-y-6 mt-2">
                   {cmts.map((r) => (
                     <div
                       key={r.id}
@@ -502,8 +521,9 @@ export default function Sellerinfor() {
 
                         {/* Rating */}
                         <div className="flex items-center text-yellow-500 text-sm mt-1">
-                          {"⭐".repeat(r.star)}
-                          {"☆".repeat(5 - r.star)}
+                         <RatingStarscmt
+                          star={r.star}
+                         />
                         </div>
 
                         {/* Bình luận */}
@@ -569,3 +589,23 @@ export default function Sellerinfor() {
 }
 
 //
+interface RatingStarscmtProps{
+   star:number
+}
+export function RatingStarscmt({ star }: RatingStarscmtProps) {
+  return (
+    <div>
+      <ul className="flex">
+         {[1,2,3,4,5].map((item) =>(
+            <li key={item}>
+            <Star 
+            size={15} 
+            className={item <= star ? `text-yellow-500 fill-yellow-500` : 'text-yellow-500'}/>
+         </li>
+         ))}
+
+         </ul>
+    </div>
+  );
+
+}

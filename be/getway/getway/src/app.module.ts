@@ -18,6 +18,10 @@ import { ChatGateway } from './service/socketio/socketio';
 import { Chatcontroller } from './controller/chat.controller';
 import { FolowerController } from './controller/folower.controller';
 import { Notification } from './controller/notification.controller';
+import { GeminiController } from './controller/chatboxai.controller';
+import * as dotenv from 'dotenv';
+import { GeminiService } from './service/geminiai';
+dotenv.config();
 
 
 @Module({
@@ -74,10 +78,10 @@ import { Notification } from './controller/notification.controller';
     ]),
     HttpModule,AuthModule
   ],
-    providers: [ViettelpostService,ChatGateway],
+    providers: [ViettelpostService,ChatGateway,GeminiService],
       exports: [ViettelpostService], // nếu muốn dùng ở chỗ khác
 
 
-  controllers: [ProductController,UserController,Notification,Categorycontroller,Subcategorycontroller,Cartcontroller,sellerController,OrderController ,CommentProductController,Chatcontroller,FolowerController]
+  controllers: [ProductController,UserController,Notification,Categorycontroller,Subcategorycontroller,GeminiController,Cartcontroller,sellerController,OrderController ,CommentProductController,Chatcontroller,FolowerController]
 })
 export class AppModule {}

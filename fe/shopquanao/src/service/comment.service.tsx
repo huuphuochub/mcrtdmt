@@ -21,9 +21,9 @@ const addComment=async(body:FormData)=>{
     }
 }
 
-const GetCmtSeller =async(seller_id:number,page:number) =>{
+const GetCmtSeller =async(seller_id:number,page:number,star:number) =>{
     try {
-        const cmts = await axiosClient.get(`commentproduct/getcmtseller/${seller_id}`,{params:{page:page}})
+        const cmts = await axiosClient.get(`commentproduct/getcmtseller/${seller_id}`,{params:{page:page,star:star}})
         return cmts
     } catch (error) {
         return{
@@ -49,10 +49,10 @@ const addCmtSeller=async(body:FormData)=>{
 }
 
 
-const GetallCommentByProduct = async(product_id:number,page:number)=>{
+const GetallCommentByProduct = async(product_id:number,page:number,star:number)=>{
     try {
         const body = {
-            product_id,page
+            product_id,page,star
         }
         const cmt = await axiosClient.post('/commentproduct/getall',body)
         return cmt

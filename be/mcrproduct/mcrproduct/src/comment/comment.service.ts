@@ -41,8 +41,14 @@ export class CommentService {
     }
 
     async Getallcomment(body:any) {
+        const where :any ={
+            product:{id:body.product_id}
+        }
+        if(Number(body.star) !==0){
+            where.star = Number(body.star)
+        }
         const [comments,total] = await this.commentRepo.findAndCount({
-            where:{product:{id:body.product_id}},
+            where,
             order:{createAt:"DESC"},
             skip:(body.page - 1) * 10,
             take:10,

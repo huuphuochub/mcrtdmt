@@ -28,14 +28,12 @@ this.payos = payos;
 
   async createPaymentLink(orderInfo: any) {
     const paymentLink = await this.payos.paymentRequests.create(orderInfo);
-        console.log(this.payos.paymentRequests);
 
     return paymentLink;
     
   }
 
   async checkOrder(ordercode: any) {
-    console.log(ordercode);
     
    try {
     const data = await this.payos.paymentRequests.get(ordercode);
@@ -54,16 +52,13 @@ this.payos = payos;
   }
 
   async Createorder(  user_id:number,body:any){
-    console.log('tao order');
     
-    console.log(body);
     
      const order = this.orderRepo.create({
     ...body,
     user_id, // gán thêm user_id vào order
   });
 
-  // console.log(order);
   
   return await this.orderRepo.save(order);
   }
@@ -96,7 +91,6 @@ this.payos = payos;
 
   // lấy orderitem theo ordercode
     async Getorderitem (user_id:number,ordercode:number){
-      console.log("hahaha ỏdercode" , ordercode);
       
     try {
         const order = await this.orderRepo.findOne({
@@ -125,7 +119,6 @@ this.payos = payos;
   }
 // lấy orderitem theo user
       async Getorderitembyid (user_id:number,id:number){
-      // console.log("hahaha ỏdercode" , ordercode);
       
     try {
         const order = await this.orderRepo.findOne({
@@ -195,7 +188,6 @@ this.payos = payos;
       try {
         const take = 15; // số bản ghi mỗi trang
         const skip = (page - 1) * take; // bỏ qua bao nhiêu bản ghi
-          // console.log(status?.toString());
           
           const where: any = { user_id };
             if (status !== undefined) {
@@ -210,7 +202,6 @@ this.payos = payos;
             startDate = new Date(year, m - 1, 1);
             endDate = new Date(year, m, 0, 23, 59, 59); // ngày cuối cùng trong tháng
           }
-          console.log(month);
           
 
             const [orders, total] = await this.orderRepo.findAndCount({
@@ -601,7 +592,6 @@ async getDailyStats(sellerId: number, month: number, year: number) {
     .groupBy("TO_CHAR(item.updated_at, 'YYYY-MM-DD')")
     .orderBy("day", "ASC");
 
-    // console.log(qb);
     
 
   const results = await qb.getRawMany();
@@ -614,7 +604,6 @@ async getDailyStats(sellerId: number, month: number, year: number) {
 }
 // lấy top 10 sản phẩm bán chạy
 async getTopSellingProducts(sellerId: number, month?: number, year?: number,limit?:number) {
-  console.log(limit);
   
   const qb = this.orderItemRepo
     .createQueryBuilder("item")
@@ -635,7 +624,6 @@ async getTopSellingProducts(sellerId: number, month?: number, year?: number,limi
     .limit(limit ? limit: 10)
     .getRawMany();
 
-    // console.log(topProducts);
     
 
   return topProducts.map(p => ({
@@ -669,7 +657,6 @@ async getTopdoanhthuProducts(sellerId: number, month?: number, year?: number) {
     .limit(10)
     .getRawMany();
 
-    console.log(topProducts);
     
 
   return topProducts.map(p => ({

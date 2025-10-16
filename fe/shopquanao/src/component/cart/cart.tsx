@@ -51,15 +51,20 @@ export default function Cartheader({ onClose, isOpen }: CartheaderProps) {
       {/* Overlay (luôn render) */}
       <div
         onClick={onClose}
-        className={`fixed inset-0 bg-black/30 z-40 transition-opacity duration-500
+        className={`fixed w-lvw h-lvh inset-0 bg-black/30 z-40 transition-opacity duration-500
         ${isOpen ? "opacity-100 visible" : "opacity-0 invisible"}`}
+        // className="absolute top-0 right-0 inline-block bg-black/30 z-40 transition-opacity duration-500"
       />
 
       {/* Drawer (luôn render) */}
       <div
-        className={`fixed right-0 top-0 z-50 w-[400px] h-full bg-white shadow-xl overflow-y-auto
-        transform transition-transform duration-500 ease-in-out
-        ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        // className={`absolute right-0 top-0 z-50 w-[400px] h-full bg-white shadow-xl overflow-y-auto
+        // transform transition-transform duration-500 ease-in-out
+        // ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+        className={`fixed right-0 top-0 z-50 w-[400px] h-lvh bg-white shadow-xl overflow-y-auto
+ ${isOpen ? "translate-x-0" : "translate-x-full"}`}
+
+
       >
         {loading ? (
           <div className="w-full h-full flex justify-center items-center">
@@ -96,13 +101,26 @@ export default function Cartheader({ onClose, isOpen }: CartheaderProps) {
                   />
                   <div className="flex-1">
                     <p className="font-medium text-gray-800">{cat.product.name}</p>
-                    <div className="flex items-center gap-2 mt-1 text-sm text-gray-500 line-through">
+                    {isInPromotion(cat.product.promo_start,cat.product.promo_end) ? (
+                      <div className=" items-center gap-2 mt-1 text-sm text-gray-500 ">
+                      <p className="line-through">
                       {cat.product.price.toLocaleString()} đ
-                    </div>
-                    <div className="flex flex-col gap-1">
+
+                      </p>
                       <p className="text-red-500 font-semibold text-base">
                         {cat.product.discountprice.toLocaleString()} đ
                       </p>
+                    </div>
+                    ) : (
+                      <div className=" items-center gap-2 mt-1 text-sm text-gray-500 ">
+                      
+                      <p className="text-red-500 font-semibold text-base">
+                        {cat.product.price.toLocaleString()} đ
+                      </p>
+                    </div>
+                    )}
+                    <div className="flex flex-col gap-1">
+                      
 
                       <div className="flex items-center gap-4 text-sm text-gray-600">
                         {cat.size && (

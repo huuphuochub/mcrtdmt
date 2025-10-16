@@ -10,7 +10,7 @@ export default function HomePage() {
   return (
     <div>
       <Banner />
-      <CategoryHome />
+       <CategoryHome />
 
       {/* Bán chạy */}
       <LazySection placeholderHeight={800}>

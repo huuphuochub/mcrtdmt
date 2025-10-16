@@ -5,12 +5,13 @@ import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import {getprovince,getDistrict, getWards} from "@/service/getlocation";
 import { useCart } from "../context/cartcontext";
-import { getshipfee,creatqrpayos,createorderservice } from "@/service/order.service";
+import { getshipfee,creatqrpayos,createorderservice, updateordermail } from "@/service/order.service";
 import Button from "@/component/ui/button";
 import { useUser } from "../context/usercontext";
 import Link from "next/link";
 import { deletecart } from "@/service/cartservice";
 import { AddNotufication } from "@/service/notification.service";
+import { sendmailorder } from "@/service/mail.service";
 
 
 interface Province {
@@ -429,13 +430,31 @@ useEffect(() => {
               const ok = confirm('xác nhận đặt đơn hàng')
               if(ok){
                 const orders =await createorderservice(bodyorder);
-                // console.log(orders);
-
+                console.log(orders);
+                const productlist = orders.data.items.map((prd:any) =>{
+                  return {
+                  name:prd.productname,
+                  price:prd.unitprice,
+                  quantity:prd.quantity,
+                }
+                })
+                const bodyemail = {
+                  customerName:user?.username,
+                customerEmail:orders.data.email,
+                orderDate:orders.data.created_at,
+                products:productlist,
+                totalPrice:orders.data.payable_amount,
+                redirectUrl:`http://localhost:3000/order/orderdetail/?id=${orders.data.id}`,
+                }
+              const ok = await sendmailorder(bodyemail);
+// console.log(ok);
+              const akjdskja = {
+                id:orders.data.id
+              }
+              await updateordermail(akjdskja);
               const databody =   splitOrderBySeller(orders.data);
-              // console.log(databody);
               const addnoti = await AddNotufication(databody);
 
-              // console.log(addnoti);
               
               
                 
@@ -678,10 +697,7 @@ useEffect(() => {
             </div>
               <div className="flex gap-2 items-center">
                   <p className="block text-l font-medium mb-1">Địa chỉ:</p> <p className="block text-l text-red-600 font-medium mb-1">{formData.address && (<span>{formData.address}</span>)}</p>
-                  <label htmlFor="" className="flex items-center gap-2">
-                  <input type="radio" />
-                  Lưu thông tin
-                  </label>
+                  
               </div>
               <span>{error && <p className="text-red-500">{error}</p>}</span>
             <h2 className="text-xl font-semibold border-b pb-2">Phương thức thanh toán</h2>

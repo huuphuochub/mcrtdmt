@@ -14,7 +14,6 @@ export class JwtAuthGuardFromCookie implements CanActivate {
         const token = authHeader?.split(' ')[1]; // tách 'Bearer xxx'
 
     if (!token) {
-      console.log('toekn k ton tai');
       
       throw new UnauthorizedException({
   success: false,
@@ -29,7 +28,6 @@ export class JwtAuthGuardFromCookie implements CanActivate {
       request['user'] = decoded;
       return true;
     } catch {
-      console.log('token k hop le');
       
       throw new UnauthorizedException({
   success: false,

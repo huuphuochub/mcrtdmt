@@ -3,16 +3,16 @@
 import React, { useEffect, useState } from "react";
 import Header from "@/component/header";
 import FooterPage from "@/component/footer";
-import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import { Search } from "lucide-react";
 import Image from "next/image";
 import Button from "@/component/ui/button";
 import { SellerInterface } from "@/interface/seller.interface";
-import { getAllSeller } from "@/service/sellerservice";
+import { getAllSeller, searchNameSeller } from "@/service/sellerservice";
 import Link from "next/link";
 export default function Shop() {
   const [sellers,setSellers] = useState<SellerInterface[]>([]);
   const [loading,setLoading] = useState(true)
+  const [nameseller,setNameseller] = useState<string>('');
   useEffect(() =>{
     fetchSeller()
   },[])
@@ -27,6 +27,21 @@ export default function Shop() {
     } catch (error) {
       setLoading(false)
     }finally {
+      setLoading(false)
+    }
+  }
+  const searchNameseller = async() =>{
+    try {
+      setLoading(true)
+      const data = await searchNameSeller(nameseller);
+      console.log(data);
+      if(data.data.success){
+        setSellers(data.data.data);
+      }
+      
+    } catch (error) {
+      setLoading(false)
+    }finally{
       setLoading(false)
     }
   }
@@ -51,20 +66,22 @@ export default function Shop() {
             <div className="relative w-full md:w-1/2">
               <input
                 type="text"
+                value={nameseller}
                 placeholder="Nhập tên nhà bán hàng..."
+                onChange={(e) => setNameseller(e.target.value)}
+                onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  searchNameseller();
+                }
+              }}
                 className="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-full focus:ring-2 focus:ring-blue-500 focus:outline-none"
               />
               <Search className="absolute right-4 top-1/2 -translate-y-1/2 text-gray-500" />
             </div>
 
             {/* Dropdown danh mục sản phẩm */}
-            <select className="w-full md:w-1/3 py-2 px-4 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:outline-none">
-              <option value="">Chọn danh mục sản phẩm</option>
-              <option value="fashion">Thời trang</option>
-              <option value="electronics">Điện tử</option>
-              <option value="home">Đồ gia dụng</option>
-              <option value="beauty">Làm đẹp</option>
-            </select>
+           
           </div>
         </div>
 
@@ -73,7 +90,16 @@ export default function Shop() {
           <h3 className="text-xl font-semibold mb-4">Nhà bán hàng nổi bật</h3>
           {!loading ? (
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-            {sellers.map((s) => (
+              {sellers.length === 0 ?(
+                <div>
+                  không có seller nào
+                </div>
+              ) : (
+                <div>
+                  
+                </div>
+              )}
+            {sellers.length > 0 && sellers.map((s) => (
               <div className="w-full md:w-80 border rounded-xl shadow-md p-4 bg-white" key={s.id}>
                     {/* Header */}
                     <div className="flex items-center gap-4">
@@ -92,20 +118,19 @@ export default function Shop() {
 
                     {/* Thông tin */}
                     <div className="mt-4 space-y-2 text-sm text-gray-600">
-                        <p>⭐ Đánh giá: <span className="font-medium text-gray-800">4.8/5</span></p>
-                        <p>📦 Tổng sản phẩm: <span className="font-medium text-gray-800">{s.totalproduct}</span></p>
+                        <p>⭐ Đánh giá: <span className="font-medium text-gray-800">{s.ratingSum/s.ratingCount}</span></p>
+                        <p>📦 Tổng sản phẩm đã bán: <span className="font-medium text-gray-800">{s.soldCount}</span></p>
+                        <p>Người theo giõi <span className="font-medium text-gray-800">{s.follower}</span></p>
                         <p>📍 Địa chỉ: <span className="font-medium text-gray-800">{s.address}</span></p>
                     </div>
 
                     {/* Nút hành động */}
-                    <div className="mt-4 flex gap-3">
-                        <Button className="">
-                        💬 Chat ngay
-                        </Button>
+                    {/* <div className="mt-4 flex gap-3">
+                        
                         <Button className="">
                         ➕ Theo dõi
                         </Button>
-                    </div>
+                    </div> */}
 
                     {/* Tabs */}
                     

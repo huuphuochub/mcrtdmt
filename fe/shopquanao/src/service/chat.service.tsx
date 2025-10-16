@@ -140,4 +140,17 @@ const GetChatItem = async(room_id:number,page:number)=>{
     }
   }
 }
-export  {socket,Chat,SendMessage,CreateRoomchat,checkRoom,GetChatRoom,GetChatItem};
+
+const ChatAIService =async(body:any)=>{
+  try {
+    const chat = await axiosClient.post('gemini/send',body)
+    return chat;
+  } catch (error) {
+    return{
+      success:false,
+      data:null,
+      message:'lopi'
+    }
+  }
+}
+export  {socket,ChatAIService,Chat,SendMessage,CreateRoomchat,checkRoom,GetChatRoom,GetChatItem};

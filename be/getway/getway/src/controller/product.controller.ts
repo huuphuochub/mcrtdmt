@@ -111,7 +111,10 @@ export class ProductController {
         ratingCount:0,
         averageRating:0,
         weigth:body.weigth,
-        subcategory:body.subcategoryId
+        subcategory:body.subcategoryId,
+        import_price:body.import_price,
+        promo_start:body.promo_start,
+        promo_end:body.promo_end,
       }
       
       const product = await this.httpservice.post('http://localhost:3002/product/add',data).toPromise();

@@ -5,6 +5,7 @@ import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import { Registrationseller } from "@/service/sellerservice";
 import {getprovince,getDistrict, getWards} from "@/service/getlocation";
+import { useUser } from "../context/usercontext";
 
 interface Province {
   PROVINCE_ID: number;
@@ -46,10 +47,15 @@ const [formData, setFormData] = useState<{
   const [provinces, setProvinces] = useState<Province[]>([]);
   const [districts, setDistricts] = useState<District[]>([]);
   const [wards, setWards] = useState<Ward[]>([]);
+  const {user} = useUser();
 
   const [loadingProv, setLoadingProv] = useState(false);
   const [loadingDist, setLoadingDist] = useState(false);
   const [loadingWard, setLoadingWard] = useState(false);
+
+  useEffect(() =>{
+    if(!user) window.location.href ='/registration'
+  },[user])
 
   useEffect(() => {
     async function loadProvinces() {

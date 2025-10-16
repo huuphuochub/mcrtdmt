@@ -283,6 +283,20 @@ export class sellerController {
       }
     }
 
+    @Post('searchname')
+    async SearchName(@Body() body:any){
+      try {
+        const data:any =await this.httpService.post('http://localhost:3004/seller/searchname',body).toPromise();
+        return data.data
+      } catch (error) {
+        return{
+          success:false,
+          data:null,
+          message:null,
+        }
+      }
+    }
+
     @Post('login')
     async loginSeller(@Body() body:any, @Res({ passthrough: true }) res: Response){
                    

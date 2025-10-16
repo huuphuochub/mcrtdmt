@@ -37,6 +37,10 @@ import { NotiController } from './noti/noti.controller';
 import { NotiService } from './noti/noti.service';
 import { NotiModule } from './noti/noti.module';
 import { Notification } from './noti/noti.entity';
+import { AdminController } from './admin/admin.controller';
+import { AdminService } from './admin/admin.service';
+import { AdminModule } from './admin/admin.module';
+import { Admin } from './admin/admin.entity';
 
 
 @Module({
@@ -52,16 +56,16 @@ import { Notification } from './noti/noti.entity';
       username: process.env.DB_USERNAME,
       password: process.env.DB_PASSWORD,
       database: process.env.DB_NAME,
-      entities:[User,Seller,Cart,CartItem,ChatItem, Order,OrderItem,Roomchat, CommentSeller,HistorySearch,Follower,Notification],
+      entities:[User,Seller,Cart,CartItem,ChatItem, Order,OrderItem,Roomchat, CommentSeller,HistorySearch,Follower,Notification,Admin],
       synchronize:true,
     }),
     UsersModule, 
      
-    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule, FollowerModule, ChatModule, NotiModule
+    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule, FollowerModule, ChatModule, NotiModule, AdminModule
   
   ],
   controllers: [AppController],
   providers: [AppService],
 })
 export class AppModule {}
- 
+  

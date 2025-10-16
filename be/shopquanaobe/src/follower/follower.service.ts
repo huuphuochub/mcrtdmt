@@ -57,14 +57,15 @@ export class FollowerService {
         }
 
          async Unfls(body:any){
-            console.log(body);
             
             try {
                 const fl = await this.folowerRepo.findOne({
                     where:{user_id:body.user_id,seller_id:body.seller_id}
                 })
+                
                 if(fl){
-                    await this.folowerRepo.delete(fl);
+                          await this.folowerRepo.remove(fl);
+
 
                      await this.sellerRepo.increment(
                     { id: body.seller_id },

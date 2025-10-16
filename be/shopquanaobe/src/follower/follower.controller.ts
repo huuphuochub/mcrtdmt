@@ -7,7 +7,6 @@ export class FollowerController {
 
     @Post('addfl')
     async AddFl(@Body() body:any){
-        console.log(body);
         
         return await this.followerService.AddFl(body);
     }

@@ -396,98 +396,115 @@ function groupBySeller(
                                 </Link>
 
                                 {/* Bảng sản phẩm */}
-                                <div className="overflow-x-auto">
-                                <table className="w-full border border-gray-200 rounded-lg overflow-hidden text-sm">
-                                    <thead className="bg-gray-100 text-gray-700">
-                                    <tr>
-                                        <th className="px-4 py-2 text-left">Tên sản phẩm</th>
-                                        <th className="px-4 py-2 text-left">Hình</th>
-                                        <th className="px-4 py-2 text-left">Giá</th>
-                                        <th className="px-4 py-2 text-left">Size</th>
-                                        <th className="px-4 py-2 text-left">Màu</th>
-                                        <th className="px-4 py-2 text-left">Số lượng</th>
-                                        <th className="px-4 py-2 text-left">Thành tiền</th>
-                                    </tr>
+                                <div className="overflow-x-auto mt-4 rounded-lg shadow">
+                                  <table className="min-w-full border border-gray-200 text-sm bg-white">
+                                    {/* Header */}
+                                    <thead className="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
+                                      <tr>
+                                        <th className="px-4 py-3 text-left">Tên sản phẩm</th>
+                                        <th className="px-4 py-3 text-center">Hình</th>
+                                        <th className="px-4 py-3 text-center">Giá</th>
+                                        <th className="px-4 py-3 text-center">Size</th>
+                                        <th className="px-4 py-3 text-center">Màu</th>
+                                        <th className="px-4 py-3 text-center">Số lượng</th>
+                                        <th className="px-4 py-3 text-center">Thành tiền</th>
+                                      </tr>
                                     </thead>
-                                    <tbody className="divide-y divide-gray-200">
-                                    {item.products.length > 0 ? (
-                                        item.products.map((pr, index) => (
-                                        <tr
-                                            key={`${pr.product.id}-${pr.color_id}-${pr.size_id}+${index}`}
-                                            className="hover:bg-gray-50 transition"
-                                        >
-                                            <td className="px-4 py-2 font-medium text-gray-800 hover:underline hover:cursor-pointer relative">
-                                            <Link href={`/${toSlug(pr.product.name)}-i.${pr.product.idSeller}.${pr.product.id}`}>
-                                              {pr.product.name}
-                                            </Link>
-                                            </td>
-                                            <td className="px-4 py-2">
-                                            <Image
-                                                alt={pr.product.name}
-                                                src={pr.product.image}
-                                                height={80}
-                                                width={80}
-                                                className="rounded-md border"
-                                            />
-                                            </td>
-                                             {isInPromotion(pr.product.promo_start,pr.product.promo_end) ? (
-                                                <td className="px-4 py-2 text-gray-700">
-                                             
-                                            {pr.product.discountprice.toLocaleString()} đ
-                                            </td>
-                                             ) : (
-                                              <td className="px-4 py-2 text-gray-700">
-                                             
-                                            {pr.product.price.toLocaleString()} đ
-                                            </td>
-                                             )}
-                                            
-                                            <td className="px-4 py-2 text-gray-700">
-                                            {pr.size ? pr.size.name : "—"}
-                                            </td>
-                                            <td className="px-4 py-2 text-gray-700">
-                                            {pr.color ? pr.color.name : "—"}
-                                            </td>
-                                            <td className="px-4 py-2 text-gray-700">{pr.quantity}</td>
-                                            <td className="px-4 py-2 font-semibold text-gray-900">
-                                            {(
-                                                pr.product.discountprice * pr.quantity
-                                            ).toLocaleString()}{" "}
-                                            đ
-                                            </td>
-                                        </tr>
-                                        ))
-                                    ) : (
-                                        <tr>
-                                        <td colSpan={7} className="text-center py-4 text-gray-500">
-                                            Không có sản phẩm
-                                        </td>
-                                        </tr>
-                                    )}
 
-                                    {/* Tổng tiền */}
-                                    <tr className="bg-gray-50 font-semibold text-gray-900">
+                                    {/* Body */}
+                                    <tbody className="divide-y divide-gray-100">
+                                      {item.products.length > 0 ? (
+                                        item.products.map((pr, index) => {
+                                          const { product, size, color, quantity } = pr;
+                                          const { price, discountprice, promo_start, promo_end } = product;
+                                          const isPromo = isInPromotion(promo_start, promo_end);
+                                          const finalPrice = isPromo ? discountprice : price;
+
+                                          return (
+                                            <tr
+                                              key={`${product.id}-${pr.color_id}-${pr.size_id}-${index}`}
+                                              className="hover:bg-gray-50 transition-colors"
+                                            >
+                                              <td className="px-4 py-3 font-medium text-gray-800">
+                                                <Link
+                                                  href={`/${toSlug(product.name)}-i.${product.idSeller}.${product.id}`}
+                                                  className="hover:text-blue-600 hover:underline"
+                                                >
+                                                  {product.name}
+                                                </Link>
+                                              </td>
+
+                                              <td className="px-4 py-3 text-center">
+                                                <Image
+                                                  alt={product.name}
+                                                  src={product.image}
+                                                  height={70}
+                                                  width={70}
+                                                  className="rounded-md border object-cover mx-auto"
+                                                />
+                                              </td>
+
+                                              <td className="px-4 py-3 text-center text-gray-700">
+                                                {isPromo ? (
+                                                  <div>
+                                                    <span className="line-through text-gray-400 text-xs mr-1">
+                                                      {price.toLocaleString()}đ
+                                                    </span>
+                                                    <span className="text-red-600 font-semibold">
+                                                      {discountprice.toLocaleString()}đ
+                                                    </span>
+                                                  </div>
+                                                ) : (
+                                                  <span>{price.toLocaleString()}đ</span>
+                                                )}
+                                              </td>
+
+                                              <td className="px-4 py-3 text-center text-gray-700">
+                                                {size ? size.name : "—"}
+                                              </td>
+
+                                              <td className="px-4 py-3 text-center text-gray-700">
+                                                {color ? color.name : "—"}
+                                              </td>
+
+                                              <td className="px-4 py-3 text-center text-gray-700">{quantity}</td>
+
+                                              <td className="px-4 py-3 text-center font-semibold text-gray-900">
+                                                {(finalPrice * quantity).toLocaleString()}đ
+                                              </td>
+                                            </tr>
+                                          );
+                                        })
+                                      ) : (
+                                        <tr>
+                                          <td colSpan={7} className="py-6 text-center text-gray-500 italic">
+                                            Không có sản phẩm nào trong đơn hàng
+                                          </td>
+                                        </tr>
+                                      )}
+
+                                      {/* Tổng tiền */}
+                                      <tr className="bg-gray-50 font-semibold text-gray-900">
                                         <td colSpan={6} className="px-4 py-3 text-right">
-                                        Tổng:
+                                          Tổng cộng:
                                         </td>
-                                        <td className="px-4 py-3">
-                                        {item.products
-                                            .reduce(
-                                            (total, p) =>{
-                                              const  { price = 0, discountprice = 0, promo_start, promo_end } = p.product
-                                              const ok = isInPromotion(promo_start,promo_end) ? discountprice : price;
-                                              return total + ok * p.quantity;
-                                            },
-                                               
-                                            0
-                                            )
+                                        <td className="px-4 py-3 text-center">
+                                          {item.products
+                                            .reduce((total, p) => {
+                                              const { price, discountprice, promo_start, promo_end } = p.product;
+                                              const validPrice = isInPromotion(promo_start, promo_end)
+                                                ? discountprice
+                                                : price;
+                                              return total + validPrice * p.quantity;
+                                            }, 0)
                                             .toLocaleString()}{" "}
-                                        đ
+                                          đ
                                         </td>
-                                    </tr>
+                                      </tr>
                                     </tbody>
-                                </table>
+                                  </table>
                                 </div>
+
                             </div>
                             ))}
                         </div>

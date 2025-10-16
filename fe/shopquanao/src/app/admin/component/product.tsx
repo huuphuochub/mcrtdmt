@@ -57,7 +57,6 @@ const ProductList = () =>{
   const [pagesearch, setPagesearch] = useState(1);
 
 
-
   const [filters, setFilters] = useState({
   category: 0,
   quantity: 0,
@@ -74,7 +73,8 @@ useEffect(() =>{
 },[filters])
     
     
-    
+
+
     
   // --- Fetch categories ---
   const { data: cateData } = useQuery({
@@ -350,6 +350,13 @@ interface ProductDetailEdit extends productdetail{
   subImages:Subimginterface[];
   
 }
+
+type Variant = {
+  product_id: number;
+  size_id: number;
+  color_id: number;
+  quantity: number;
+};
 const Editproduct=() =>{
   const searchParams = useSearchParams();
   const [productdetail,setProductdetail] = useState<ProductDetailEdit | null>(null)
@@ -357,6 +364,8 @@ const Editproduct=() =>{
   const [addvarriant,setAddvariant] = useState(0)
   const [sizes,setSizes] = useState<interfacesize[]>([])
   const [colors,setColors] = useState<interfacecolor[]>([]);
+    const [productvariant,setProductvariant] = useState<Variant[]>([]);
+
   useEffect(() =>{
     const id = searchParams.get("id")
     if(id){
@@ -378,6 +387,54 @@ const Editproduct=() =>{
     setAddvariant(addvarriant + i);
 
   }
+
+  const ClickLuuThaydoi =()=>{
+    console.log(productvariant);
+    
+  }
+
+const HandleOnChangeVariant = (
+  field: "size_id" | "color_id" | "quantity",
+  value: number,
+  currentVariant?: { size_id?: number; color_id?: number }
+) => {
+  if (!id) return;
+
+  setProductvariant((prev) => {
+    // Tìm xem có biến thể nào trùng size + color không
+    const existIndex = prev.findIndex(
+      (v) =>
+        v.size_id === (currentVariant?.size_id ?? v.size_id) &&
+        v.color_id === (currentVariant?.color_id ?? v.color_id)
+    );
+
+    if (existIndex !== -1) {
+      // Nếu đã có biến thể này rồi -> cập nhật quantity hoặc field tương ứng
+      const updated = [...prev];
+      updated[existIndex] = { ...updated[existIndex], [field]: value };
+      return updated;
+    } else {
+      // Nếu chưa có -> thêm mới
+      return [
+        ...prev,
+        {
+          product_id: Number(id),
+          size_id: field === "size_id" ? value : currentVariant?.size_id ?? 0,
+          color_id: field === "color_id" ? value : currentVariant?.color_id ?? 0,
+          quantity: field === "quantity" ? value : 1,
+        },
+      ];
+    }
+  });
+};
+
+
+
+
+  useEffect(() =>{
+    console.log(addvarriant);
+    
+  },[addvarriant])
   // useEffect(() =>{
   //   console.log(sizes);
     
@@ -574,7 +631,7 @@ const Editproduct=() =>{
                           <div>
                             <span className="text-sm text-gray-500">Size:</span>
                             <p className="font-medium text-gray-800">
-                              <select className="w-full border rounded-lg py-2">
+                              <select className="w-full border rounded-lg py-2" onChange={(e) =>HandleOnChangeVariant('size_id',Number(e.target.value))}>
                                 {sizes.length > 0 &&
                                   sizes.map((item) => (
                                     <option value={item.id} key={item.id}>
@@ -588,7 +645,7 @@ const Editproduct=() =>{
                           <div>
                             <span className="text-sm text-gray-500">Màu:</span>
                             <p className="font-medium text-gray-800">
-                              <select className="w-full border rounded-lg py-2">
+                              <select className="w-full border rounded-lg py-2" onChange={(e) =>HandleOnChangeVariant('color_id',Number(e.target.value))}>
                                 {colors.length > 0 &&
                                   colors.map((item) => (
                                     <option value={item.id} key={item.id}>
@@ -605,6 +662,7 @@ const Editproduct=() =>{
                               type="number"
                               className="w-full border rounded-lg py-2"
                               placeholder="Nhập số lượng"
+                              onChange={(e) =>HandleOnChangeVariant('quantity',Number(e.target.value))}
                             />
                           </div>
                         </div>
@@ -683,6 +741,7 @@ const Editproduct=() =>{
           <button
             type="submit"
             className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+            onClick={ClickLuuThaydoi}
           >
             Lưu thay đổi
           </button>

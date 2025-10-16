@@ -11,14 +11,12 @@ export class ChatController {
     @Post('create')
     @UseGuards(JwtAuthGuardFromCookie)
     async createChat(@Body() body: any,@GetUser() user:any) {
-       console.log(body);
        return await this.chatService.Createroom(Number(body.seller_id),Number(user.id));
        
     }
      @UseGuards(JwtAuthGuardFromCookie)
     @Post('check')
     async CheckRoom(@Body() body: any,@GetUser() user:any) {
-      console.log(body);
       return await this.chatService.CheckRoom(Number(body.seller_id),Number(user.id));
     }
 
@@ -35,14 +33,12 @@ export class ChatController {
 
     @Get('roomseller')
     async GetRoomSeller(@Query('seller_id') seller_id:any){
-      console.log(seller_id);
       
       return await this.chatService.GetRoomSeller(Number(seller_id))
     }
 
     @Post('sendmess')
     async SendChat(@Body() body:any){
-      // console.log(body);
       
       return await this.chatService.SendChat(body);
     }

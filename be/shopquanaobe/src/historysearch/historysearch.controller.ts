@@ -16,7 +16,6 @@ export class HistorysearchController {
             user_id:user.id,
             keyword:body.keyword
         } 
-        console.log(bodys);
         
         return await this.historyservice.AddKeyword(bodys);
     }   
@@ -28,8 +27,6 @@ export class HistorysearchController {
         //     user_id:user.id,
         //     keyword:body.keyword
         // } 
-        // console.log(bodys);
-        console.log(user);
         
         
         return await this.historyservice.Gethistorybyuser(user.id);
@@ -37,7 +34,6 @@ export class HistorysearchController {
 
     @Delete('deletehistory/:id')
     async deletesearch(@Param('id') id:number){
-        // console.log(id);
         
         return await this.historyservice.Deletesearch(id);
 

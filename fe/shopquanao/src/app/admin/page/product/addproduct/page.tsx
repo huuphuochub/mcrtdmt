@@ -5,6 +5,7 @@ import { Getallcategory, Getsubcatygorybyid } from "@/service/categoryservice";
 import { Subcategory } from "@/interface/category.interface";
 import { Addproduct as AddProductService } from "@/service/product.service";
 import Image from "next/image";
+import { X } from "lucide-react";
 
 interface FormErrors {
   name?: string;
@@ -20,14 +21,16 @@ interface FormErrors {
   subImage?: string;
   quantity?:string;
   weigth?:string;
+  promo_day?:string;
+  import_price?:string;
 }
 
 export default function Addproduct() {
   const [mainImage, setMainImage] = useState<File | null>(null);
-  const [previewMain, setPreviewMain] = useState<string | null>(null);
+  // const [previewMain, setPreviewMain] = useState<string | null>(null);
   // const [quantity,setQuantity] = useState<number>(0)
   const [subImage, setSubImage] = useState<File[]>([]);
-  const [previewSub, setPreviewSub] = useState<string[]>([]);
+  // const [previewSub, setPreviewSub] = useState<string[]>([]);
   const [categorys, setCategorys] = useState<Category[]>([]);
   const [subcates, setSubcates] = useState<Subcategory[]>([]);
   const [idcategory, setIdcategory] = useState<number>(0);
@@ -36,19 +39,18 @@ export default function Addproduct() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [weigth,setWeigth] = useState(0);
   const [submitMessage, setSubmitMessage] = useState<{ type: 'success' | 'error', message: string } | null>(null);
+  // const [promo_start,setPromo_start] = useState('')
+  // const [promo_end,setPromo_end] = useState('')
 
   const handleImageChange = (
     e: React.ChangeEvent<HTMLInputElement>, 
-    setFile: React.Dispatch<React.SetStateAction<File | null>>, 
-    setPreview: React.Dispatch<React.SetStateAction<string | null>>
+    // setFile: React.Dispatch<React.SetStateAction<File | null>>, 
+    // setPreview: React.Dispatch<React.SetStateAction<string | null>>
   ) => {
     const file = e.target.files?.[0];
-    if (file) {
-      setFile(file);
-      setPreview(URL.createObjectURL(file));
-      // Clear error when image is selected
-      setErrors(prev => ({ ...prev, mainImage: undefined }));
-    }
+    if(!file) return
+    setMainImage(file)
+    
   };
 
   const getsubcategorybyid = async (id: number) => {
@@ -87,9 +89,9 @@ export default function Addproduct() {
   const handleSubimage = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
     const newFiles = files.slice(0, 3 - subImage.length);
-    const newPreview = newFiles.map((file) => URL.createObjectURL(file));
+    // const newPreview = newFiles.map((file) => URL.createObjectURL(file));
     setSubImage((prev) => [...prev, ...newFiles]);
-    setPreviewSub((prev) => [...prev, ...newPreview]);
+    // setPreviewSub((prev) => [...prev, ...newPreview]);
     // Clear error when sub images are selected
     setErrors(prev => ({ ...prev, subImage: undefined }));
   };
@@ -98,11 +100,19 @@ export default function Addproduct() {
     const errors: FormErrors = {};
 
     // Validate name
+    const promo_start = formData.get('promo_start') as string
+    const promo_end = formData.get('promo_end') as string
+    console.log(promo_start,promo_end);
+    
     const name = formData.get('name') as string;
     if (!name || name.trim().length < 3) {
       errors.name = 'Tên sản phẩm phải có ít nhất 3 ký tự';
     }
 
+    const import_price = formData.get('import_price') as string
+    if(!import_price || parseFloat(import_price) <= 0){
+      errors.import_price = 'vui long nhaapj gias nhaapj'
+    }
     // Validate price
     const price = formData.get('price') as string;
     if (!price || parseFloat(price) <= 0) {
@@ -153,6 +163,15 @@ export default function Addproduct() {
       errors.production = 'Vui lòng chọn ngày sản xuất';
     }
 
+
+
+    if(promo_start !== '' && promo_end !== ''){
+      const date1 = new Date(promo_start);
+    const date2 = new Date(promo_end);
+        if (date2 < date1) {
+      errors.promo_day ="ngày kết thúc k thể trước ngày bắt đầu"
+    } 
+    }
     // Validate visibility
     const visibility = formData.get('visibility') as string;
     if (!visibility) {
@@ -171,7 +190,13 @@ export default function Addproduct() {
 
     return errors;
   };
-
+      const removeSubImage = (index:number) => {
+    const newImages = subImage.filter((_, i) => i !== index);
+    setSubImage(newImages);
+  };
+  const remoteImage =() =>{
+    setMainImage(null)
+  }
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -191,6 +216,8 @@ export default function Addproduct() {
       return;
     }
 
+
+
     // Add images to FormData
     if (mainImage) {
       formData.append('mainImage', mainImage);
@@ -200,6 +227,8 @@ export default function Addproduct() {
       formData.append(`subImages`, file);
     });
 
+
+    
     try {
       // const tempObj:any = {};
       // formData.forEach((value, key) => {
@@ -208,14 +237,15 @@ export default function Addproduct() {
       // console.log(tempObj);
 
       const result = await AddProductService(formData);
+
       if (result.success) {
         setSubmitMessage({ type: 'success', message: 'Thêm sản phẩm thành công!' });
         // Reset form
         e.currentTarget.reset();
         setMainImage(null);
-        setPreviewMain(null);
+        // setPreviewMain(null);
         setSubImage([]);
-        setPreviewSub([]);
+        // setPreviewSub([]);
         setIdcategory(0);
         setIdsubcategory(0);
         setSubcates([]);
@@ -251,7 +281,7 @@ export default function Addproduct() {
           <label className="block text-sm font-semibold mb-1">Tên sản phẩm</label>
           <input
             type="text"
-            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.name ? 'border-red-500' : ''
             }`}
             required
@@ -260,13 +290,29 @@ export default function Addproduct() {
           />
           {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
         </div>
+{/* gia nhap */}
+
+             <div>
+          <label className="block text-sm font-semibold mb-1">Giá nhap</label>
+          <input
+            type="number"
+            className={` relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.import_price ? 'border-red-500' : ''
+            }`}
+            required
+            name="import_price"
+            min="0"
+            onChange={() => setErrors(prev => ({ ...prev, import_price: undefined }))}
+          />
+          {errors.import_price && <p className="text-red-500 text-sm mt-1">{errors.import_price}</p>}
+        </div>
 
         {/* Giá */}
         <div>
           <label className="block text-sm font-semibold mb-1">Giá</label>
           <input
             type="number"
-            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.price ? 'border-red-500' : ''
             }`}
             required
@@ -282,7 +328,7 @@ export default function Addproduct() {
           <label className="block text-sm font-semibold mb-1">Giá khuyến mãi</label>
           <input
             type="number"
-            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.discountprice ? 'border-red-500' : ''
             }`}
             name="discountprice"
@@ -292,12 +338,45 @@ export default function Addproduct() {
           {errors.discountprice && <p className="text-red-500 text-sm mt-1">{errors.discountprice}</p>}
         </div>
 
+        {/* ngay bat dau */}
+        <div>
+          <label className="block text-sm font-semibold mb-1">Ngay bat dau</label>
+          <input
+            type="date"
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.promo_day ? 'border-red-500' : ''
+            }`}
+            name="promo_start"
+            min="0"
+            // onChange={(e) =>setPromo_start(e.target.value)}
+            onChange={() => setErrors(prev => ({ ...prev, promo_day: undefined }))}
+          />
+          {errors.promo_day && <p className="text-red-500 text-sm mt-1">{errors.promo_day}</p>}
+        </div>
+
+        {/* ngay ket thuc */}
+        <div>
+          <label className="block text-sm font-semibold mb-1">ngay ket thuc</label>
+          <input
+            type="date"
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+              errors.promo_day ? 'border-red-500' : ''
+            }`}
+            name="promo_end"
+            min="0"
+
+            // onChange={(e) =>setPromo_end(e.target.value)}
+            onChange={() => setErrors(prev => ({ ...prev, promo_day: undefined }))}
+          />
+          {/* {errors.discountprice && <p className="text-red-500 text-sm mt-1">{errors.discountprice}</p>} */}
+        </div>
+
         {/* so luong */}
         <div>
           <label className="block text-sm font-semibold mb-1">So luong</label>
           <input
             type="number"
-            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.quantity ? 'border-red-500' : ''
             }`}
             name="quantity"
@@ -312,7 +391,7 @@ export default function Addproduct() {
           <label className="block text-sm font-semibold mb-1">can nang(gram)</label>
           <input
             type="number"
-            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.weigth ? 'border-red-500' : ''
             }`}
             name="weigth"
@@ -326,7 +405,7 @@ export default function Addproduct() {
         <div className="md:col-span-2">
           <label className="block text-sm font-semibold mb-1">Mô tả</label>
           <textarea
-            className={`w-full border rounded px-4 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={` relative w-full border rounded px-4 py-2 h-24 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.describe ? 'border-red-500' : ''
             }`}
             required
@@ -340,7 +419,7 @@ export default function Addproduct() {
         <div>
           <label className="block text-sm font-semibold mb-1">Danh mục</label>
           <select 
-            className={`w-full border rounded px-4 py-2 ${
+            className={`relative w-full border rounded px-4 py-2 ${
               errors.category ? 'border-red-500' : ''
             }`} 
             name="category" 
@@ -361,7 +440,7 @@ export default function Addproduct() {
         <div>
           <label className="block text-sm font-semibold mb-1">Danh mục con</label>
           <select 
-            className={`w-full border rounded px-4 py-2 ${
+            className={`relative w-full border rounded px-4 py-2 ${
               errors.subcategory ? 'border-red-500' : ''
             }`} 
             name="subcategory" 
@@ -381,24 +460,28 @@ export default function Addproduct() {
         {/* Ảnh chính */}
         <div>
           <label className="block text-sm font-semibold mb-2">Chọn hình ảnh</label>
-          <label className="cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
+          <label className="relative cursor-pointer inline-block bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition">
             Tải ảnh chính
             <input
               type="file"
               accept="image/*"
-              className="hidden"
-              onChange={(e) => handleImageChange(e, setMainImage, setPreviewMain)}
+              className="hidden "
+              onChange={(e) => handleImageChange(e)}
             />
           </label>
-          {previewMain && (
-            <div className="mt-3">
-              <Image
+          {mainImage && (
+            <div className="mt-3 ">
+              <div className="relative inline-block">
+                <Image
               height={128}
               width={128}
-                src={previewMain}
+                src={URL.createObjectURL(mainImage)}
                 alt="preview"
                 className="w-32 h-32 object-cover rounded border"
               />
+              <X className="absolute top-0 right-0 bg-black text-white rounded-2xl hover:cursor-pointer" onClick={remoteImage}/>
+              </div>
+              
             </div>
           )}
           {errors.mainImage && <p className="text-red-500 text-sm mt-1">{errors.mainImage}</p>}
@@ -408,7 +491,7 @@ export default function Addproduct() {
         <div>
           <label className="block text-sm font-semibold mb-2">Hình ảnh phụ (tối đa 3)</label>
 
-          <label className="cursor-pointer inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50">
+          <label className="relative cursor-pointer inline-block bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition disabled:opacity-50">
             {subImage.length < 3 ? "Tải ảnh phụ" : "Đã đủ 3 ảnh"}
             <input
               type="file"
@@ -420,17 +503,21 @@ export default function Addproduct() {
             />
           </label>
 
-          {previewSub.length > 0 && (
+          {subImage.length > 0 && (
             <div className="flex gap-3 mt-3 flex-wrap">
-              {previewSub.map((src, idx) => (
+              {subImage.map((src, idx) => (
                 <div key={idx} className="relative w-24 h-24">
-                  <Image
-                  height={96}
-                  width={96}
-                    src={src}
-                    alt={`sub-${idx}`}
-                    className="w-full h-full object-cover rounded border"
-                  />
+                  <div className="relative">
+                    <Image
+                    height={96}
+                    width={96}
+                      src={URL.createObjectURL(src)}
+                      alt={`sub-${idx}`}
+                      className="w-full h-full object-cover rounded border"
+                    />
+                  <X className="absolute top-0 right-0 bg-black text-white rounded-2xl hover:cursor-pointer" onClick={() =>removeSubImage(idx)}/>
+
+                  </div>
                 </div>
               ))}
             </div>
@@ -443,7 +530,7 @@ export default function Addproduct() {
           <label className="block text-sm font-semibold mb-1">Xuất xứ</label>
           <input
             type="text"
-            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={` relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.origin ? 'border-red-500' : ''
             }`}
             required
@@ -458,7 +545,7 @@ export default function Addproduct() {
           <label className="block text-sm font-semibold mb-1">Ngày sản xuất</label>
           <input
             type="date"
-            className={`w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
+            className={`relative w-full border rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 ${
               errors.production ? 'border-red-500' : ''
             }`}
             required
@@ -477,7 +564,7 @@ export default function Addproduct() {
                 type="radio" 
                 name="visibility" 
                 value="1"
-                className="accent-blue-600" 
+                className=" relative accent-blue-600" 
                 onChange={() => setErrors(prev => ({ ...prev, visibility: undefined }))}
               />
               Ẩn
@@ -487,7 +574,7 @@ export default function Addproduct() {
                 type="radio" 
                 name="visibility" 
                 value="0"
-                className="accent-blue-600" 
+                className="relative accent-blue-600" 
                 onChange={() => setErrors(prev => ({ ...prev, visibility: undefined }))}
               />
               Hiện
@@ -501,7 +588,7 @@ export default function Addproduct() {
           <button
             type="submit"
             disabled={isSubmitting}
-            className="w-full bg-indigo-600 text-white font-semibold py-3 rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className=" relative w-full bg-indigo-600 text-white font-semibold py-3 rounded hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSubmitting ? 'Đang lưu...' : 'Lưu sản phẩm'}
           </button>

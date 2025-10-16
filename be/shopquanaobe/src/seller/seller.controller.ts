@@ -24,7 +24,6 @@ async Registerseller(
         address:string,
     },
 ){
-    console.log(body);
     
     return this.sellerservice.Registerseller(user.id,body.usernameseller,body.email,body.provinceId,body.districtId,body.wardId,body.address);
 }
@@ -37,7 +36,6 @@ async Registerseller(
     //   lay thong tin seller tu mang id user
     @Post('inforseller')
     async inforsellers(@Body() ids:{sellerIds:number[]}){
-        console.log(ids);
         
         return this.sellerservice.Inforsellers(ids.sellerIds);
     }
@@ -46,11 +44,9 @@ async Registerseller(
 
     @Post('inforsellerbyuser')
     async inforseller(@Body() id:{user_id:number}){
-        // console.log(id.user_id);
         
         
         const selle = await this.sellerservice.Inforseller(id.user_id);
-        console.log('lay seller');
         if(!selle.success){
             return selle
 
@@ -60,7 +56,6 @@ async Registerseller(
         })
          return { success: true, message: 'tạo token seller thành công',token,data:selle?.data };
 
-        // console.log(selle?.data?.id);
     }
 
     @Get('all') 
@@ -80,8 +75,13 @@ async Registerseller(
     }
 
     @Get('getcmtseller/:id')
-    async GetCmtSeller(@Param('id') id:number,@Query('page') page:number){
-        return await this.sellerservice.GetCmtSeller(id,page);
+    async GetCmtSeller(@Param('id') id:number,@Query('page') page:number,@Query('star') star:number){
+        return await this.sellerservice.GetCmtSeller(id,page,star);
+    }
+
+    @Post('searchname')
+    async SearchName(@Body() body:any){
+        return await this.sellerservice.SearchName(body.name);
     }
 
 }

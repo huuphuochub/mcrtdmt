@@ -216,6 +216,7 @@ export class ProductService {
       const skip = (body.page - 1) * take;
       const category = body.category
       const subcate = body.subcate
+      // console.log(body);
       
       let query= this.productRepo
       .createQueryBuilder('product')
@@ -246,11 +247,12 @@ export class ProductService {
         query = query.orderBy('product.date','DESC')
       } 
       if (body.minprice !== 0 && body.maxprice === 0) {
-        query = query.andWhere('product.discountPrice >= :min', { min: body.minprice });
+        query = query.andWhere('product.price >= :min', { min: body.minprice });
       }
       if (body.maxprice !== 0 && body.minprice === 0) {
-        query = query.andWhere('product.discountPrice <= :max', { max: body.maxprice });
+        query = query.andWhere('product.price <= :max', { max: body.maxprice });
       }
+      // console.log(query);
       
       try {
         const [products,total] = await query
@@ -258,6 +260,8 @@ export class ProductService {
       .take(take)
       .getManyAndCount();
 
+      console.log(products);
+      
        return{
         success:true,
         data:products,
@@ -272,6 +276,46 @@ export class ProductService {
       }
 
      
+    }
+
+    async PrdSearchChatAi(body:any){
+            const category = body.category
+
+      let prds = this.productRepo
+      .createQueryBuilder('product')
+
+      if(category){
+        prds = prds.where(
+          'product.idCategory = :category',{category}
+        )
+      }else{
+        prds = prds.where(
+          `unaccent(lower(product.name)) LIKE unaccent(lower(:keyword))`,
+        { keyword: `%${body.keyword}%` },
+        )
+      }
+
+      if (body.minprice !== 0 && body.maxprice === 0) {
+        prds = prds.andWhere('product.price >= :min', { min: body.minprice });
+      }
+      if (body.maxprice !== 0 && body.minprice === 0) {
+        prds = prds.andWhere('product.price <= :max', { max: body.maxprice });
+      }
+
+      try {
+        const [products,total] = await prds
+        .skip(0)
+        .take(5)
+        .getManyAndCount();
+
+        return{
+          success:true,
+          data:products,
+          message:'ok',
+        }
+      } catch (error) {
+        
+      }
     }
 
 

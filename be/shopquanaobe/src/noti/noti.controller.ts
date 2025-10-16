@@ -12,7 +12,6 @@ export class NotiController {
 
     @Post('addnoti')
     async AddNoti(@Body() body:any){
-        console.log(body);
         
         return await this.notiService.AddNoti(body)
     }

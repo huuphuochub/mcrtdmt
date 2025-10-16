@@ -19,14 +19,13 @@ export default function Chat() {
         <MessageCircleMore size={35} />
       </div>
 
-      {user && (
+     
         <div>
-          {roomchat && <ChatRoom user_id={user.id} />}
+          {roomchat && <ChatRoom user_id={user?.id ?? null} />}
           {itemchat && roomId  && (
             <ChatItem/>
           )}
         </div>
-      )}
     </div>
   );
 }

@@ -15,7 +15,6 @@ export class UsersService {
         private jwtService:JwtService
     ){}
   async Registersuser(username:string, password:string, phone:string, provinceId:number, districtId:number, wardsId:number){
-    // console.log(username);
     const existingUser = await this.userRepo.findOne({where:{phone}});
     if(existingUser){
         return({ success:false,
@@ -29,7 +28,6 @@ export class UsersService {
         username,password,phone,provinceId,districtId,wardsId,role:0
     });
         const result = await this.userRepo.save(newUser);
-        console.log('Saved user:', result);
         return result;  
     }
 

@@ -19,7 +19,6 @@ export class SellerService {
         user_id,usernameseller,email,provinceId,districtId,wardsId,address,status:0
     });
     const result =  await this.sellerRepo.save(newUser);
-    console.log("nha ban hang" + result);
     return result;
   }
   async Getsellerbyiduser(id:number){
@@ -96,7 +95,6 @@ export class SellerService {
   }
 
   async UpdateTotalSold(body:any){
-    console.log(body);
 const totalquantity = body.variant.reduce(
     (total, item) => total + item.quantity,
     0
@@ -115,7 +113,6 @@ const totalquantity = body.variant.reduce(
   }
 
 async AddCmtSeller(body: any) {
-  console.log('BODY:', body);
 
   const cmt = this.CmtsellerRepo.create({
     content: body.content,
@@ -127,6 +124,22 @@ async AddCmtSeller(body: any) {
 
   try {
     const add = await this.CmtsellerRepo.save(cmt);
+    const seller = await this.sellerRepo.findOne({
+      where:{id:body.seller_id},
+    })
+    if(!seller){
+      return{
+        success:false,
+        message:'khong tim thay seller',
+        data:null,
+      }
+    }
+    seller.ratingSum = (seller.ratingSum || 0) + Number(body.star)
+    seller.ratingCount = (seller.ratingCount || 0) + 1;
+
+    await this.sellerRepo.save(seller);
+
+    
     return {
       success: true,
       message: 'ok',
@@ -143,28 +156,67 @@ async AddCmtSeller(body: any) {
 }
 
 
-  async GetCmtSeller(seller_id:number,page:number){
-    const take = 12;
-    const skip = (page - 1) * take
-    try {
-      const cmt = await this.CmtsellerRepo.find({
-        where:{seller:{id:seller_id}},
-        take,
-        skip,
-        relations:['user']
-      })
-      return{
-        success:true,
-        message:'ok',
-        data:cmt
-      }
-    } catch (error) {
-      return{
-        success:false,
-        data:null,
-        message:error,
-      }
+async GetCmtSeller(seller_id: number, page: number, star: number) {
+  const take = 12;
+  const skip = (page - 1) * take;
+  
+  try {
+    const where: any = {
+      seller: { id: seller_id },
+    };
+
+    // Nếu star khác 0 thì thêm điều kiện
+    if (Number(star) !== 0) {
+      where.star = Number(star);
+    }
+
+    const cmt = await this.CmtsellerRepo.find({
+      where,
+      take,
+      skip,
+      relations: ['user'],
+    });
+
+    return {
+      success: true,
+      message: 'ok',
+      data: cmt,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      data: null,
+      message: error,
+    };
+  }
+}
+
+async SearchName(keyword:string){
+  try {
+    const [seller,total] =await this.sellerRepo
+    .createQueryBuilder('seller')
+    .where(
+        `unaccent(lower(seller.usernameseller)) LIKE unaccent(lower(:keyword))`,
+         { keyword: `%${keyword}%` },
+
+    )
+    .orderBy('seller.id', 'DESC')
+    .getManyAndCount();
+
+    return {
+      success:true,
+      data:seller
+    }
+  } catch (error) {
+    console.log(error.message);
+    
+    return{
+      success:false,
+      data:null,
+      message:'loi service'
     }
   }
+}
+
 
 }

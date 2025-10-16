@@ -1,10 +1,13 @@
 import React from "react";
+import Chat from "./chat/chat";
 
 export default function FooterPage() {
   return (
     <div  className="bg-gray-200 text-gray-700 py-10 px-6 mt-10 relative">
       <div className="max-w-7xl mx-auto grid grid-cols-1 md:grid-cols-3 gap-8">
         {/* Cột 1: Logo + mô tả */}
+              <Chat />
+
         <div>
           <h2 className="text-xl font-bold mb-2">Shop Quần Áo</h2>
           <p className="text-sm">

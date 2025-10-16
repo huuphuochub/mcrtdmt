@@ -22,6 +22,18 @@ const Registrationseller = async(data:RegisterInput) =>{
     return Promise.reject(error);
     }
 }
+const searchNameSeller = async(name:string) =>{
+    try {
+        const data = await axiosClient.post('seller/searchname',{name:name})
+        return data;
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            message:'loi fe'
+        }
+    }
+}
 const getseller = async()=>{
     try {
         const sellser= await axiosClient.get('seller/getseller')
@@ -64,4 +76,4 @@ const GetAllProductBySeller = async(id:number,page:number, limit:number)=>{
         }
     }
 }
-export {Registrationseller,getseller,getAllSeller,GetAllProductBySeller};
+export {searchNameSeller,Registrationseller,getseller,getAllSeller,GetAllProductBySeller};

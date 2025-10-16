@@ -289,9 +289,9 @@ export class CommentProductController {
       }
 
       @Get('getcmtseller/:id')
-      async GetCmtSeller(@Param('id') id:number,@Query('page') page:number){
+      async GetCmtSeller(@Param('id') id:number,@Query('page') page:number,@Query("star") star:number){
             try {
-                  const data:any = await this.httpService.get(`http://localhost:3004/seller/getcmtseller/${id}`,{params:{page:page}}).toPromise()
+                  const data:any = await this.httpService.get(`http://localhost:3004/seller/getcmtseller/${id}`,{params:{page:page,star:star}}).toPromise()
                   return data.data
             } catch (error) {
                   return{

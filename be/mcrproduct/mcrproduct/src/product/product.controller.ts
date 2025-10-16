@@ -175,5 +175,12 @@ export class ProductController {
     async UpdateQuantitys(@Body() body:any) {
         return await this.productservice.UpdateQuantitys(body);
     }
+
+    @Post('searchproductchatai')
+    async SearchprdChatAi(@Body() body:any){
+        console.log(body);
+        
+        return await this.productservice.PrdSearchChatAi(body)
+    }
 }
  

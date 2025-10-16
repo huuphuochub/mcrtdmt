@@ -28,9 +28,7 @@ export class OrderController {
     @UseGuards(JwtAuthGuardFromCookie)
     @Post('createorder')
     async createorder(@Body() body:any, @GetUser() user:any){
-        // console.log('hahahaha');
-        // console.log(body);
-        // console.log(user);
+
         
         
         
@@ -41,8 +39,7 @@ export class OrderController {
     @Get('getorderitem/:ordercode')
     async Getorderitem(@GetUser() user:any,   @Param('ordercode') ordercode: number
             ){
-        // console.log(user);
-        // console.log(user);
+      
         
         
         
@@ -51,7 +48,6 @@ export class OrderController {
 
     @Post('updatestatus')
     async Updatestatusorder(@Body() body:any){
-        // console.log(body);
         
         return await this.orderService.updatestatus(Number(body.ordercode),body.status,Number(body.payable_amount));
     }   
@@ -89,7 +85,6 @@ export class OrderController {
 
         @Post('updateordermail')
     async updateordermail(@Body() body:any) {
-        console.log(body);
         
         return await this.orderService.updateordermail(Number(body.id))
     }
@@ -99,13 +94,10 @@ export class OrderController {
     @UseGuards(JwtAuthGuardFromCookie)
     @Get('hasbought/:product_id')
     async hasBought(@Param('product_id') product_id:number , @GetUser() user:any){
-        // console.log("da gọi has bó");
-        console.log(user);
-        console.log(product_id);
+       
         
         
         const haha = await this.orderService.HasBought(user.id,product_id);
-        console.log(haha);
         return haha
         
     }
@@ -129,7 +121,6 @@ export class OrderController {
 
     @Post('updatestatusorderitem')
     async UpdateStatusOrderItem(@Body() body:any){
-        console.log(body);
         
         return await this.orderService.UpdateStatusOrderItemBySeller(body.order_id,body.seller_id,body.status,body.cancelReason);
     }

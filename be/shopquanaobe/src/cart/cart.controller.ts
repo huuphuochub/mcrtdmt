@@ -24,7 +24,6 @@ export class CartController {
         },
 
     ){
-        // console.log(user);
         
         return await this.cartservice.Addcart(user.id,body)
         
@@ -50,11 +49,9 @@ export class CartController {
         @GetUser() user:any,
         
         @Body() body:any){
-            console.log(body);
             
         return await this.cartservice.Updatecartitem(user.id,body);
         // return await this.cartservice.Deletecartitem()
-        // console.log(body);
         
     }
 
@@ -67,7 +64,6 @@ export class CartController {
             
         return await this.cartservice.Deletecart(user.id);
         // return await this.cartservice.Deletecartitem()
-        // console.log(body);
         
     }
 

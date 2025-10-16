@@ -151,7 +151,6 @@ export class ChatService {
   }
 
   async SendChat(form:any){
-    console.log(form.tag.id);
     
     try {
       

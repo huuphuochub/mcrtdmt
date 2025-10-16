@@ -46,6 +46,21 @@ export default function ChatItem() {
           y: e.clientY - pos.y,
         });
       };
+
+        useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 800) {
+        setPos({ x: -350, y: -550 });
+      } else {
+        setPos({ x: -700, y: -500 });
+      }
+    };
+
+    handleResize(); // chạy 1 lần khi mở
+    window.addEventListener("resize", handleResize);
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
     
       const onMouseMove = (e: React.MouseEvent) => {
         if (!dragging) return;
@@ -290,11 +305,9 @@ const deletetag =()=>{
     const files = Array.from(e.target.files || []);
     if (!files.length) return;
 
-    // Gộp ảnh cũ + ảnh mới nhưng không quá 3
     const newImages = [...images, ...files].slice(0, 3);
     setImages(newImages);
 
-    // Reset input để chọn lại cùng file cũng được
     e.target.value = "";
   };
 
@@ -305,13 +318,14 @@ const deletetag =()=>{
 
         if (!visible) return null;
 
-// const [isOpen, setIsOpen] = React.useState(false);
-    // const [isOpenItem, setIsOpenItem] = React.useState(false);
+
     return(
                     <div 
                         style={{
                         position: "absolute",
-                        left: pos.x,
+                        left: pos.x + 400 > window.innerWidth // nếu popup tràn phải
+                        ? window.innerWidth - 420      // dịch sang trái 1 chút
+                        : pos.x,       
                         top: pos.y,
                         width: 400,
                         border: "1px solid gray",
@@ -341,7 +355,7 @@ const deletetag =()=>{
                                 <Image
                                     width={50}
                                     height={50}
-                                    src='https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg'
+                                    src={selleravatar}
                                     alt="Chat Image"
                                     className="rounded-full"
                                 ></Image>

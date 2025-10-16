@@ -1,7 +1,6 @@
 
 "use client"
 import React, { useEffect, useState } from "react";
-import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import Header from "@/component/header";
 import { useRouter ,useSearchParams} from 'next/navigation';
 
@@ -9,7 +8,7 @@ import FooterPage from "@/component/footer";
 import { Category } from "@/interface/category.interface";
 import { Subcategory } from "@/interface/category.interface";
 import { interfaceProduct } from "@/interface/product.interface";
-import { Search, Star } from "lucide-react";
+import { Funnel, Search, Star, X } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -61,6 +60,8 @@ export default function Categorypage({categoryprop} : propDetailCategoryPage) {
   const [minprice,setMinprice] = useState(0);
   const [maxprice,setMaxprice] = useState(0);
   const [star,setStar] = useState(0);
+    const [filtermobile,setFiltermobile] = useState(false)
+  
 //  hàm tạo slug
 function toSlug(name: string) {
   return name
@@ -189,22 +190,85 @@ const handleNextPage = () => {
   } 
   return (
     <div>
-      {/* Background hiệu ứng */}
-      {/* <div id="Particles">
-        <canvas id="fluid"></canvas>
-        <FluidSimulation />
-      </div> */}
+
 
       <Header />
 
       <div className="mt-[100px] max-w-[1200px] mx-auto px-4 min-h-[700px]">
-         <div className="flex py-2 px-1 relative">
+        <div className="flex justify-between items-center sticky top-0 bg-white border-b z-10">
+          <div className="flex py-2 px-1 relative">
          <p className="hover:cursor-pointer hover:text-red-300">Trang chủ </p>
          &gt;
          <p className="hover:cursor-pointer hover:text-red-300">{cate?.name} </p>
          &gt;
          <p className="hover:cursor-pointer hover:text-red-300">{subcatedetail?.name} </p>
       </div>
+                <div className="block lg:hidden relative">
+                          <Funnel size={20} onClick={() =>setFiltermobile(!filtermobile)}/>
+                          {filtermobile && (
+                      <div className="fixed w-lvw h-[500px] bg-gray-200 z-20 bottom-0 left-0 shadow rounded border p-2">
+                            <div className="border-b ">
+                           <div className="flex justify-between items-center border-b border-gray-300">
+                               <div className="flex items-center gap-2 mb-2 ">
+                                <h3 className="text-xl font-semibold   border-gray-200 ">{cate?.name}</h3>
+                               &gt;
+
+                          <h3 className="text-xl  ">{subcatedetail?.name}</h3>
+                               </div>
+                              <X onClick={() =>setFiltermobile(false)}/>
+                           </div>
+                            <div>
+                          <ul>
+                             {subcates && subcates.map((cate) =>{
+                              const slug = `${toSlug(cate?.name)}-subcat.${cate?.id}?page=1&keyword=&bestselling=0&rating=0&discount=0&newdate=0&minprice=0&maxprice=0`
+                              return(
+                                <Link href={`/${slug}`} key={cate.id}>
+                                  <li  className="hover:cursor-pointer hover:underline relative">{cate.name}</li>
+                                </Link>
+                              )
+                             })}
+                            
+                          </ul>
+                        <div className="space-y-2">
+                          {[5, 4, 3, 2, 1].map((star) => (
+                            <label
+                              key={star}
+                              className="flex items-center gap-2 cursor-pointer p-2 rounded-lg   hover:border-indigo-500 hover:bg-indigo-50 transition"
+                            >
+                              <input
+                                type="radio"
+                                name="rating"
+                                value={star}
+                                className="accent-indigo-600 w-4 h-4"
+                                onChange={(e) => Handlestar(Number(e.target.value))}
+                              />
+                              <span className="flex items-center gap-1 text-gray-700">
+                                {star} <Star className="w-4 h-4 text-yellow-400" />
+                              </span>
+                            </label>
+                          ))}
+        
+                          {/* tất cả */}
+                          <label className="flex items-center gap-2 cursor-pointer p-2 rounded-lg hover:border-indigo-500 hover:bg-indigo-50 transition">
+                            <input
+                              type="radio"
+                              name="rating"
+                              value={0}
+                              className="accent-indigo-600 w-4 h-4"
+                              onChange={(e) => Handlestar(Number(e.target.value))}
+                            />
+                            <span className="text-gray-700">Tất cả</span>
+                          </label>
+                        </div>
+        
+                        </div>
+                          </div>
+                          </div>
+                          )}
+                          
+              </div>
+                 </div>
+         
         {/* Bộ lọc */}
         <div className="bg-white p-6 rounded-xl shadow mb-8">
           <h2 className="text-2xl font-bold mb-4">Tìm kiếm & lọc sản phẩm</h2>
@@ -238,7 +302,7 @@ const handleNextPage = () => {
 
         {/* Gợi ý sản phẩm hoặc kết quả */}
         <div className="mb-12 flex gap-4 ">
-          <div className="max-w-[300px] w-[300px] shadow rounded-xl p-2">
+          <div className="hidden max-w-[300px] w-[300px] shadow rounded-xl p-2 lg:block">
               <div>
                 <div className="flex  gap-2 border-b border-gray-200 pb-2" >
                     <h3 className="text-xl font-semibold ">{cate?.name}</h3>
@@ -295,10 +359,10 @@ const handleNextPage = () => {
          <div className="flex-1">
            <div className="flex gap-2 mb-4">
             
-             <h3 className={`${newproduct ===0 ? 'bg-white' : "bg-gray-200"} text-xl font-semibold py-2 px-4 relative rounded-sm  border-b-2 hover:cursor-pointer hover:bg-gray-100`} onClick={() =>handlenewProduct()}>Sản phẩm mới</h3>
-            <h3 className={`${discount ===0 ? 'bg-white' : "bg-gray-200"} text-xl font-semibold py-2 px-4 relative rounded-sm border-b-2  hover:cursor-pointer hover:bg-gray-100`} onClick={() =>handleDiscount()}>Sản phẩm giảm giá</h3>
+             <h3 className={`${newproduct ===0 ? 'bg-white' : "bg-gray-200"} text-sm lg:text-xl font-semibold py-2 px-4 relative rounded-sm  border-b-2 hover:cursor-pointer hover:bg-gray-100`} onClick={() =>handlenewProduct()}>Sản phẩm mới</h3>
+            <h3 className={`${discount ===0 ? 'bg-white' : "bg-gray-200"} text-sm lg:text-xl font-semibold py-2 px-4 relative rounded-sm border-b-2  hover:cursor-pointer hover:bg-gray-100`} onClick={() =>handleDiscount()}>Sản phẩm giảm giá</h3>
 
-            <h3 className={`${bestselling ===0 ? 'bg-white' : "bg-gray-200"} text-xl font-semibold py-2 px-4 relative rounded-sm border-b-2 hover:cursor-pointer hover:bg-gray-100`} onClick={() => handleBestsell()}>Sản phẩm ban chay </h3>
+            <h3 className={`${bestselling ===0 ? 'bg-white' : "bg-gray-200"} text-sm lg:text-xl font-semibold py-2 px-4 relative rounded-sm border-b-2 hover:cursor-pointer hover:bg-gray-100`} onClick={() => handleBestsell()}>Sản phẩm ban chay </h3>
 
            </div>
 
