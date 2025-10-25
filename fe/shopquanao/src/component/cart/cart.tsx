@@ -76,7 +76,6 @@ export default function Cartheader({ onClose, isOpen }: CartheaderProps) {
           </div>
         ) : (
           <>
-            {/* Header */}
             <div className="sticky top-0 bg-white z-50 p-4 border-b border-gray-200 flex items-center justify-between">
               <h1 className="text-lg font-semibold text-gray-800">Giỏ hàng của bạn</h1>
               <X

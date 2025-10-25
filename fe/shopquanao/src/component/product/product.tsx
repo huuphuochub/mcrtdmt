@@ -807,36 +807,43 @@ const Similarproducts= ({category_id}:SimilarproductsProp) =>{
       </div>
 
       {/* Grid sản phẩm */}
-      <div className="grid py-4 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-        {products.map((pr, index) => (
-          <div
-            key={index}
-            className="rounded-2xl shadow-md hover:shadow-xl transition duration-300 bg-white group cursor-pointer overflow-hidden"
-          >
-            {/* Hình ảnh */}
-            <div className="w-full h-[220px] flex justify-center items-center bg-gray-50">
-              <Image
-                width={300}
-                height={300}
-                src={pr.image}
-                alt="product"
-                className="object-contain max-h-[200px] group-hover:scale-105 transition-transform duration-300"
-              />
-            </div>
-
-            {/* Nội dung */}
-            <div className="p-4 text-center space-y-1">
-              <p className="font-medium text-gray-700 truncate">{pr.name}</p>
-              <p className="text-sm line-through text-gray-400">
-                {pr.price} đ
-              </p>
-              <p className="text-lg text-red-500 font-semibold">
-                {pr.discountprice} đ
-              </p>
-            </div>
-          </div>
-        ))}
+      <div className="grid py-4 grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4">
+  {products.map((pr, index) => (
+    <div
+      key={index}
+      className="group relative flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
+    >
+      {/* Ảnh sản phẩm */}
+      <div className="relative aspect-square bg-gray-50 flex justify-center items-center overflow-hidden">
+        <Image
+          src={
+            pr.image ||
+            "https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg"
+          }
+          alt={pr.name}
+          fill
+          className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+        />
       </div>
+
+      {/* Thông tin sản phẩm */}
+      <div className="flex-1 flex flex-col justify-between text-center p-3">
+        <p className="font-semibold text-gray-800 text-sm sm:text-base line-clamp-2">
+          {pr.name}
+        </p>
+        <div className="mt-1">
+          <p className="text-xs sm:text-sm line-through text-gray-400">
+            {pr.price} đ
+          </p>
+          <p className="text-base sm:text-lg text-red-500 font-bold">
+            {pr.discountprice} đ
+          </p>
+        </div>
+      </div>
+    </div>
+  ))}
+</div>
+
 
       {/* Nút xem thêm */}
       <div className="w-full flex justify-end">

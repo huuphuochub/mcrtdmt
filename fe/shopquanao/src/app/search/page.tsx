@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import Header from "@/component/header";
 import { useSearchParams } from "next/navigation";
 import { searchproduct,FilterPrd } from "@/service/product.service";
 import { interfaceProduct } from "@/interface/product.interface";
@@ -155,7 +154,6 @@ useEffect(() =>{
 
   return (
     <div className="mb-4">
-      <Header />
 
       <div className="mt-[90px] max-w-[1200px] mx-auto px-4">
         {/* Breadcrumb */}

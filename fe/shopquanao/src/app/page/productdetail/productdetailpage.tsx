@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
-import Header from "@/component/header";
 import { useChat } from "@/app/context/chat.context";
 import FooterPage from "@/component/footer";
 import Image from "next/image";
@@ -341,10 +340,7 @@ export default function Productdetailpage({ productprop }: ProductDetailProps) {
     try {
       if (!seller) return;
       const check = await checkRoom(seller.id);
-      // setIschatroom(check.data)
-      // console.log('xem da co phong chưa');
-
-      // console.log(check.data.success);
+      
 
       if (check.data.success) {
         setIschatroom(true);
@@ -577,7 +573,6 @@ export default function Productdetailpage({ productprop }: ProductDetailProps) {
   };
   return (
     <div>
-      <Header />
       <div className="mt-[100px] max-w-[1200px] mx-auto ">
         <div className="flex py-2 px-1 ">
           <p>trang chu</p>

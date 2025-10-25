@@ -47,6 +47,8 @@ export default function ChatItem() {
         });
       };
 
+
+      // hàm chỉnh vị trí chat
         useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 800) {

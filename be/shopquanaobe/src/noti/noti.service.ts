@@ -47,4 +47,44 @@ export class NotiService {
                 }
             }
         }
+
+        async GetNotiUser(id:number){
+            try {
+                const notu= await this.notiRepo.findBy({
+                    user_id:id
+                })
+
+                return{
+                    success:true,
+                    data:notu,
+                    messgae:'ok',
+                }
+            } catch (error) {
+                return{
+                    success:false,
+                    data:null,
+                    message:'loi service',
+                }
+            }
+        }
+
+        async UpdateNoti(id:number){
+            try {
+                const updatenoti= await this.notiRepo.update(
+                    {id:id},
+                    {isRead:true}
+                )
+                return{
+                    success:true,
+                    data:updatenoti,
+                    message:'ok',
+                }
+            } catch (error) {
+                return{
+                    success:false,
+                    data:null,
+                    message:'loi service',
+                }
+            }
+        }
 }

@@ -1,7 +1,6 @@
 
 "use client"
 import React, { useState } from "react";
-import Header from "@/component/header";
 import { X } from "lucide-react";
 // import Footer from "@/component/footer";
 
@@ -74,6 +73,7 @@ export default function SupportPage() {
         
       ]
     },
+    
   ];
 
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -185,7 +185,6 @@ export default function SupportPage() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      <Header />
       <main className="flex-1 mt-[80px] bg-gray-50 py-10 px-4">
         <div className="max-w-5xl mx-auto text-center">
           <h1 className="text-3xl font-bold mb-4">Hỗ trợ khách hàng</h1>
@@ -208,6 +207,15 @@ export default function SupportPage() {
                 <h2 className="text-xl font-semibold">{item.title}</h2>
               </div>
             ))}
+
+            <div
+                // key={item.key}
+                // onClick={() => setSelectedCategory(item.key)}
+                className={`p-6 rounded-2xl shadow cursor-pointer transition bg-white hover:shadow-lg `
+                 }
+              >
+                <h2 className="text-xl font-semibold">Lịch sử hỗ trợ</h2>
+              </div>
           </div>
 
           {/* Form */}

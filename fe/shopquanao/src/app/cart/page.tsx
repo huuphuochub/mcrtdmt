@@ -1,7 +1,6 @@
 "use client"
 
 import React, { use, useEffect } from "react";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import { useCart } from "../context/cartcontext";
 import Image from "next/image";
@@ -55,7 +54,6 @@ export default function Cart(){
    }
 return(
 <div>
-   <Header/>
    {
       loading ?(
          <div>

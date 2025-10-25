@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import { Registrationseller } from "@/service/sellerservice";
 import {getprovince,getDistrict, getWards} from "@/service/getlocation";

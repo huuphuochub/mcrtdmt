@@ -1,9 +1,10 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import Image from "next/image";
+import { useChat } from "@/app/context/chat.context";
+
 import Button from "@/component/ui/button";
 import { GetAllProductBySeller } from "@/service/sellerservice";
 import { SellerInterface } from "@/interface/seller.interface";
@@ -16,6 +17,9 @@ import { Commentsellerinterface } from "@/interface/commentseller.interface";
 import { interfaceuser } from "@/interface/user.interface";
 import toast from "react-hot-toast";
 import { useUser } from "@/app/context/usercontext";
+import { checkRoom, CreateRoomchat } from "@/service/chat.service";
+import { AddFl, CheckFl, UnFl } from "@/service/folower.service";
+import Link from "next/link";
 
 interface cmtseller extends Commentsellerinterface{
   user:interfaceuser;
@@ -37,6 +41,12 @@ export default function Sellerinfor() {
   const [pagecmt,setPagecmt] = useState(1);
   const [cmts,setCmts] = useState<cmtseller[]>([]);
   const [starfill,setStarfill] = useState(0)
+    const [ischatroom, setIschatroom] = useState(false);
+    const [roomId, setRoomId] = useState(0);
+    const [isFl, setIsFl] = useState(false);
+      const { setItemchatcontext, setRoom, setSellerchat } = useChat();
+    
+  
 
   useEffect(() => {
     fetchprd();
@@ -147,6 +157,14 @@ export default function Sellerinfor() {
     }
 
   };
+function toSlug(name: string) {
+  return name
+    .normalize('NFD') // xóa dấu tiếng Việt
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-') // thay khoảng trắng & ký tự đặc biệt thành -
+    .replace(/^-+|-+$/g, '');    // xóa - thừa đầu/cuối
+}
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);
@@ -177,6 +195,80 @@ export default function Sellerinfor() {
       .toString()
       .padStart(2, "0")}/${dates.getFullYear()}`;
   };
+  const handleAddFl = async () => {
+    if(!id) return
+    try {
+      const add = await AddFl(Number(id));
+      // console.log(add);
+
+      setIsFl(true);
+    } catch (error) {}
+  };
+
+  const HanfleFl = async () => {
+    if(!id) return
+    setIsFl(false);
+    const ok = await UnFl(Number(id));
+    // console.log(ok);
+  };
+
+    const HandleOpenChat = () => {
+    // if(!seller) return;
+    console.log("mo chat");
+
+    if (!user) return;
+    setItemchatcontext(true);
+    setRoom(roomId);
+    // setSellerchat(seller.id);
+  };
+
+
+    const Createchat = async () => {
+    // console.log("toa phong");
+if(!id) return;
+    if (!user) return;
+    const room = await CreateRoomchat(Number(id));
+    console.log(room);
+    if (room.data.success) {
+      setRoom(room.data.data.id);
+      setItemchatcontext(true);
+    }
+
+    // setItemchat(true);
+    //  setRoom(roomId);
+    // setSellerchat(seller_id);
+  };
+const CheckRoom = async () => {
+    try {
+      if (!id) return;
+      const check = await checkRoom(Number(id));
+      
+
+      if (check.data.success) {
+        setIschatroom(true);
+        setRoomId(check.data.data.id);
+      }
+      const checkfl = await CheckFl(Number(id));
+      console.log(checkfl);
+
+      if (checkfl.data.success) {
+        setIsFl(true);
+      } else {
+        setIsFl(false);
+      }
+    } catch (error) {
+      setloading(false);
+    } finally {
+      setloading(false);
+    }
+  };
+  useEffect(() => {
+    if (id) {
+      CheckRoom();
+    }
+  }, [id]);
+
+
   // useEffect(() =>{
   //     console.log(seller);
 
@@ -217,7 +309,6 @@ export default function Sellerinfor() {
 
   return (
     <div>
-      <Header />
       <div className="mt-[100px] max-w-[1200px] mx-auto ">
         <div className="w-full mx-auto bg-white rounded-xl shadow p-6">
           {/* Banner */}
@@ -272,8 +363,21 @@ export default function Sellerinfor() {
 
           {/* Actions */}
           <div className="mt-6 flex gap-4 justify-center">
-            <Button className="">💬 Chat ngay</Button>
-            <Button className="">➕ Theo dõi</Button>
+            {ischatroom ? (
+                <Button className="" onClick={HandleOpenChat}>💬 Chat ngay</Button>
+
+            ) : (
+                <Button className="" onClick={() => Createchat()}>💬 Chat ngay</Button>
+
+            )}
+
+            {isFl ? (
+            <Button variant="secondary" className="" onClick={() => HanfleFl()} >Đang theo dõi</Button>
+
+            ) : (
+            <Button className="" onClick={() => handleAddFl()}>➕ Theo dõi</Button>
+
+            )}
           </div>
 
           {/* Tabs */}
@@ -318,34 +422,46 @@ export default function Sellerinfor() {
                 <h2 className="text-xl font-semibold text-gray-800 mb-4">
                   🛍️ Sản phẩm của shop
                 </h2>
-                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+                <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 py-4">
                   {listprd.map((product) => (
+                    <Link href={`/${toSlug(product.name)}-i.${product.idSeller}.${product.id}`}  key={product.id}>
                     <div
-                      key={product.id}
-                      className="border rounded-xl shadow-sm hover:shadow-md transition bg-white relative hover:cursor-pointer"
+                     
+                      className="group relative flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden cursor-pointer"
                     >
-                      <Image
-                        src={product.image}
-                        width={100}
-                        height={100}
-                        alt={product.name}
-                        className="w-full h-40 object-cover rounded-t-xl"
-                      ></Image>
-                      <div className="p-3 space-y-1">
-                        <h3 className="text-sm font-medium text-gray-800 line-clamp-2">
+                      {/* Ảnh sản phẩm */}
+                      <div className="relative aspect-square bg-gray-50 flex justify-center items-center overflow-hidden">
+                        <Image
+                          src={
+                            product.image ||
+                            "https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg"
+                          }
+                          alt={product.name}
+                          fill
+                          className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+                        />
+                      </div>
+
+                      {/* Nội dung */}
+                      <div className="flex-1 flex flex-col justify-between text-center p-3">
+                        <h3 className="text-sm sm:text-base font-medium text-gray-800 line-clamp-2">
                           {product.name}
                         </h3>
-                        <p className="text-red-600 font-semibold">
-                          {product.price.toLocaleString()}đ
+
+                        <p className="text-base sm:text-lg text-red-500 font-bold mt-1">
+                          {product.price.toLocaleString()} đ
                         </p>
-                        <div className="flex items-center text-xs text-gray-500 gap-2">
+
+                        <div className="flex justify-center items-center text-xs text-gray-500 gap-2 mt-1">
                           <span>⭐ {product.averageRating}</span>
                           <span>• Đã bán {product.totalsold}</span>
                         </div>
                       </div>
                     </div>
+                    </Link>
                   ))}
                 </div>
+
                 <div className="w-full flex justify-end mt-4">
                   <Button onClick={Clickxemthem}>xem thêm</Button>
                 </div>

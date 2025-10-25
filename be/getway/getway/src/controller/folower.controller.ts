@@ -18,7 +18,6 @@ export class FolowerController {
    @UseGuards(JwtAuthGuardFromCookie)
     @Post('addfl')
     async AddFoloWer(@Body() body:any,@GetUser() user:any){
-        console.log(body);
         
         const bodydata = {
             seller_id:body.seller_id,

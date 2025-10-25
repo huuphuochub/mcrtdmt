@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import { Search } from "lucide-react";
 import Image from "next/image";
@@ -54,7 +53,6 @@ export default function Shop() {
     <div>
       
 
-      <Header />
 
       <div className="mt-[80px] max-w-[1200px] mx-auto px-4 min-h-[800px]">
         {/* PHẦN TÌM KIẾM */}
@@ -101,7 +99,6 @@ export default function Shop() {
               )}
             {sellers.length > 0 && sellers.map((s) => (
               <div className="w-full md:w-80 border rounded-xl shadow-md p-4 bg-white" key={s.id}>
-                    {/* Header */}
                     <div className="flex items-center gap-4">
                         <Image
                         width={64}
@@ -144,7 +141,6 @@ export default function Shop() {
                         key={s}
                         className="w-full border rounded-xl shadow-md p-4 bg-white animate-pulse flex flex-col justify-between"
                       >
-                        {/* Header Skeleton */}
                         <div className="flex items-center gap-4">
                           <div className="w-16 h-16 bg-gray-300 rounded-full" />
                           <div className="flex-1 space-y-2 py-1">

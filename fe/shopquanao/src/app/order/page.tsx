@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import { getallorder } from "@/service/order.service";
 import Link from "next/link";
@@ -61,7 +60,6 @@ const [month, setMonth] = useState<string | undefined>(undefined);
 
   return (
 <div>
-  <Header />
 
   <div className="mt-[100px] max-w-[1200px] mx-auto px-4 min-h-[600px]">
     <h1 className="text-2xl font-bold mb-6">Đơn hàng của bạn</h1>

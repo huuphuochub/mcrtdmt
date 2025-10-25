@@ -1,7 +1,6 @@
 
 "use client"
 import React, { useEffect, useState } from "react";
-import Header from "@/component/header";
 import { useRouter ,useSearchParams} from 'next/navigation';
 
 import FooterPage from "@/component/footer";
@@ -192,7 +191,6 @@ const handleNextPage = () => {
     <div>
 
 
-      <Header />
 
       <div className="mt-[100px] max-w-[1200px] mx-auto px-4 min-h-[700px]">
         <div className="flex justify-between items-center sticky top-0 bg-white border-b z-10">
@@ -366,42 +364,40 @@ const handleNextPage = () => {
 
            </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            {productss && productss.map((prd) =>{
-              const slug = `${toSlug(prd.name)}-i.${prd.idSeller}.${prd.id}`
-              return(
-                <Link href={`/${slug}`} key={prd.id}>
-                  <div
-                  className="bg-white p-4 rounded-xl relative shadow hover:shadow-lg transition cursor-pointer"
-                >
-
-                  
-                  <div className="flex justify-between">
-                      <div>
-                          <h4 className="font-semibold text-lg mb-1">
-                          {prd.name}
-                        </h4>
-                        
-                        <p className="text-sm text-gray-600">{prd.price.toLocaleString()} đ</p>
-                      </div>
-                        <div className="w-24 h-24 flex items-center justify-center bg-gray-50 rounded-lg overflow-hidden">
-                        <Image
-                          src={prd?.image || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg'}
-                          alt={prd.name}
-                          width={100}
-                          height={100}
-                          className="object-contain w-full h-full"
-                        />
-                      </div>
-
-                  </div>
-                </div>
-                
-                </Link>
-              )
-            })}
-            
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+  {productss?.map((prd) => {
+    const slug = `${toSlug(prd.name)}-i.${prd.idSeller}.${prd.id}`;
+    return (
+      <Link href={`/${slug}`} key={prd.id}>
+        <div className="group relative flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+          
+          {/* Ảnh sản phẩm */}
+          <div className="relative aspect-square bg-gray-50 flex justify-center items-center overflow-hidden">
+            <Image
+              src={
+                prd?.image ||
+                "https://res.cloudinary.com/dnjakwi6l/image/upload/v1749022337/default-product_dpmryd.jpg"
+              }
+              alt={prd.name}
+              fill
+              className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+            />
           </div>
+
+          {/* Thông tin sản phẩm */}
+          <div className="flex-1 flex flex-col justify-between text-center p-3">
+            <h4 className="font-semibold text-gray-800 text-sm sm:text-base line-clamp-2">
+              {prd.name}
+            </h4>
+            <p className="text-red-500 font-bold text-base sm:text-lg mt-1">
+              {prd.price.toLocaleString()} đ
+            </p>
+          </div>
+        </div>
+      </Link>
+    );
+  })}
+</div>
          </div>
         </div>
       </div>

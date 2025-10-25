@@ -1,6 +1,5 @@
 "use client"
 import React ,{useState} from "react";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import Button from "@/component/ui/button";
 import { Registrationuser } from "@/service/userservice";

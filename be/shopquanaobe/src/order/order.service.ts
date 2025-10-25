@@ -5,7 +5,7 @@ import { Order } from './order.entity';
 import { Between, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderItem } from './orderitem.entity';
-
+import { Notification } from 'src/noti/noti.entity';
 
 @Injectable()
 export class OrderService {
@@ -16,6 +16,9 @@ export class OrderService {
     private orderRepo:Repository<Order>,
     @InjectRepository(OrderItem)
     private orderItemRepo:Repository<OrderItem>,
+    @InjectRepository(Notification)
+    private notiRepo:Repository<Notification>,
+
   ) {
     const payos = new PayOS({
   clientId: process.env.PAYOS_CLIENT_ID,
@@ -461,11 +464,50 @@ async UpdateStatusOrderItemBySeller(order_id:number,seller_id:number,status:numb
     },
     {status:status ,cancel_reason:cancelReason}
   )
+const order = await this.orderRepo.findOne({where:{id:order_id}});
+      if(!order){
+        return{
+          success:false,
+          message:'Đơn hàng không tồn tại',
+          data:null
+        }
+      }
+    if(status === 2){
+
+      
+    // tao thong bao
+    const noti = this.notiRepo.create({
+      user_id:order.user_id,
+      title:'Đơn hàng mới',
+      content:'Đơn hàng của bạn đã được xác nhận',
+      order_id:order_id,
+    });
+        await this.notiRepo.save(noti);
+
+  }else if(status === 3){
+    // tao thong bao
+    const noti = this.notiRepo.create({ 
+      user_id:order.user_id,
+      title:'Đơn hàng hoàn thành',
+      content:'Đơn hàng của bạn đã hoàn thành',
+      order_id:order_id,
+    });
+        await this.notiRepo.save(noti);
+  }else if(status === 4){
+    // tao thong bao
+    const noti = this.notiRepo.create({ 
+      user_id:order.user_id,
+      title:'Đơn hàng đã bị hủy',
+      content:'Đơn hàng của bạn đã bị hủy',
+      order_id:order_id,
+    });
+        await this.notiRepo.save(noti);
+  }
 
   return{
     success:true,
     message:'ok',
-    data:up
+    data:up,
   }
   } catch (error) {
     return{

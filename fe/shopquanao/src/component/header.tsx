@@ -23,6 +23,7 @@ import {
   ChevronDown,
 } from "lucide-react";
 import { AddKeywordSearch } from "@/service/product.service";
+import NotificationHeader from "./notification/notioficationheader";
 // import React, { useRef } from "react";
 interface Carts {
   product_id: number;
@@ -101,9 +102,13 @@ export default function Header() {
       const currentScrollY = window.scrollY;
       if (currentScrollY > lastScrollY && currentScrollY > 50) {
         // cuộn xuống → ẩn header
+        // console.log(false);
+        
         setShow(false);
       } else {
         // cuộn lên → hiện header
+        // console.log(true);
+        
         setShow(true);
       }
       setLastScrollY(currentScrollY);
@@ -422,49 +427,7 @@ export default function Header() {
               <Heart className="size-7 hover:cursor-pointer" />
             </Link>
           </div>
-          <div className="relative">
-            <Bell
-              className="size-7 hover:cursor-pointer"
-              onClick={() => OpenNoti()}
-            />
-            {isOpenNoti && (
-              <div className="absolute right-0 mt-2 w-[300px] bg-white border border-gray-200 rounded-xl shadow-lg  z-10">
-                <div className="">
-                  <div className="p-2 border-b flex items-center justify-between">
-                    <p className="font-semibold text-lg">Thông báo</p>
-                    <X
-                      className="cursor-pointer hover:text-red-500"
-                      onClick={() => setIsOpenNoti(false)}
-                    />
-                  </div>
-                  <div className=" h-[400px] overflow-y-auto hide-scrollbar">
-                    <div className="border-b p-2 relative hover:cursor-pointer hover:bg-gray-100">
-                      <div>
-                        <p className="p-0 m-0 text-[17px]">
-                          Đơn hàng 12345678 của bạn đang trên đường vận chuyển
-                        </p>
-                        <span className="text-sm text-gray-500 p-0 m-0">
-                          <p>10 phút trước</p>
-                        </span>
-                      </div>
-                      <div className="w-[10px] h-[10px] bg-red-500 rounded-2xl absolute bottom-[15px] right-2"></div>
-                    </div>
-                    <div className="border-b p-2 relative">
-                      <div>
-                        <p className="p-0 m-0 text-[17px]">
-                          Đơn hàng 12345678 của bạn đang trên đường vận chuyển
-                        </p>
-                        <span className="text-sm text-gray-500 p-0 m-0">
-                          <p>10 phút trước</p>
-                        </span>
-                      </div>
-                      <div className="w-[10px] h-[10px] bg-red-500 rounded-2xl absolute bottom-[15px] right-2"></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </div>
+          <NotificationHeader isOpenNoti={isOpenNoti} setIsOpenNoti={setIsOpenNoti} OpenNoti={OpenNoti}/>
           <div>
             {/* 
    <User className="size-7 hover:cursor-pointer"/>
@@ -540,7 +503,9 @@ export default function Header() {
                             d="M12 4v16m8-8H4"
                           />
                         </svg>
-                        <span className="text-[15px]">Cài đặt</span>
+                        <span className="text-[15px]">
+                          <Link href="/page/settinguser">Cài đặt</Link>
+                        </span>
                       </div>
                       <div className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 cursor-pointer">
                         <svg

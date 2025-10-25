@@ -36,7 +36,6 @@ export class GeminiController {
 
 // Khách hỏi: ${body.prompt}
 // `;
-    // console.log('Đã nhận prompt:', prompts);
     const response = await this.geminiService.detectIntent(body.prompt);
     switch (response.intent) {
   case 'product_query':
@@ -52,7 +51,8 @@ export class GeminiController {
     }).toPromise();
 
     const ok = await this.geminiService.askGemini(body.prompt,products.data.data)
-            console.log(products.data);
+    console.log(ok.data);
+    
 
         return(ok);
         

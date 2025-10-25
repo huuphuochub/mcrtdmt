@@ -46,11 +46,11 @@ Hãy phân tích và trả lời theo hướng dẫn:
 
 ⚠️ Quy tắc:
 - Giá hiển thị dạng số nguyên (ví dụ 89000).
-- Không thêm text ngoài JSON, chỉ trả về đúng JSON hợp lệ.
+- Hãy trả về JSON **thuần túy** đúng cấu trúc sau, không thêm ký tự Markdown (\`\`\`json hoặc \`\`\`):
 `;
 
   const result = await model.generateContent(fullPrompt);
-  const text = result.response.text();
+  const text = result.response.text(); 
 
   try {
     return JSON.parse(text); // parse về object luôn
@@ -145,7 +145,7 @@ Hãy phân tích và trả lời theo hướng dẫn:
   const result = await model.generateContent(query);
   const text = result.response.text().trim();
 
-  console.log('AI raw:', text);
+console.log(text);
 
   try {
     const data = JSON.parse(text);

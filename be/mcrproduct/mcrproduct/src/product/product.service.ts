@@ -305,7 +305,7 @@ export class ProductService {
       try {
         const [products,total] = await prds
         .skip(0)
-        .take(5)
+        .take(20)
         .getManyAndCount();
 
         return{

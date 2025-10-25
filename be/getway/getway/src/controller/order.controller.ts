@@ -40,10 +40,8 @@ const sellerIds = Object.keys(grouped).map(id => parseInt(id));
 // lấy thông tin chi tiết các seller từ id_user
 const sellers:any = await this.httpService.post('http://localhost:3004/seller/inforseller', { sellerIds }).toPromise();
 
-console.log(sellers);
 
 // gom product và seller thành các mảng dựa theo id_seller
-console.log(bodys);
 
 const results  = sellers.data.map(seller =>{
   return{
@@ -51,7 +49,6 @@ const results  = sellers.data.map(seller =>{
     product:bodys.product.filter(p => p.id_seller === seller.id)
   }
 })
-console.log(results);
 
 //  lấy token ở file
     const tokenfile =await this.ViettelpostService.getToken();
@@ -68,14 +65,12 @@ const orderforviettel = results.map(seller => {
   const listproduct = seller.product.map(p => (
     
     {
-    // console.log();
     
     PRODUCT_NAME: p.name,
     PRODUCT_PRICE: p.price,
     PRODUCT_WEIGHT: p.weight,
     PRODUCT_QUANTITY: p.quantity
   })
-// console.log(p.weigth);
 
 );
 
@@ -85,8 +80,7 @@ const orderforviettel = results.map(seller => {
     (sum:any, p:any) => sum + (Number(p.weight) * Number(p.quantity)), 
     0
   );
-  console.log('totalweithg');
-  console.log(totalWeight);
+
   
   
 
@@ -710,7 +704,6 @@ const orderforviettel = results.map(seller => {
      @UseGuards(JwtSellerAuthGuardFromCookie)
   @Post('doashboardtopproductsell')
   async DoashboardTopproductsell(@GetSeller() seller:any,@Body() body:any){
-    console.log(body);
     
     if(!seller){
       return{

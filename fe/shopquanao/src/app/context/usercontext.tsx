@@ -32,6 +32,7 @@ interface UserContextType {
   setnote: (note:string) =>void
   note:string | null;
   seller_id:number;
+  loading:boolean;
 }
 
 const Usercontext = createContext<UserContextType | undefined>(undefined); 
@@ -41,12 +42,15 @@ export const UserProvider =({children} : { children: React.ReactNode}) =>{
         const [note,setNote] = useState<string | null>(null);
         const [seller,setSeller] = useState(false);
         const [seller_id,setSeller_id] = useState(0);
+        const [loading,setLoading] = useState(true);
 
 
 
         useEffect(() =>{
             const fetchUser = async () =>{
-                const userData = await Getuserbyid();
+                try {
+                    setLoading(true);
+                    const userData = await Getuserbyid();
                 console.log(userData);
                 
                 const seller = await getseller();
@@ -60,6 +64,11 @@ export const UserProvider =({children} : { children: React.ReactNode}) =>{
                 // console.log(userData.data);
                 
                 setUser(userData.data.data);
+                } catch (error) {
+                    setLoading(false);
+                }finally{
+                    setLoading(false);
+                }
             }
             
             if(!user){
@@ -76,7 +85,7 @@ export const UserProvider =({children} : { children: React.ReactNode}) =>{
                 setNote(note)
         }
         return(
-            <Usercontext.Provider value = {{ user, setUser,Updateuser,setnote ,note,seller,seller_id}}>
+            <Usercontext.Provider value = {{ user, setUser,Updateuser,setnote ,note,seller,seller_id,loading}}>
                 {children}
             </Usercontext.Provider>
         )

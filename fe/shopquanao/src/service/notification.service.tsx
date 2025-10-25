@@ -14,4 +14,28 @@ const AddNotufication = async(body:any) =>{
     }
 }
 
-export {AddNotufication}
+const getNoti = async()=>{
+    try {
+        const data = await axiosClient.get('noti/getnoti');
+        return data
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            message:'loi fe'
+        }
+    }
+}
+const updateRead = async(id:number) =>{
+     try {
+        const data = await axiosClient.post(`noti/updatenoti/${id}`);
+        return data
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            message:'loi fe'
+        }
+    }
+}
+export {AddNotufication,getNoti,updateRead}

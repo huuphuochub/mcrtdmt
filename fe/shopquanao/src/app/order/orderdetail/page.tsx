@@ -1,6 +1,5 @@
 "use client"
 import React, { useEffect, useState } from "react";
-import Header from "@/component/header";
 import { Getorderitembyid } from "@/service/order.service";
 import { useSearchParams } from "next/navigation";
 import { Getdetailallcart } from "@/service/cartservice";
@@ -193,8 +192,7 @@ function groupBySeller(
 
     return (
         <div className="min-h-screen bg-gray-50">
-            {/* Header */}
-            <Header />
+
 
             {/* Main content */}
             <div className="mt-[100px] max-w-[1200px] mx-auto p-4">
@@ -398,7 +396,6 @@ function groupBySeller(
                                 {/* Bảng sản phẩm */}
                                 <div className="overflow-x-auto mt-4 rounded-lg shadow">
                                   <table className="min-w-full border border-gray-200 text-sm bg-white">
-                                    {/* Header */}
                                     <thead className="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
                                       <tr>
                                         <th className="px-4 py-3 text-left">Tên sản phẩm</th>

@@ -50,6 +50,8 @@ useEffect(() => {
     bottomRef.current.scrollIntoView({ behavior: "smooth" });
   }
 }, [datachat]);
+
+// ham chỉnh vị trí chat
  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 800) {

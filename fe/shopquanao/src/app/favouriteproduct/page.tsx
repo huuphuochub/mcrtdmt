@@ -1,7 +1,6 @@
 "use client"
 
 import React, { useEffect, useState } from "react";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import { Heart } from "lucide-react";
 import Image from "next/image";
@@ -83,12 +82,11 @@ export default function Favouriteproduct(){
 
   return(
     <div>
-        <Header/>
             <div className="mt-[100px] min-h-[600px] bg-gray-50">
-            <div className="px-6 py-10 max-w-[1200px] mx-auto relative">
+            <div className="px-6 py-10 max-w-[1200px] mx-auto relative ">
                 {/* Tiêu đề */}
                 <div className="w-full text-center mb-10">
-                <h1 className="text-3xl font-bold text-gray-800">Dành cho bạn</h1>
+                <h1 className="text-3xl font-bold text-gray-800">Sản phẩm yêu thích</h1>
                 <p className="text-gray-500 mt-2">Sản phẩm yêu thích của bạn</p>
                 </div>
 
@@ -104,52 +102,62 @@ export default function Favouriteproduct(){
                             </div>
                     </div>
                 ) : (
-                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                        { products && products.map((item, index) => {
-                            const slug = `${toSlug(item.product.name)}-i.${item.product.idSeller}.${item.product.id}`;
-                     const avg = item.product.ratingCount > 0 ? item.product.ratingSum / item.product.ratingCount : 0;
-                            return(
-                            <Link href={`/${slug}`} key={index}>
-                        <div
-                            
-                            className="relative rounded-2xl bg-white shadow-md hover:shadow-xl transition duration-300 p-4 hover:cursor-pointer"
-                            >
-                            {/* Nút like */}
-                            <Heart className={`absolute right-3 top-3 hover:cursor-pointer text-red-500 ${
-                                checked.includes(item.product.id) ? " fill-red-500" : ""
-                            }`}
-                            
-                                onClick={() =>
-                                    checked.includes(item.product.id)
-                                    ? handleDeleteFv(item.product.id)
-                                    : HandleAddFavourite(item.product.id)
-                                }                 
-                                
-                                
-                            />
+                    <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+  {products?.map((item, index) => {
+    const slug = `${toSlug(item.product.name)}-i.${item.product.idSeller}.${item.product.id}`;
+    const avg =
+      item.product.ratingCount > 0
+        ? item.product.ratingSum / item.product.ratingCount
+        : 0;
 
-                            {/* Ảnh sản phẩm */}
-                            <div className="w-full h-[220px] flex justify-center items-center">
-                                <Image
-                                width={300}
-                                height={300}
-                                src={item.product.image || ''}
-                                alt="product"
-                                className="object-contain max-h-[200px] max-w-[200px] rounded-lg"
-                                />
-                            </div>
+    return (
+      <Link href={`/${slug}`} key={index}>
+        <div className="group relative flex flex-col bg-white rounded-2xl shadow-sm hover:shadow-lg transition-all duration-300 overflow-hidden">
+          
+          {/* Nút like */}
+          <Heart
+            className={`absolute right-3 top-3 z-10 text-red-500 transition-transform duration-200 hover:scale-110 ${
+              checked.includes(item.product.id) ? "fill-red-500" : ""
+            }`}
+            onClick={(e) => {
+              e.preventDefault(); // ngăn reload khi click
+              checked.includes(item.product.id)
+                ? handleDeleteFv(item.product.id)
+                : HandleAddFavourite(item.product.id);
+            }}
+          />
 
-                            {/* Thông tin sản phẩm */}
-                            <div className="mt-4 text-center space-y-2">
-                                <p className="font-semibold text-gray-800">{item?.product.name}</p>
-                                <p className="text-sm line-through text-gray-400">{item.product.price} đ</p>
-                                <p className="text-lg text-red-500 font-bold">{item.product.discountprice} đ</p>
-                            </div>
-                            </div>
-                            
-                            </Link>
-           ) }       )}
-                </div>
+          {/* Ảnh sản phẩm */}
+          <div className="relative aspect-square bg-gray-50 flex justify-center items-center overflow-hidden">
+            <Image
+              src={item.product.image || ""}
+              alt={item.product.name}
+              fill
+              className="object-contain p-4 transition-transform duration-300 group-hover:scale-105"
+            />
+          </div>
+
+          {/* Thông tin sản phẩm */}
+          <div className="flex-1 flex flex-col justify-between text-center p-3">
+            <p className="font-semibold text-gray-800 text-sm line-clamp-2">
+              {item.product.name}
+            </p>
+            <div className="mt-1">
+              <p className="text-xs sm:text-sm line-through text-gray-400">
+                {item.product.price} đ
+              </p>
+              <p className="text-base sm:text-lg text-red-500 font-bold">
+                {item.product.discountprice} đ
+              </p>
+            </div>
+          </div>
+        </div>
+      </Link>
+    );
+  })}
+</div>
+
+
                 )}
                
             </div>

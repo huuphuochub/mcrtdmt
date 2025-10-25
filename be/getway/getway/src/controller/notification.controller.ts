@@ -1,7 +1,9 @@
 import { HttpService } from "@nestjs/axios";
-import { Body, Controller, Get, Post, UseGuards } from "@nestjs/common";
+import { Body, Controller, Get, Param, Post, UseGuards } from "@nestjs/common";
+import { JwtAuthGuardFromCookie } from "src/auth/jwt-auth.guard";
 import { JwtSellerAuthGuardFromCookie } from "src/auth/seller-jwt.guard";
 import { GetSeller } from "src/common/decorators/get-seller.decorator";
+import { GetUser } from "src/common/decorators/get-user.decorator";
 
 
 @Controller('noti')
@@ -17,7 +19,6 @@ export class Notification{
         // khi ng dung mua hang thi thong bao seller
         @Post('addnoti')
         async AddNotiSeller(@Body() body:any){
-            console.log(body);
             
             try {
                 const add:any = await this.httpService.post('http://localhost:3004/noti/addnoti',body).toPromise();
@@ -53,6 +54,46 @@ export class Notification{
                     data:null,
                 }
             }
+        }
+
+        @UseGuards(JwtAuthGuardFromCookie)
+        @Get('getnoti')
+        async GetnotiUser(@GetUser() user:any){
+            if(!user){
+                return{
+                    success:false,
+                    data:null,
+                    message:'ban k phau user',
+                }
+            }
+
+            try {
+                const data:any = await this.httpService.get(`http://localhost:3004/noti/notiuser/${user.id}`).toPromise()
+
+                return data.data
+            } catch (error) {
+                return{
+                    success:false,
+                    data:null,
+                    message:error,
+                }
+            }
+        }
+
+        @Post('updatenoti/:id')
+        async UpdateNotiUser(@Param('id') id:number){
+            try {
+                const data:any = await this.httpService.post(`http://localhost:3004/noti/updatenoti/${id}`).toPromise()
+
+                return data.data
+            } catch (error) {
+                return{
+                    success:false,
+                    data:null,
+                    message:error,
+                }
+            }
+
         }
         
 

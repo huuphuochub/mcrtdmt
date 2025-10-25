@@ -1,5 +1,4 @@
 import React from "react";
-import Header from "@/component/header";
 import FooterPage from "@/component/footer";
 import Image from "next/image";
 import Button from "@/component/ui/button";
@@ -7,7 +6,6 @@ import { Star,EllipsisVertical } from "lucide-react";
 export default function Foollowseller(){
     return(
         <div>
-            <Header/>
             <div className="mt-[100px] max-w-[1200px] mx-auto h-lvh">
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             {[1, 2, 3, 4, 5, 6].map((item) => (

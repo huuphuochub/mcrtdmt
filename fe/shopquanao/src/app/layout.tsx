@@ -9,6 +9,7 @@ import { Toaster } from "react-hot-toast";
 import QueryProvider from "./QueryProvider";
 import Chat from "@/component/chat/chat";
 import { ChatProvider } from "./context/chat.context";
+import ClientLayout from "./ClientLayout";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -48,9 +49,8 @@ export default function RootLayout({
             <canvas id="fluid"></canvas>
               <FluidSimulation/>  
           </div>
-      </div>
-        {children}
-        {/* <Chat /> */}
+        </div>
+        <ClientLayout>{children}</ClientLayout>
         <Toaster position="top-right" reverseOrder={false} />
         </ChatProvider>
         </CartProvider>

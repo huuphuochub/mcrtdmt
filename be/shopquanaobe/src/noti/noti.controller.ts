@@ -20,4 +20,13 @@ export class NotiController {
     async GetNotiSeller(@Param('id') id:number){
         return await this.notiService.GetNotiSeller(id);
     }
+
+     @Get('notiuser/:id')
+    async GetNotiUser(@Param('id') id:number){
+        return await this.notiService.GetNotiUser(id);
+    }
+    @Post('updatenoti/:id')
+    async UpdateNoti(@Param('id') id:number){
+        return await this.notiService.UpdateNoti(id);
+    }
 }
