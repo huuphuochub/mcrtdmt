@@ -41,12 +41,17 @@ import { AdminController } from './admin/admin.controller';
 import { AdminService } from './admin/admin.service';
 import { AdminModule } from './admin/admin.module';
 import { Admin } from './admin/admin.entity';
+import { CacheModule } from '@nestjs/cache-manager';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+    }),
+     CacheModule.register({
+      ttl: 180, // mặc định 300 giây = 5 phút
+      max: 100, // tối đa 100 items
     }),
     TypeOrmModule.forRoot({
       type:'postgres',

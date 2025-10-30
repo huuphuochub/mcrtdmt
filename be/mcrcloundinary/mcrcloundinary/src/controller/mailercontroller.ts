@@ -15,6 +15,14 @@ export class MailerController {
     return await this.mailservice.sendConfirmationEmail(body);
 
   }
+
+  @MessagePattern('send_otp_email')
+  async handleSendOtpEmail(@Body() body:any) {
+    console.log(body);
+    
+    return await this.mailservice.sendOtpEmail(body.email, body.code);
+  }
+
   
 
   // Handler cho upload nhiều ảnh

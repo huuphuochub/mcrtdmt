@@ -54,7 +54,6 @@ export default function Registration(){
     }
     return(
         <div>
-            <Header/>
 
             <div className="mt-[100px] max-w-[1200px] mx-auto">
                 <form action="" onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 rounded-xl shadow space-y-6">

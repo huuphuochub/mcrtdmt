@@ -136,4 +136,36 @@ logout(@Res({ passthrough: true }) res: Response) {
     
   }
 
+  @Post('settinginfor')
+  async SettingInfor(@Body() body:any){
+    console.log(body);
+    
+    return await this.usersService.SettingInfor(body)
+  }
+
+  @Post('resetpassword')
+  async ResetPassword(@Body() body:{password:string,newpassword:string,id:number}){
+    return await this.usersService.ResetPassword(body.id,body.password,body.newpassword)
+  } 
+
+  @Post('checkmail')
+  async CheckMail(@Res({ passthrough: true }) res: Response,@Body() body:any){
+    console.log(body.email);
+       
+    return await this.usersService.CheckMail(body.email)
+    // console.log(result.success);
+    
+  }
+
+  @Post('verifyotp')
+  async VerifyMail(@Body() body:{email:string,code:string}){
+    console.log(body);
+    return await this.usersService.VerifyMail(body.email,body.code)
+  }
+
+  @Post('resetpassviaemail')
+  async ResetPassViaEmail(@Body() body:{email:string,newpassword:string}){
+    return await this.usersService.ResetPassViaEmail(body.email,body.newpassword)
+  }
+
 }

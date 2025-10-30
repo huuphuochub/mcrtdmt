@@ -69,9 +69,10 @@ const Getuserbyid = async() =>{
     };
     }
 }
-const updateuser=async(data:inforuser)=>{
+
+const updateuser=async(data:FormData)=>{
     try {
-        const result = await axiosClient.post(`/users/updateinfor`,data);
+        const result = await axiosClient.post(`/users/settinginfor`,data);
         return result;
     } catch (error) {
         //  console.error("loi lay user");
@@ -98,5 +99,63 @@ const Logout = async() =>{
             data:null
     };
     }
+
+    
 }
-export {Registrationuser, Postloginuser,Getuserbyid,Logout,updateuser};
+
+    const resetPassword=async(body:{password:string,newpassword:string})=>{
+        try {
+            const result = await axiosClient.post(`/users/resetpassword`,body);
+            return result;  
+        } catch (error) {
+            return {
+           success: false,  
+            code:  'UNKNOWN_ERROR',
+            message: error,
+            data:null
+    };
+        }
+    }
+    const CheckMail=async(email:string)=>{
+        try {
+            const result = await axiosClient.post(`/users/checkmail`,  { email });
+            return result;
+        } catch (error) {
+            return {
+                success: false,
+                code: 'UNKNOWN_ERROR',
+                message: error,
+                data: null
+            };
+        }
+    }
+    const CheckVerifyCode=async(code:string)=>{
+        try {
+            const result = await axiosClient.post(`/users/verifyotp`,  { code });
+
+            return result;
+        }
+            catch (error) {
+            return {
+                success: false,
+                code: 'UNKNOWN_ERROR',
+                message: error,
+                data: null
+            };
+        }
+    }
+    const resetPasswordemail = async(email:string,newpassword:string)=>{
+        try {
+            const result = await axiosClient.post(`/users/resetpasswordemail`,{email,newpassword}); 
+            return result;
+        } catch (error) {
+            return {
+           success: false,  
+            code:  'UNKNOWN_ERROR', 
+            message: error,
+            data:null
+    };
+        }
+    }
+
+export {Registrationuser,resetPasswordemail,resetPassword,CheckMail,CheckVerifyCode, Postloginuser,Getuserbyid,Logout,updateuser};

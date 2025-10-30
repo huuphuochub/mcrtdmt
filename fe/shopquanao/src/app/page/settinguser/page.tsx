@@ -6,8 +6,11 @@ import Link from "next/link";
 import { Camera } from "lucide-react";
 // import { useUser } from "@/app/context/usercontext";
 import { interfaceuser } from "@/interface/user.interface";
-import { Getuserbyid } from "@/service/userservice";
+import { Getuserbyid, updateuser } from "@/service/userservice";
 import { getDistrict, getprovince, getWards } from "@/service/getlocation";
+import toast from "react-hot-toast";
+import { useUser } from "@/app/context/usercontext";
+
 
 interface Province {
   PROVINCE_ID: number;
@@ -29,9 +32,11 @@ export default function SettingUserPage() {
     const [provinces, setProvinces] = useState<Province[]>([]);
     const [districts, setDistricts] = useState<District[]>([]);
         const [wards, setWards] = useState<Ward[]>([]);
+        const {user} = useUser();
     
   const [editableUser, setEditableUser] = useState<interfaceuser>();
   const [previewAvatar, setPreviewAvatar] = useState<string>("");
+  // const [image,setImage] = useState<File[]>([]);
   const [avatarFile, setAvatarFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
       const [loadingProv, setLoadingProv] = useState(false);
@@ -45,6 +50,12 @@ export default function SettingUserPage() {
 useEffect(() =>{
     fetch();
 },[])
+useEffect(()=>{
+  if(!user) {
+    window.location.href = '/';
+  }
+  
+})
 useEffect(() =>{
     console.log(editableUser);
     setIdtinh(Number(editableUser?.provinceId))
@@ -158,7 +169,9 @@ const fetch =async()=>{
     });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editableUser) return;
 
@@ -176,11 +189,22 @@ const fetch =async()=>{
     // formData.append("isActive", editableUser.isActive.toString());
 
     if (avatarFile) {
-      formData.append("avatar", avatarFile);
+      formData.append("mainImage", avatarFile);
     }
 
     // TODO: Gửi formData tới server bằng fetch hoặc axios
     console.log("Submit data", editableUser, avatarFile);
+
+    try {
+      const up = await updateuser(formData);
+      console.log(up);
+      if(up.data.success){
+        toast.success("Cập nhật thông tin thành công!");
+      }
+    } catch (error) {
+      console.error("Lỗi cập nhật thông tin người dùng:", error);
+      toast.error("Cập nhật thông tin thất bại!");
+    }
   };
 
   if (!editableUser) {
@@ -203,7 +227,7 @@ const fetch =async()=>{
             <div className="md:col-span-2 flex justify-center">
               <div className="relative w-32 h-32">
                 <img
-                  src={previewAvatar || "https://via.placeholder.com/150?text=Avatar"}
+                  src={previewAvatar || editableUser.avatarUrl || "/default-avatar.png"}
                   alt="Avatar"
                   className="w-full h-full object-cover rounded-full border shadow"
                 />
@@ -220,6 +244,7 @@ const fetch =async()=>{
                   ref={fileInputRef}
                   onChange={(e) => {
                     const file = e.target.files?.[0];
+                    // setImage(e.target.files as unknown as File[])
                     if (file) {
                       setAvatarFile(file);
                       const reader = new FileReader();
@@ -283,17 +308,7 @@ const fetch =async()=>{
             </div>
 
             {/* Address */}
-            <div>
-              <label className="block mb-1 text-gray-600">Địa chỉ</label>
-              <input
-                type="text"
-                name="address"
-                value={editableUser.address}
-                onChange={handleChange}
-                className="relative w-full border px-4 py-2 rounded"
-              />
-            </div>
-
+           
             {/* Province */}
             <div>
               <label className="block text-sm font-medium mb-1">Tỉnh / Thành phố</label>
@@ -354,6 +369,17 @@ const fetch =async()=>{
                   ))}
                 </select>
             </div>
+             <div>
+              <label className="block mb-1 text-gray-600">Địa chỉ</label>
+              <input
+                type="text"
+                name="address"
+                value={editableUser.address}
+                onChange={handleChange}
+                className="relative w-full border px-4 py-2 rounded"
+              />
+            </div>
+
 
             {/* Active toggle */}
            
@@ -395,3 +421,5 @@ const fetch =async()=>{
     </div>
   );
 }
+
+

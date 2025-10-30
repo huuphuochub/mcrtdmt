@@ -25,7 +25,7 @@ export default function Chat({setIopen}:ChatProps) {
      const [isOpenChatItem, setIsOpenChatItem] = useState(false);
       const [selectedRoomId, setSelectedRoomId] = useState<number | null>(null);
 
-      const {seller,loading} = useSeller();
+      const {seller} = useSeller();
       const [roomchats,setRoomchats] = useState<Roomchat[]>([])
       const [loadingroom,setLoadingRoom] = useState(true);
     
@@ -57,6 +57,8 @@ export default function Chat({setIopen}:ChatProps) {
                 setRoomchats(room.data.data)
             }
        } catch (error) {
+        console.log(error);
+        
         setLoadingRoom(false)
        }finally{setLoadingRoom(false)}
         // console.log(room);

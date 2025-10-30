@@ -66,7 +66,7 @@ useEffect(() => {
 
     return () => window.removeEventListener("resize", handleResize);
   }, []);
-const handleSend = async () => {
+const handleSend = async (message?: string) => {
   if (!input.trim()) return;
 
   const newMessage: chatBoxAI = {
@@ -115,6 +115,11 @@ function toSlug(name: string) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-') 
     .replace(/^-+|-+$/g, '');    
+}
+
+const quickchat = (value:string) =>{
+    setInput(value);
+  handleSend(value);
 }
 
           const onMouseDown = (e: React.MouseEvent) => {
@@ -247,7 +252,21 @@ function toSlug(name: string) {
 
 
 
-                    
+                   <div className="flex  gap-2 flex-nowrap w-auto overflow-x-auto">
+                      <p className="p-2 border rounded-xl whitespace-nowrap hover:cursor-pointer" onClick={() => quickchat("shop có trang sức nào giá 500k đổ lại k ạ")}>
+                        shop có trang sức nào giá 500k đổ lại k ạ
+                      </p>
+                      <p className="p-2 border rounded-xl whitespace-nowrap hover:cursor-pointer" onClick={() => quickchat("shop có trương chình khuyến mãi nào không ạ")}>
+                        shop có trương chình khuyến mãi nào không ạ
+                      </p>
+                      <p className="p-2 border rounded-xl whitespace-nowrap hover:cursor-pointer" onClick={() => quickchat("Phí ship tính sao ạ")}>
+                        Phí ship tính sao ạ
+                      </p>
+                      <p className="p-2 border rounded-xl whitespace-nowrap hover:cursor-pointer" onClick={() => quickchat("Mình muốn mua quần jean nam")}>
+                        Mình muốn mua quần jean nam
+                      </p>
+                    </div>
+
                     <div className="border-t p-2">
                         {/* Preview ảnh */}
 

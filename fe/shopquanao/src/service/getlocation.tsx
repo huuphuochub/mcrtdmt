@@ -1,8 +1,13 @@
 // pages/api/province.ts
 const  getprovince=async() =>{
-  const response = await fetch('https://partner.viettelpost.vn/v2/categories/listProvinceById?provinceId=');
+  try {
+    const response = await fetch('https://partner.viettelpost.vn/v2/categories/listProvinceById?provinceId=');
   const data = await response.json();
   return data;
+  } catch (error) {
+    console.error('Error fetching province data:', error);
+    throw error;
+  }
 }
 
 const getDistrict = async(provinId:number)=>{

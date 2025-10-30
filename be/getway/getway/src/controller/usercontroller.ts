@@ -1,4 +1,4 @@
-import { Controller, Post, Body, Res, HttpStatus, Get, Req, UseGuards, Delete, Param, Query } from '@nestjs/common';
+import { Controller, Post, Body, Res, HttpStatus, Get, Req, UseGuards, Delete, Param, Query, Inject, UseInterceptors, UploadedFiles } from '@nestjs/common';
 import { HttpService } from '@nestjs/axios';
 import { Response } from 'express';
 import { UnauthorizedException } from '@nestjs/common';
@@ -6,6 +6,8 @@ import { AuthService } from 'src/auth/auth.service';
 import { firstValueFrom } from 'rxjs';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
+import { ClientProxy } from '@nestjs/microservices';
+import { FileFieldsInterceptor } from '@nestjs/platform-express';
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -13,6 +15,9 @@ interface RequestWithCookies extends Request {
 export class UserController {
   constructor(private readonly httpService: HttpService,
                 private authService : AuthService,
+                    @Inject('UPLOAD_SERVICE') private readonly uploadImgClient: ClientProxy,
+                    @Inject('SEND_OTP_EMAIL') private readonly sendOTPEmail: ClientProxy,
+
     
   ) {}
 
@@ -52,6 +57,188 @@ export class UserController {
       };
     }
   }
+
+
+  @UseGuards(JwtAuthGuardFromCookie)
+  @Post('resetpassword')
+  async resetpassword(@Body() body:any,@GetUser() user:any){
+    console.log('chưa đang nhập');
+    
+    if(!user){
+      return{
+         success: false,
+        message: 'chưa đăng nhập',
+        data: null,
+      }
+    }
+    try {
+      const data:any = await 
+        this.httpService.post('http://localhost:3004/users/resetpassword', {...body, id: user.id}).toPromise()
+      ;
+      return data.data;
+    } catch (error) {
+      const errRes = error.response?.data || {};
+      return {
+        success: false,
+        message: errRes.message || 'Lỗi reset password',
+        data: null,
+      };
+    }
+  }
+
+  @Post('checkmail')
+  async checkmail(@Body() body:any,@Res({ passthrough: true }) res: Response){
+   console.log(body);
+   
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/users/checkmail', body).toPromise();
+      // console.log(data.data.success);
+     
+      if(data.data.success){
+         const ok = {
+        email: data.data.data.email,
+        code: data.data.data.code,
+      }
+       res.cookie('email_otp', data.data.data.email, {
+      httpOnly: true,
+      sameSite: 'lax',
+      secure: false, // true nếu la https
+      maxAge: 3 * 60 * 1000, 
+    });
+        this.sendOTPEmail.emit('send_otp_email', ok);
+        console.log('da gui mail');
+        
+        return {
+          success:true,
+          message:'Đã gửi mã OTP về email',
+          data:null
+        }
+      }else{
+        console.log('emailk ton tai');
+        
+        return data.data
+      }
+      
+      // return data.data;
+    } catch (error) { 
+       
+      const errRes = error.response?.data || {};
+      return {
+        success: false,
+        message: errRes.message || 'Lỗi check mail',
+        data: null,
+      };
+    }
+  }
+
+
+  @Post('verifyotp')
+  async verifyotp(@Body() body:any,@Req() req: RequestWithCookies,@Res({ passthrough: true }) res: Response){
+    const email = req.cookies?.email_otp;
+    if(!email){
+      return {
+        success:false,
+        message:'Mã OTP đã hết hạn, vui lòng thử lại',
+        data:null
+      }
+    }
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/users/verifyotp', {...body,email}).toPromise();
+      // Xoá cookie sau khi xác thực thành công
+      if(data.data.success){
+      res.clearCookie('email_otp', {
+        httpOnly: true,
+        sameSite: 'lax',
+        secure: false, // true nếu la https
+      });
+      }
+      return data.data;
+    }
+      catch (error) {
+      const errRes = error.response?.data || {};
+      return {
+        success: false,
+        message: errRes.message || 'Lỗi verify otp',
+        data: null,
+      };
+    }
+  }
+
+  @Post('resetpassviaemail')
+  async resetpassviaemail(@Body() body:any){
+    try {
+      const data:any = await this.httpService.post('http://localhost:3004/users/resetpassviaemail', body).toPromise();
+      return data.data;
+    } catch (error) {
+      const errRes = error.response?.data || {};
+      return {
+        success: false,
+        message: errRes.message || 'Lỗi reset password',
+        data: null,
+      };
+    }
+  }
+
+  
+
+@UseGuards(JwtAuthGuardFromCookie)
+@Post('settinginfor')
+@UseInterceptors(FileFieldsInterceptor([{ name: 'mainImage', maxCount: 1 }]))
+async settingInfor(
+  @Body() body: any,
+  @GetUser() user: any,
+  @UploadedFiles()
+  files: { mainImage?: Express.Multer.File[] },
+) {
+  if (!user) {
+    return {
+      success: false,
+      data: null,
+      message: 'Không có token user',
+    };
+  }
+
+  // --- Xử lý upload ảnh nếu có ---
+  let imageUrl: string | undefined;
+  const image = files.mainImage?.[0];
+
+  if (image) {
+    const img = await this.uploadImgClient
+      .send('upload_queue', {
+        file: {
+          buffer: image.buffer,
+          originalname: image.originalname,
+          mimetype: image.mimetype,
+        },
+      })
+      .toPromise();
+
+    imageUrl = img.url;
+  }
+
+  // --- Chuẩn bị payload update ---
+  const updatePayload: any = {
+    id: user.id,
+    ...body,
+  };
+
+  if (imageUrl) {
+    updatePayload.avatarUrl = imageUrl;
+  } 
+
+  // --- Gửi sang service update user ---
+  try {
+    const  data:any  = await this.httpService
+      .post('http://localhost:3004/users/settinginfor', updatePayload)
+      .toPromise();
+
+    return { success: true, data:data.data };
+  } catch (error) {
+    console.error('Update error:', error?.response?.data || error);
+    return { success: false, message: 'Update thất bại', error };
+  }
+}
+
 
 
    @Get('me')
@@ -238,6 +425,7 @@ async registration(@Body() body:any){
 @Controller('seller')
 export class sellerController {
     constructor(private readonly httpService: HttpService) {}
+    @Inject('UPLOAD_SERVICE') private readonly uploadImgClient: ClientProxy
 
     @Post('register')
     async registerSeller(
@@ -267,6 +455,10 @@ export class sellerController {
 
       }
     }
+
+
+
+
 
     @Get('all')
     async GetAllSeller(){

@@ -175,7 +175,6 @@ useEffect(() => {
 
   return (
         <div>
-            <Header/>
             <div className="mt-[100px]">
 <form onSubmit={handleSubmit} className="max-w-lg mx-auto bg-white p-6 rounded-xl shadow space-y-6">
   <h2 className="text-2xl font-semibold">Đăng ký bán hàng</h2>

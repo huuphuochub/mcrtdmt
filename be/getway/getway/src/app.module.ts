@@ -52,6 +52,18 @@ dotenv.config();
           queueOptions: { durable: false }, 
         },
       },
+
+       {
+        name: 'SEND_OTP_EMAIL',
+        transport: Transport.RMQ,
+        options: {
+          urls: ['amqp://localhost:5672'],
+            //  urls: ['amqp://rabbitmq:5672'],
+
+          queue: 'send_otp_email',
+          queueOptions: { durable: false }, 
+        },
+      },
       {
         name: 'SUBIMG_SERVICE',
         transport: Transport.RMQ,

@@ -420,7 +420,7 @@ const orderforviettel = results.map(seller => {
 
     @Post('sendemailorder')
     async senmailorder(@Body() body: any) {
-      this.sendMailOrder.emit('mailer_order', { body }); // không await
+      this.sendMailOrder.emit('mailer_order', { body }); 
       return { success: true, message: 'Email job queued' };
     }
 
@@ -554,7 +554,7 @@ const orderforviettel = results.map(seller => {
     }
   }
 
-  @UseGuards(JwtSellerAuthGuardFromCookie)
+  @UseGuards(JwtSellerAuthGuardFromCookie) 
   @Post('updatestatusorderitem')
   async UpdateStatusOrderItem(@GetSeller() seller:any,@Body() body:any){
     if(!seller){

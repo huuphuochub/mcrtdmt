@@ -1,5 +1,6 @@
     import { Injectable } from '@nestjs/common';
     import { MailerService } from '@nestjs-modules/mailer';
+    import { generateOtpEmail } from '../templates/codemail';
 
     @Injectable()
     export class MailService {
@@ -95,6 +96,16 @@
             redirectUrl:data.redirectUrl,
             
           },
+        });
+      }
+
+      async sendOtpEmail(email: string, code: string) { 
+        // const { generateOtpEmail } = await import('../templates/codemail');
+        const htmlContent = generateOtpEmail(code); 
+        await this.mailerService.sendMail({
+          to: email,
+          subject: 'Mã xác thực OTP của bạn',
+          html: htmlContent,
         });
       }
     }
