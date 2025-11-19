@@ -1,3 +1,4 @@
+import { Variant } from "@/interface/interfacesize";
 import axiosClient from "@/lib/axiosclient";
 
 
@@ -28,6 +29,19 @@ const getListProduct = async(limit:number,page:number) =>{
 const SearchProduct= async(keyword:string,page:number)=>{
     try {
         const product = await axiosClient.post('/product/searchbyseller',{page,keyword});
+        return product
+    } catch (error) {
+        return{
+            success:false,
+            data:null,
+            messgae:'khong gui dc'
+        }
+    }
+}
+
+const AddVariants =async(variant:Variant[])=>{
+    try {
+        const product = await axiosClient.post('/product/addvariant',variant);
         return product
     } catch (error) {
         return{
@@ -84,4 +98,4 @@ const GetSizeColor= async() =>{
     }
 }
 
-export {getListProduct,SearchProduct,filterprd,GetDetailProduct,GetSizeColor};
+export {getListProduct,AddVariants,SearchProduct,filterprd,GetDetailProduct,GetSizeColor};

@@ -11,6 +11,9 @@ import { JwtAuthGuardFromCookie } from "src/auth/jwt-auth.guard";
 import { GetUser } from "src/common/decorators/get-user.decorator";
 import { FileFieldsInterceptor } from "@nestjs/platform-express";
 import { ChatGateway } from "src/service/socketio/socketio";
+const urluser = 'http://localhost:3004'
+// const urlproduct = '${urlproduct}'
+
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -42,7 +45,9 @@ export class Chatcontroller {
  
        try {
              const response = await firstValueFrom(
-            this.httpService.post('http://localhost:3004/chat/check', body,{
+            // this.httpService.post('${urluser}/chat/check', body,{
+                        this.httpService.post(`${urluser}/chat/check`, body,{
+
                 
                 headers: {
                     Authorization: `Bearer ${token}`,
@@ -75,7 +80,9 @@ export class Chatcontroller {
         }
         try {
             const allroom:any = await firstValueFrom(
-            this.httpService.post('http://localhost:3004/chat/rooms',{},{
+            // this.httpService.post('${urluser}/chat/rooms',{},{
+                        this.httpService.post(`${urluser}/chat/rooms`,{},{
+
                 headers:{
                     Authorization: `Bearer ${token}`
                 }
@@ -102,7 +109,9 @@ export class Chatcontroller {
         try {
             const room = await firstValueFrom(
             
-            this.httpService.post('http://localhost:3004/chat/create',{seller_id:body.seller_id},
+            // this.httpService.post('${urluser}/chat/create',{seller_id:body.seller_id},
+                        this.httpService.post(`${urluser}/chat/create`,{seller_id:body.seller_id},
+
                 {
                     headers: {
                         Authorization: `Bearer ${token}`
@@ -113,7 +122,7 @@ export class Chatcontroller {
         } catch (error) {
             return{
                 success:false,
-                message:'loi',
+                message:error.message,
                 data:null
             }
         }
@@ -122,7 +131,9 @@ export class Chatcontroller {
     @Get('chatitems')
     async GetChatItem(@Query('room_id') room_id:number,@Query('page') page:number){
         try {
-            const items:any= await this.httpService.get('http://localhost:3004/chat/chatitems',{
+            // const items:any= await this.httpService.get('${urluser}/chat/chatitems',{
+                        const items:any= await this.httpService.get(`${urluser}/chat/chatitems`,{
+
                 params:{
                     room_id:room_id,page:page
                 }
@@ -185,7 +196,9 @@ export class Chatcontroller {
                 tag:{id:body.tag,name:body.nametag,image:body.imagetag}
             }
 
-            const send:any = await this.httpService.post('http://localhost:3004/chat/sendmess',data).toPromise()
+            // const send:any = await this.httpService.post('${urluser}/chat/sendmess',data).toPromise()
+                        const send:any = await this.httpService.post(`${urluser}/chat/sendmess`,data).toPromise()
+
             if(send.data.success){
                 const messagenew = {
                     id:send.data.data.id,
@@ -219,7 +232,9 @@ export class Chatcontroller {
                 tag:{id:body.tag,name:body.nametag,image:body.imagetag}
             }
 
-            const send :any= await this.httpService.post('http://localhost:3004/chat/sendmess',data).toPromise()
+            // const send :any= await this.httpService.post('${urluser}/chat/sendmess',data).toPromise()
+                        const send :any= await this.httpService.post(`${urluser}/chat/sendmess`,data).toPromise()
+
             if(send.data.success){
                 const messagenew = {
                     id:send.data.data.id,
@@ -288,7 +303,9 @@ export class Chatcontroller {
                 imageurl:imgs,
                 tag:{id:body.tag,name:body.nametag,image:body.imagetag}
             }
-            const send:any = await this.httpService.post('http://localhost:3004/chat/sendmess',data).toPromise()
+            // const send:any = await this.httpService.post('${urluser}/chat/sendmess',data).toPromise()
+                        const send:any = await this.httpService.post(`${urluser}/chat/sendmess`,data).toPromise()
+
             if(send.data.success){
                 const messagenew = {
                     id:send.data.data.id,
@@ -322,7 +339,9 @@ export class Chatcontroller {
                 imageurl:null,
                 tag:{id:body.tag,name:body.nametag,image:body.imagetag}
             }
-            const send :any= await this.httpService.post('http://localhost:3004/chat/sendmess',data).toPromise()
+            // const send :any= await this.httpService.post('${urluser}/chat/sendmess',data).toPromise()
+                        const send :any= await this.httpService.post(`${urluser}/chat/sendmess`,data).toPromise()
+
             if(send.data.success){
                 const messagenew = {
                     id:send.data.data.id,
@@ -361,7 +380,9 @@ export class Chatcontroller {
             }
         }
         try {
-            const room:any = await this.httpService.get('http://localhost:3004/chat/roomseller',{
+            // const room:any = await this.httpService.get('${urluser}/chat/roomseller',{
+                        const room:any = await this.httpService.get(`${urluser}/chat/roomseller`,{
+
                 params:{seller_id:seller.seller_id}
             }).toPromise()
 

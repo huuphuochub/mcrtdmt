@@ -6,7 +6,8 @@ import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { ClientProxy } from '@nestjs/microservices';
 
-
+const urluser = 'http://localhost:3004'
+const urlproduct = 'http://localhost:3002'
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -65,10 +66,14 @@ export class CommentProductController {
              
             try {
                   const response = await firstValueFrom(
-                        this.httpService.post('http://localhost:3002/comment/addcomment', bodypost)
+                        // this.httpService.post('http://localhost:3002/comment/addcomment', bodypost)
+                                                this.httpService.post(`${urlproduct}/comment/addcomment`, bodypost)
+
                         );
                   await firstValueFrom(
-                        this.httpService.post('http://localhost:3002/product/updateratingproduct',bodypost)
+                        // this.httpService.post('http://localhost:3002/product/updateratingproduct',bodypost)
+                                                this.httpService.post(`${urlproduct}/product/updateratingproduct`,bodypost)
+
                   ) 
                   return{
                         success:true,
@@ -98,10 +103,14 @@ export class CommentProductController {
              
             try {
                   const response = await firstValueFrom(
-                        this.httpService.post('http://localhost:3002/comment/addcomment', bodypost)
+                        // this.httpService.post('http://localhost:3002/comment/addcomment', bodypost)
+                                                this.httpService.post(`${urlproduct}/comment/addcomment`, bodypost)
+
                         );
                   await firstValueFrom(
-                        this.httpService.post('http://localhost:3002/product/updateratingproduct',bodypost)
+                        // this.httpService.post('http://localhost:3002/product/updateratingproduct',bodypost)
+                                                this.httpService.post(`${urlproduct}/product/updateratingproduct`,bodypost)
+
                   )
                   return{
                         success:true,
@@ -173,7 +182,9 @@ export class CommentProductController {
              
             try {
                   const response = await firstValueFrom(
-                        this.httpService.post('http://localhost:3004/seller/addcmtseller', bodypost)
+                        // this.httpService.post('http://localhost:3004/seller/addcmtseller', bodypost)
+                                                this.httpService.post(`${urluser}/seller/addcmtseller`, bodypost)
+
                         );
                   // await firstValueFrom(
                   //       this.httpService.post('http://localhost:300/product/updateratingproduct',bodypost)
@@ -208,7 +219,9 @@ export class CommentProductController {
              
             try {
                   const response = await firstValueFrom(
-                        this.httpService.post('http://localhost:3004/seller/addcmtseller', bodypost)
+                        // this.httpService.post('http://localhost:3004/seller/addcmtseller', bodypost)
+                                                this.httpService.post(`${urluser}/seller/addcmtseller`, bodypost)
+
                         );
                   // await firstValueFrom(
                   //       this.httpService.post('http://localhost:3002/product/updateratingproduct',bodypost)
@@ -241,13 +254,17 @@ export class CommentProductController {
             
             try {
                   const response:any = await firstValueFrom(
-                        this.httpService.post('http://localhost:3002/comment/getallcmt', body)
+                        // this.httpService.post('http://localhost:3002/comment/getallcmt', body)
+                                                this.httpService.post(`${urlproduct}/comment/getallcmt`, body)
+
                   );
 
 
                   if(response){
                         const ok = response.data.data.map(item => item.user_id)
-                        const Users:any = await this.httpService.post('http://localhost:3004/users/inforusers', { ok }).toPromise();
+                        // const Users:any = await this.httpService.post('http://localhost:3004/users/inforusers', { ok }).toPromise();
+                                                const Users:any = await this.httpService.post(`${urluser}/users/inforusers`, { ok }).toPromise();
+
 
 
                           const usersMap = new Map(Users.data.map(u => [u.id, u]));
@@ -284,14 +301,18 @@ export class CommentProductController {
             const dev:any = await firstValueFrom(
             
             
-            this.httpService.delete(`http://localhost:3002/comment/delete/${id}`))
+            // this.httpService.delete(`http://localhost:3002/comment/delete/${id}`))
+                        this.httpService.delete(`${urlproduct}/comment/delete/${id}`))
+
             return dev.data
       }
 
       @Get('getcmtseller/:id')
       async GetCmtSeller(@Param('id') id:number,@Query('page') page:number,@Query("star") star:number){
             try {
-                  const data:any = await this.httpService.get(`http://localhost:3004/seller/getcmtseller/${id}`,{params:{page:page,star:star}}).toPromise()
+                  // const data:any = await this.httpService.get(`http://localhost:3004/seller/getcmtseller/${id}`,{params:{page:page,star:star}}).toPromise()
+                                    const data:any = await this.httpService.get(`${urluser}/seller/getcmtseller/${id}`,{params:{page:page,star:star}}).toPromise()
+
                   return data.data
             } catch (error) {
                   return{

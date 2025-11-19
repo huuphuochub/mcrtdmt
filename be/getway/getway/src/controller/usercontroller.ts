@@ -8,6 +8,8 @@ import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { JwtAuthGuardFromCookie } from 'src/auth/jwt-auth.guard';
 import { ClientProxy } from '@nestjs/microservices';
 import { FileFieldsInterceptor } from '@nestjs/platform-express';
+const urluser = 'http://localhost:3004'
+const urlproduct = 'http://localhost:3002'
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -29,8 +31,9 @@ export class UserController {
     try {
       // Forward request đến user-service
       const response = await firstValueFrom(
-        this.httpService.post('http://localhost:3004/users/login', body, {
-                  // this.httpService.post('http://user:3004/users/login', body, {
+        // this.httpService.post('http://localhost:3004/users/login', body, {
+                this.httpService.post(`${urluser}/users/login`, body, {
+
 
           withCredentials: true, // Gửi và nhận cookie
         }),
@@ -73,7 +76,9 @@ export class UserController {
     }
     try {
       const data:any = await 
-        this.httpService.post('http://localhost:3004/users/resetpassword', {...body, id: user.id}).toPromise()
+        // this.httpService.post('http://localhost:3004/users/resetpassword', {...body, id: user.id}).toPromise()
+                this.httpService.post(`${urluser}/users/resetpassword`, {...body, id: user.id}).toPromise()
+
       ;
       return data.data;
     } catch (error) {
@@ -91,7 +96,9 @@ export class UserController {
    console.log(body);
    
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/users/checkmail', body).toPromise();
+      // const data:any = await this.httpService.post('http://localhost:3004/users/checkmail', body).toPromise();
+            const data:any = await this.httpService.post(`${urluser}/users/checkmail`, body).toPromise();
+
       // console.log(data.data.success);
      
       if(data.data.success){
@@ -143,7 +150,9 @@ export class UserController {
       }
     }
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/users/verifyotp', {...body,email}).toPromise();
+      // const data:any = await this.httpService.post('http://localhost:3004/users/verifyotp', {...body,email}).toPromise();
+            const data:any = await this.httpService.post(`${urluser}/users/verifyotp`, {...body,email}).toPromise();
+
       // Xoá cookie sau khi xác thực thành công
       if(data.data.success){
       res.clearCookie('email_otp', {
@@ -167,7 +176,9 @@ export class UserController {
   @Post('resetpassviaemail')
   async resetpassviaemail(@Body() body:any){
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/users/resetpassviaemail', body).toPromise();
+      // const data:any = await this.httpService.post('http://localhost:3004/users/resetpassviaemail', body).toPromise();
+            const data:any = await this.httpService.post(`${urluser}/users/resetpassviaemail`, body).toPromise();
+
       return data.data;
     } catch (error) {
       const errRes = error.response?.data || {};
@@ -229,7 +240,9 @@ async settingInfor(
   // --- Gửi sang service update user ---
   try {
     const  data:any  = await this.httpService
-      .post('http://localhost:3004/users/settinginfor', updatePayload)
+      // .post('http://localhost:3004/users/settinginfor', updatePayload)
+            .post(`${urluser}/users/settinginfor`, updatePayload)
+
       .toPromise();
 
     return { success: true, data:data.data };
@@ -256,8 +269,9 @@ async getProfile(@Req() req: RequestWithCookies) {
 
   try {
     const { data } = await firstValueFrom(
-      this.httpService.get('http://localhost:3004/users/me', {
-              // this.httpService.get('http://user:3004/users/me', {
+      // this.httpService.get('http://localhost:3004/users/me', {
+            this.httpService.get(`${urluser}/users/me`, {
+
 
         headers: {
           Authorization: `Bearer ${token}`,
@@ -308,7 +322,9 @@ async logout(@Req() req: RequestWithCookies, @Res({ passthrough: true }) res: Re
             });
     // Forward logout request tới user-service (nếu cần quản lý refresh token / blacklist)
     await firstValueFrom(
-      this.httpService.post('http://localhost:3004/users/logout', {}, {
+      // this.httpService.post('http://localhost:3004/users/logout', {}, {
+            this.httpService.post(`${urluser}/users/logout`, {}, {
+
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -348,7 +364,9 @@ const token = req.cookies?.access_token;
 
       try {
           const { data } = await firstValueFrom(
-              this.httpService.get(`http://localhost:3004/historysearch/gethistorybyuser`, {
+              // this.httpService.get(`http://localhost:3004/historysearch/gethistorybyuser`, {
+                            this.httpService.get(`${urluser}/historysearch/gethistorybyuser`, {
+
                   headers: {
                       Authorization: `Bearer ${token}`,
                   },
@@ -372,7 +390,9 @@ const token = req.cookies?.access_token;
     const ok = await
     firstValueFrom(
     
-    this.httpService.delete(`http://localhost:3004/historysearch/deletehistory/${id}`))
+    // this.httpService.delete(`http://localhost:3004/historysearch/deletehistory/${id}`))
+        this.httpService.delete(`${urluser}/historysearch/deletehistory/${id}`))
+
     return   ok.data
     
   
@@ -381,7 +401,9 @@ const token = req.cookies?.access_token;
 @Post('register')
 async registration(@Body() body:any){
     const {data} = await firstValueFrom(
-        this.httpService.post(`http://localhost:3004/users/register`,body)
+        // this.httpService.post(`http://localhost:3004/users/register`,body)
+                this.httpService.post(`${urluser}/users/register`,body)
+
     )
             return data
 
@@ -402,7 +424,9 @@ async registration(@Body() body:any){
 
       try {
           const { data } = await firstValueFrom(
-              this.httpService.post(`http://localhost:3004/users/updateprofile`, body, {
+              // this.httpService.post(`http://localhost:3004/users/updateprofile`, body, {
+                            this.httpService.post(`${urluser}/users/updateprofile`, body, {
+
                   headers: {
                       Authorization: `Bearer ${token}`,
                   },
@@ -442,7 +466,9 @@ export class sellerController {
         };
       }else{
          const {data} = await firstValueFrom(
-            this.httpService.post(`http://localhost:3004/seller/register`,body,
+            // this.httpService.post(`http://localhost:3004/seller/register`,body,
+                        this.httpService.post(`${urluser}/seller/register`,body,
+
             {
                 headers: {
                     Authorization: token ? `Bearer ${token}` : '',
@@ -464,7 +490,9 @@ export class sellerController {
     async GetAllSeller(){
       try {
         const data:any = await firstValueFrom(      
-        this.httpService.get('http://localhost:3004/seller/all'));
+        // this.httpService.get('http://localhost:3004/seller/all'));
+                this.httpService.get(`${urluser}/seller/all`));
+
         return data.data
       } catch (error) {
         return{
@@ -478,7 +506,9 @@ export class sellerController {
     @Post('searchname')
     async SearchName(@Body() body:any){
       try {
-        const data:any =await this.httpService.post('http://localhost:3004/seller/searchname',body).toPromise();
+        // const data:any =await this.httpService.post('http://localhost:3004/seller/searchname',body).toPromise();
+                const data:any =await this.httpService.post(`${urluser}/seller/searchname`,body).toPromise();
+
         return data.data
       } catch (error) {
         return{
@@ -493,7 +523,9 @@ export class sellerController {
     async loginSeller(@Body() body:any, @Res({ passthrough: true }) res: Response){
                    
       const {data} = await firstValueFrom(
-            this.httpService.post(`http://localhost:3004/seller/login`,body,{
+            // this.httpService.post(`http://localhost:3004/seller/login`,body,{
+                        this.httpService.post(`${urluser}/seller/login`,body,{
+
                 withCredentials:true
             })
         )
@@ -537,7 +569,9 @@ export class sellerController {
           
             // Forward logout request tới user-service (nếu cần quản lý refresh token / blacklist)
             await firstValueFrom(
-                this.httpService.post('http://localhost:3004/seller/logout', {}, {
+                // this.httpService.post('http://localhost:3004/seller/logout', {}, {
+                                this.httpService.post(`${urluser}/seller/logout`, {}, {
+
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -583,7 +617,9 @@ export class sellerController {
         }
 
       }
-          const seller:any = await this.httpService.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
+          // const seller:any = await this.httpService.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
+                    const seller:any = await this.httpService.post(`${urluser}/seller/inforsellerbyuser`,{user_id:user.id}).toPromise();
+
           
 
           if(!seller?.data.success){
@@ -621,9 +657,13 @@ export class sellerController {
     async GetAllProduct(@Param('id') id:number,@Query('limit') limit:string, @Query('page') page:string){
       
         try {
-          const sellers :any = await this.httpService.get(`http://localhost:3004/seller/getseller/${id}`).toPromise()
+          // const sellers :any = await this.httpService.get(`http://localhost:3004/seller/getseller/${id}`).toPromise()
+                    const sellers :any = await this.httpService.get(`${urluser}/seller/getseller/${id}`).toPromise()
 
-          const products :any = await this.httpService.get(`http://localhost:3002/product/getallbyseller`,{
+
+          // const products :any = await this.httpService.get(`http://localhost:3002/product/getallbyseller`,{
+                    const products :any = await this.httpService.get(`${urlproduct}/product/getallbyseller`,{
+
             params:{
               seller_id:id,page,limit
             }

@@ -9,6 +9,9 @@ import { firstValueFrom } from 'rxjs';
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
+const urluser = 'http://localhost:3004'
+const urlproduct = 'http://localhost:3002'
+
 @Controller('cart')
 export class Cartcontroller {
   constructor(private readonly httpService: HttpService) {}
@@ -35,7 +38,9 @@ export class Cartcontroller {
         }
        
        const {data} = await firstValueFrom(
-        this.httpService.post(`http://localhost:3004/cart/addcart`,
+        // this.httpService.post(`${urluser}/cart/addcart`,
+                    this.httpService.post(`${urluser}/cart/addcart`,
+
             body,
             {headers:{
                 Authorization:`Bearer ${token}`,
@@ -60,7 +65,9 @@ export class Cartcontroller {
             }
         }
         const {data} = await firstValueFrom(
-            this.httpService.get(`http://localhost:3004/cart/getcartitembyiduser`,
+            // this.httpService.get(`${urluser}/cart/getcartitembyiduser`,
+                        this.httpService.get(`${urluser}/cart/getcartitembyiduser`,
+
                 {headers:{
                     Authorization:`Bearer ${token}`
                 }}
@@ -83,9 +90,12 @@ export class Cartcontroller {
         const colorIds = body.map(item => item.color_id);
             
         const [products, sizes, colors] = await Promise.all([
-            firstValueFrom(this.httpService.post(`http://localhost:3002/product/batch`, { ids: [...new Set(productIds)] })),
-            firstValueFrom(this.httpService.post(`http://localhost:3002/size/batch`, { ids: [...new Set(sizeIds)] })),
-            firstValueFrom(this.httpService.post(`http://localhost:3002/size/batchcolor`, { ids: [...new Set(colorIds)] })),
+            // firstValueFrom(this.httpService.post(`${urlproduct}/product/batch`, { ids: [...new Set(productIds)] })),
+            // firstValueFrom(this.httpService.post(`${urlproduct}/size/batch`, { ids: [...new Set(sizeIds)] })),
+            // firstValueFrom(this.httpService.post(`${urlproduct}/size/batchcolor`, { ids: [...new Set(colorIds)] })),
+             firstValueFrom(this.httpService.post(`${urlproduct}/product/batch`, { ids: [...new Set(productIds)] })),
+            firstValueFrom(this.httpService.post(`${urlproduct}/size/batch`, { ids: [...new Set(sizeIds)] })),
+            firstValueFrom(this.httpService.post(`${urlproduct}/size/batchcolor`, { ids: [...new Set(colorIds)] })),
         ]);
 
         const productMap = new Map(products.data.map((p:any) =>[p.id,p]));
@@ -121,7 +131,9 @@ export class Cartcontroller {
             }
         }
         const {data} = await firstValueFrom(
-            this.httpService.post(`http://localhost:3004/cart/updatecartdetail`,
+            // this.httpService.post(`${urluser}/cart/updatecartdetail`,
+                            this.httpService.post(`${urluser}/cart/updatecartdetail`,
+
                 body,
                 {headers:{
                     Authorization:`Bearer ${token}`
@@ -141,7 +153,9 @@ export class Cartcontroller {
             }
         }
         const {data} = await firstValueFrom(
-            this.httpService.post(`http://localhost:3004/cart/deletecart`,
+            // this.httpService.post(`${urluser}/cart/deletecart`,
+                            this.httpService.post(`${urluser}/cart/deletecart`,
+
                 {},
                 {headers:{
                     Authorization:`Bearer ${token}`

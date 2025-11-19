@@ -43,7 +43,11 @@ export class ChatService {
         message:'da tạo thanh cong'
       }
     } catch (error) {
-      
+      return{
+        success:false,
+        message:error.message,
+        data:null
+      }
     }
   }
 

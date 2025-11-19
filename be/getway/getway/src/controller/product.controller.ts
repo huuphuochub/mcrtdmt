@@ -21,6 +21,8 @@ import { FileFieldsInterceptor } from '@nestjs/platform-express';
 import { GetUser } from 'src/common/decorators/get-user.decorator';
 import { firstValueFrom } from 'rxjs';
 import { GetSeller } from 'src/common/decorators/get-seller.decorator';
+const urluser = 'http://localhost:3004'
+const urlproduct = 'http://localhost:3002'
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -46,7 +48,9 @@ export class ProductController {
   ) {
     
 
-          const seller = await this.httpservice.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
+          // const seller = await this.httpservice.post('http://localhost:3004/seller/inforsellerbyuser',{user_id:user.id}).toPromise();
+                    const seller = await this.httpservice.post(`${urluser}/seller/inforsellerbyuser`,{user_id:user.id}).toPromise();
+
           
 
           if(!seller?.data.success){
@@ -117,14 +121,18 @@ export class ProductController {
         promo_end:body.promo_end,
       }
       
-      const product = await this.httpservice.post('http://localhost:3002/product/add',data).toPromise();
+      // const product = await this.httpservice.post('http://localhost:3002/product/add',data).toPromise();
+            const product = await this.httpservice.post(`${urlproduct}/product/add`,data).toPromise();
+
 
       const subimgdata = {
         id_product:product?.data.data.id,
         url :subImgUrls,
       }
       
-      const subimg = await this.httpservice.post('http://localhost:3002/subimg/add',subimgdata).toPromise();
+      // const subimg = await this.httpservice.post('http://localhost:3002/subimg/add',subimgdata).toPromise();
+            const subimg = await this.httpservice.post(`${urlproduct}/subimg/add`,subimgdata).toPromise();
+
 
       
       
@@ -141,7 +149,9 @@ export class ProductController {
  @Get('getallproduct')
 async getAllProduct(@Query('limit') limit:string, @Query('page') page:string) {
   const response = await this.httpservice
-    .get('http://localhost:3002/product/getall',{
+    // .get('http://localhost:3002/product/getall',{
+        .get(`${urlproduct}/product/getall`,{
+
       params:{
         page,limit
       }
@@ -163,7 +173,9 @@ async getAllProductseller(@GetSeller() seller:any,  @Query('limit') limit:string
     }
     
      const response = await this.httpservice
-    .get('http://localhost:3002/product/getallbyseller',{
+    // .get('http://localhost:3002/product/getallbyseller',{
+        .get(`${urlproduct}/product/getallbyseller`,{
+
       params:{
         page,limit,seller_id:seller.seller_id
       }
@@ -175,11 +187,28 @@ async getAllProductseller(@GetSeller() seller:any,  @Query('limit') limit:string
   
 }
 
+@Post('addvariant')
+async AddVariant(@Body() body:any){
+  try {
+    // const response:any = await this.httpservice.post('http://localhost:3002/size/addvariant',body).toPromise();
+        const response:any = await this.httpservice.post(`${urlproduct}/size/addvariant`,body).toPromise();
+
+    return response.data
+  } catch (error) {
+    return{
+      success:false,
+      message:'loi khi them phien ban'
+    }
+  }
+}
+
 @Get('all/seller')
 async getAllProductcuasellerchouser( @Query('limit') limit:string, @Query('page') page:string,@Query('seller_id') seller_id:string) {
       
      const response = await this.httpservice
-    .get('http://localhost:3002/product/getallbyseller',{
+    // .get('http://localhost:3002/product/getallbyseller',{
+        .get(`${urlproduct}/product/getallbyseller`,{
+
       params:{
         page,limit,seller_id:seller_id
       }
@@ -194,15 +223,19 @@ async getAllProductcuasellerchouser( @Query('limit') limit:string, @Query('page'
 
 @Get('bestseller')
 async getbeseller() {
-  const response = await this.httpservice
-    .get('http://localhost:3002/product/bestseller')
-    .toPromise();
+  const response = await firstValueFrom( this.httpservice 
+    // .get('http://localhost:3002/product/bestseller')
+        .get(`${urlproduct}/product/bestseller`)
+      
+      )
   
   return response!.data; // ✅ chỉ return phần data
 }
 @Get('productdetail/:id')
 async getproductdatil(@Param('id') id:number){
-  const response:any = await this.httpservice.get(`http://localhost:3002/product/productdetail/${id}`)
+  // const response:any = await this.httpservice.get(`http://localhost:3002/product/productdetail/${id}`)
+    const response:any = await this.httpservice.get(`${urlproduct}/product/productdetail/${id}`)
+
   .toPromise()
   
   if(!response.data.success){
@@ -218,19 +251,29 @@ async getproductdatil(@Param('id') id:number){
   const [imagesRes, categoryRes, subcategoryRes,countproductRes, sellerRes] =
   await Promise.allSettled([
     this.httpservice
-      .get(`http://localhost:3002/subimg/subimgbyid/${id}`)
+      // .get(`http://localhost:3002/subimg/subimgbyid/${id}`)
+            .get(`${urlproduct}/subimg/subimgbyid/${id}`)
+
       .toPromise(),
     this.httpservice
-      .get(`http://localhost:3002/category/getbyid/${response.data.data.idCategory}`)
+      // .get(`http://localhost:3002/category/getbyid/${response.data.data.idCategory}`)
+            .get(`${urlproduct}/category/getbyid/${response.data.data.idCategory}`)
+
       .toPromise(),
     this.httpservice
-      .get(`http://localhost:3002/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
+      // .get(`http://localhost:3002/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
+            .get(`${urlproduct}/subcategory/getsubcategorybyid/${response.data.data.subcategory}`)
+
       .toPromise(),
     this.httpservice
-      .get(`http://localhost:3002/product/countproductseller/${response.data.data.idSeller}`)
+      // .get(`http://localhost:3002/product/countproductseller/${response.data.data.idSeller}`)
+            .get(`${urlproduct}/product/countproductseller/${response.data.data.idSeller}`)
+
       .toPromise(),
     this.httpservice
-      .get(`http://localhost:3004/seller/getseller/${response.data.data.idSeller}`)
+      // .get(`http://localhost:3004/seller/getseller/${response.data.data.idSeller}`)
+            .get(`${urluser}/seller/getseller/${response.data.data.idSeller}`)
+
       .toPromise(),
     
   ]);
@@ -260,7 +303,9 @@ return {
 @Get('getsizebyproduct/:id')
 async getSizebyidprd(@Param('id') id:number){
   const response = await this.httpservice
-  .get(`http://localhost:3002/size/getsizebyidprd/${id}`)
+  // .get(`http://localhost:3002/size/getsizebyidprd/${id}`)
+    .get(`${urlproduct}/size/getsizebyidprd/${id}`)
+
   .toPromise();
 
   return response!.data;
@@ -271,7 +316,9 @@ async getSizebyidprd(@Param('id') id:number){
     async searchproduct(@Body() body:any){
       
       try {
-            const response:any =   await this.httpservice.post('http://localhost:3002/product/searchkeypage',body).toPromise();
+            // const response:any =   await this.httpservice.post('http://localhost:3002/product/searchkeypage',body).toPromise();
+                        const response:any =   await this.httpservice.post(`${urlproduct}/product/searchkeypage`,body).toPromise();
+
           
       return{
         success:true,
@@ -303,7 +350,9 @@ async getSizebyidprd(@Param('id') id:number){
 
         try {
           const { data } = await firstValueFrom(
-              this.httpservice.post(`http://localhost:3004/historysearch/add`, body, {
+              // this.httpservice.post(`http://localhost:3004/historysearch/add`, body, {
+                            this.httpservice.post(`${urluser}/historysearch/add`, body, {
+
                   headers: {
                       Authorization: `Bearer ${token}`,
                   },
@@ -325,7 +374,9 @@ async getSizebyidprd(@Param('id') id:number){
     async GetBestsell(@Body() body:any){
 
       try {
-          const data:any =   await this.httpservice.post('http://localhost:3002/product/getbestselling',body).toPromise();
+          // const data:any =   await this.httpservice.post('http://localhost:3002/product/getbestselling',body).toPromise();
+                    const data:any =   await this.httpservice.post(`${urlproduct}/product/getbestselling`,body).toPromise();
+
 
         return data.data
       } catch (error) {
@@ -343,7 +394,9 @@ async getSizebyidprd(@Param('id') id:number){
     async GetRating(@Body() body:any){
       
       try {
-                  const data:any =   await this.httpservice.post('http://localhost:3002/product/getratingproduct',body).toPromise();
+                  // const data:any =   await this.httpservice.post('http://localhost:3002/product/getratingproduct',body).toPromise();
+                                    const data:any =   await this.httpservice.post(`${urlproduct}/product/getratingproduct`,body).toPromise();
+
 
         return data.data
       } catch (error) {
@@ -363,7 +416,9 @@ async getSizebyidprd(@Param('id') id:number){
     async GetNewProduct(@Body() body:any){
       
       try {
-                  const data:any =   await this.httpservice.post('http://localhost:3002/product/getnewproduct',body).toPromise();
+                  // const data:any =   await this.httpservice.post('http://localhost:3002/product/getnewproduct',body).toPromise();
+                                    const data:any =   await this.httpservice.post(`${urlproduct}/product/getnewproduct`,body).toPromise();
+
 
         return data.data
       } catch (error) {
@@ -395,7 +450,9 @@ async getSizebyidprd(@Param('id') id:number){
             page:body.page,
             keyword:body.keyword,
         }
-        const data:any =   await this.httpservice.post('http://localhost:3002/product/searchprdseller',bddata).toPromise();
+        // const data:any =   await this.httpservice.post('http://localhost:3002/product/searchprdseller',bddata).toPromise();
+                const data:any =   await this.httpservice.post(`${urlproduct}/product/searchprdseller`,bddata).toPromise();
+
 
         return data.data
       } catch (error) {
@@ -428,7 +485,9 @@ async getSizebyidprd(@Param('id') id:number){
           quantity:body.body.quantity,
           page:body.body.page
         }
-          const data:any =   await this.httpservice.post('http://localhost:3002/product/filterproduct',bodydata).toPromise();
+          // const data:any =   await this.httpservice.post('http://localhost:3002/product/filterproduct',bodydata).toPromise();
+                    const data:any =   await this.httpservice.post(`${urlproduct}/product/filterproduct`,bodydata).toPromise();
+
             
            return data.data
 
@@ -461,7 +520,9 @@ async getSizebyidprd(@Param('id') id:number){
 
          try {
            const response:any = await this.httpservice
-            .get(`http://localhost:3002/product/productdetailseller/${id}`,{
+            // .get(`http://localhost:3002/product/productdetailseller/${id}`,{
+                        .get(`${urlproduct}/product/productdetailseller/${id}`,{
+
               params:{
                 seller_id:seller.seller_id
               }
@@ -482,7 +543,9 @@ async getSizebyidprd(@Param('id') id:number){
     async GetSizeColor(){
       try {
         
-        const data:any = await this.httpservice.get('http://localhost:3002/size/sizeandcolor').toPromise()
+        // const data:any = await this.httpservice.get('http://localhost:3002/size/sizeandcolor').toPromise()
+                const data:any = await this.httpservice.get(`${urlproduct}/size/sizeandcolor`).toPromise()
+
         return data.data
       } catch (error) {
           return{
@@ -513,7 +576,9 @@ async getSizebyidprd(@Param('id') id:number){
 
     ){
       try {
-        const data:any  = await this.httpservice.post('http://localhost:3002/product/filteruser', body).toPromise()
+        // const data:any  = await this.httpservice.post('http://localhost:3002/product/filteruser', body).toPromise()
+                const data:any  = await this.httpservice.post(`${urlproduct}/product/filteruser`, body).toPromise()
+
         return data.data
 
       } catch (error) {
@@ -534,7 +599,9 @@ async getSizebyidprd(@Param('id') id:number){
           product_id:body.product_id
       }
       try {
-        const data:any = await this.httpservice.post('http://localhost:3002/product/addfavourite',databody).toPromise()
+        // const data:any = await this.httpservice.post('http://localhost:3002/product/addfavourite',databody).toPromise()
+                const data:any = await this.httpservice.post(`${urlproduct}/product/addfavourite`,databody).toPromise()
+
         return data.data
       } catch (error) {
         return{
@@ -553,7 +620,9 @@ async getSizebyidprd(@Param('id') id:number){
           product_id:body.product_id
       }
       try {
-        const data:any = await this.httpservice.post('http://localhost:3002/product/delete',databody).toPromise()
+        // const data:any = await this.httpservice.post('http://localhost:3002/product/delete',databody).toPromise()
+                const data:any = await this.httpservice.post(`${urlproduct}/product/delete`,databody).toPromise()
+
         return data.data
       } catch (error) {
         return{
@@ -571,7 +640,9 @@ async getSizebyidprd(@Param('id') id:number){
           product_id:body.product_id
       }
       try {
-        const data:any = await this.httpservice.post('http://localhost:3002/product/checkfavourite',databody).toPromise()
+        // const data:any = await this.httpservice.post('http://localhost:3002/product/checkfavourite',databody).toPromise()
+                const data:any = await this.httpservice.post(`${urlproduct}/product/checkfavourite`,databody).toPromise()
+
         return data.data
       } catch (error) {
         return{
@@ -586,7 +657,9 @@ async getSizebyidprd(@Param('id') id:number){
       @Get('all/favourite')
       async GetAllFavourite(@GetUser() user:any,@Query('page') page:string){
         try {
-          const data:any = await this.httpservice.get('http://localhost:3002/product/all/favourite',{
+          // const data:any = await this.httpservice.get('http://localhost:3002/product/all/favourite',{
+                    const data:any = await this.httpservice.get(`${urlproduct}/product/all/favourite`,{
+
             params:{user_id:user.id,page:page}
           }).toPromise();
 

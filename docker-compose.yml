@@ -10,30 +10,25 @@ services:
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest
-
-  database:
-    image: postgres:15
-    container_name: postgres
-    restart: always
-    environment:
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: 123456
-      POSTGRES_DB: shopquanao
-    ports:
-      - "5432:5432"
-
+    networks:
+      - app-network
+      
   user:
     build: ./be/shopquanaobe
     env_file:
       - ./be/shopquanaobe/.env
     container_name: shopquanaobe
     ports:
-      - "3004:3000"  # Container: 3000, Host: 3001
+      - "3004:3000"  # Container: 3000, Host: 3004
+    environment:
+      - PORT=3000
     volumes:
       - ./be/shopquanaobe:/app
       - /app/node_modules
     depends_on:
       - rabbitmq
+    networks:
+      - app-network
 
   product:
     build: ./be/mcrproduct/mcrproduct
@@ -41,56 +36,80 @@ services:
       - ./be/mcrproduct/mcrproduct/.env
     container_name: mcrproduct
     ports:
-      - "3002:3000"
+      - "3002:3000"  # Container: 3000, Host: 3002
+    environment:
+      - PORT=3000
     volumes:
       - ./be/mcrproduct/mcrproduct:/app
       - /app/node_modules
     depends_on:
       - rabbitmq
+    networks:
+      - app-network
 
   cloundinary:
     build:
       context: ./be/mcrcloundinary/mcrcloundinary
     env_file:
-      - ./be/mcrcloundinary/mcrcloundinary/.env  # Nếu Dockerfile nằm sâu
+      - ./be/mcrcloundinary/mcrcloundinary/.env
     container_name: mcrcloundinary
     ports:
-      - "3003:3000"
+      - "3003:3000"  # Container: 3000, Host: 3003
+    environment:
+      - PORT=3000
     volumes:
       - ./be/mcrcloundinary/mcrcloundinary:/app
       - /app/node_modules
     depends_on:
       - rabbitmq
+    networks:
+      - app-network
 
   gateway:
     build:
       context: ./be/getway/getway
     env_file:
-      - ./be/getway/getway/.env  # Nếu Dockerfile nằm sâu
+      - ./be/getway/getway/.env
     container_name: getway
     ports:
-      - "3001:3000"
+      - "3001:3000"  # Container: 3000, Host: 3001
+    environment:
+      - PORT=3000
     volumes:
       - ./be/getway/getway:/app
       - /app/node_modules
     depends_on:
-      - rabbitmq
-
-
+      rabbitmq:
+        condition: service_started
+      user:
+        condition: service_started
+      product:
+        condition: service_started
+      cloundinary:
+        condition: service_started
+    networks:
+      - app-network
 
   frontend:
     build: ./fe/shopquanao
-    # dockerfile: Dockerfile
     container_name: frontend
     ports:
       - "3000:3000"
+    environment:
+      - NODE_OPTIONS=--max-old-space-size=2048
+      - WATCHPACK_POLLING=true
+      - WATCHPACK_POLLING_INTERVAL=1000
+      - WATCHPACK_IGNORE=**/{node_modules,.next,logs,dist,coverage}/**
+      - NEXT_PUBLIC_API_URL=http://localhost:3001
     volumes:
       - ./fe/shopquanao:/app
       - /app/node_modules
     depends_on:
-      - rabbitmq
-      - database
-      - cloundinary
-      - product
-      - user
-      - gateway
+      gateway:
+        condition: service_started
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

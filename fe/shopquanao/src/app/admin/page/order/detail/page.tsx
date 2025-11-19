@@ -144,6 +144,8 @@ export default function OrderDetailPage(){
        try {
         const productRes = await Getdetailallcart(body);
              const productList: ProductOrderItem[] = productRes.data.data;
+             console.log(productList);
+             
              setProducts(productList)
        } catch (error) {
         setLoading(false)

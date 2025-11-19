@@ -42,31 +42,41 @@ import { AdminService } from './admin/admin.service';
 import { AdminModule } from './admin/admin.module';
 import { Admin } from './admin/admin.entity';
 import { CacheModule } from '@nestjs/cache-manager';
+import { WalletService } from './wallet/wallet.service';
+import { WalletController } from './wallet/wallet.controller';
+import { WalletModule } from './wallet/wallet.module';
+import { Wallet } from './wallet/wallet.entity';
+import { Bank } from './wallet/bank.entity';
+import { History } from './wallet/hisstory.entity';
 
 
 @Module({
   imports: [
     ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env',
     }),
      CacheModule.register({
-      ttl: 180, // mặc định 300 giây = 5 phút
+      ttl: 180, // mặc định 300 giây = 5 phút 
       max: 100, // tối đa 100 items
     }),
     TypeOrmModule.forRoot({
-      type:'postgres',
-      // host:process.env.DB_HOST,
-      host:"localhost",
-      port: 5432,
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      entities:[User,Seller,Cart,CartItem,ChatItem, Order,OrderItem,Roomchat, CommentSeller,HistorySearch,Follower,Notification,Admin],
+      type:'postgres', 
+      host:process.env.DB_HOST,
+      // host:"localhost", 
+      
+      port: Number(process.env.DB_PORT),
+      username:process.env.DB_USERNAME, 
+      password:process.env.DB_PASSWORD,
+      database:process.env.DB_NAME,
+      entities:[User,Seller,Cart,CartItem,ChatItem, Order,Wallet,OrderItem,Bank,History,Roomchat, CommentSeller,HistorySearch,Follower,Notification,Admin],
       synchronize:true,
+            ssl: { rejectUnauthorized: false }
+
     }),
     UsersModule, 
      
-    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule, FollowerModule, ChatModule, NotiModule, AdminModule
+    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule, FollowerModule, ChatModule, NotiModule, AdminModule, WalletModule
   
   ],
   controllers: [AppController],

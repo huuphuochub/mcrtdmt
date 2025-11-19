@@ -19,26 +19,32 @@ import { CommentController } from './comment/comment.controller';
 import { CommentModule } from './comment/comment.module';
 import { Comment } from './comment/comment.entity';
 import { Favourite } from './product/favouriteproduct.entity';
-
-@Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      type:'postgres',
-      // host:process.env.DB_HOST,
-      host:"localhost",
-      port: 5432,
-      username:"postgres",
-      password:"123456",
-      database:"shopquanao",
+import { ConfigModule } from '@nestjs/config'; 
+@Module({  
+  imports: [  
+    ConfigModule.forRoot({
+      isGlobal: true, // ✅ để tất cả module đều dùng được
+      envFilePath: '.env', // ✅ chỉ đường dẫn tới file .env
+    }),
+    TypeOrmModule.forRoot({  
+      type:'postgres', 
+      host:process.env.DB_HOST, 
+      // host:"localhost", 
+      
+      port: Number(process.env.DB_PORT),
+      username:process.env.DB_USERNAME, 
+      password:process.env.DB_PASSWORD,
+      database:process.env.DB_NAME, 
       entities:[Product,Subimg,Color,Size,ProductVariants,Category,Subcategory,Comment,Favourite],
       synchronize:true,
+      ssl: { rejectUnauthorized: false }
 
     }),
     
     
-    ProductModule,
+    ProductModule, 
     
-    
+     
     SubimgModule,
     
     

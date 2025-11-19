@@ -122,10 +122,10 @@ const Headeradmin2 =() =>{
   {!loading ? (
     <div className="flex flex-col gap-4 ">
       {/* Trang chủ */}
-      <a href="#" className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 transition">
+      <Link href="/admin" className="flex items-center gap-2 p-2 rounded hover:bg-gray-100 transition">
         <Home />
         <span className="text-2xl">Trang chủ</span>
-      </a>
+      </Link>
 
       {/* Accordion Menu */}
       <Accordion type="single" collapsible>
@@ -151,8 +151,8 @@ const Headeradmin2 =() =>{
           </div>
           <AccordionContent className="ml-6 flex flex-col gap-1">
             <Link href="/admin/page/product/list" className="hover:text-blue-500 text-xl">Danh sách</Link>
-            <a href="/admin/page/product/addproduct" className="hover:text-blue-500 text-xl">Thêm sản phẩm</a>
-            <a href="#" className="hover:text-blue-500 text-xl">Thêm biến thể</a>
+            <Link href="/admin/page/product/addproduct" className="hover:text-blue-500 text-xl">Thêm sản phẩm</Link>
+            <Link href="/admin/page/product/addvariant" className="hover:text-blue-500 text-xl">Thêm biến thể</Link>
           </AccordionContent>
         </AccordionItem>
       </Accordion>
@@ -176,12 +176,12 @@ const Headeradmin2 =() =>{
         <AccordionItem value="other">
           <div className="flex items-center gap-2">
             <ChartArea />
-            <AccordionTrigger className="flex-1 text-gray-700 font-medium">Khác</AccordionTrigger>
+            <AccordionTrigger className="flex-1 text-gray-700 text-xl font-medium">Ví của tôi</AccordionTrigger>
           </div>
           <AccordionContent className="ml-6 flex flex-col gap-1">
-            <a href="#" className="hover:text-blue-500 text-xl">Item 1</a>
-            <a href="#" className="hover:text-blue-500 text-xl">Item 2</a>
-            <a href="#" className="hover:text-blue-500 text-xl">Item 3</a>
+            <Link href="/admin/page/balance" className="hover:text-blue-500 text-xl">Số dư</Link>
+            <Link href="/admin/page/balance/history" className="hover:text-blue-500 text-xl">Lịch sử</Link>
+            {/* <a href="#" className="hover:text-blue-500 text-xl">Item 3</a> */}
           </AccordionContent>
         </AccordionItem>
       </Accordion>

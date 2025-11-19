@@ -308,16 +308,42 @@ export default function Productdetailpage({ productprop }: ProductDetailProps) {
     // Lưu lại vào localStorage
     localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }
-  useEffect(() => {
-    if (productprop.success && productprop.data?.product.success) {
-      setProduct(productprop.data.product.data);
-      setCategory(productprop.data.category.data);
-      setSubcategory(productprop.data.subcategory.data);
-      setCountlproduct(productprop.data.countlproduct);
-      setSubimg(productprop.data.images.data);
-      setSeller(productprop.data.seller.data);
-    }
-  }, [productprop]);
+useEffect(() => {
+  if (!productprop.data) return; // đảm bảo có data
+
+  console.log(productprop.data);
+  
+  // Product
+  if (productprop.data.product?.success) {
+    setProduct(productprop.data.product.data || null);
+  }
+
+  // Category
+  if (productprop.data.category?.data) {
+    setCategory(productprop.data.category.data);
+  }
+
+  // Subcategory
+  if (productprop.data.subcategory?.data) {
+    setSubcategory(productprop.data.subcategory.data);
+  }
+
+  // Countlproduct
+  if (productprop.data.countlproduct !== undefined) {
+    setCountlproduct(productprop.data.countlproduct);
+  }
+
+  // Images
+  if (productprop.data.images?.data) {
+    setSubimg(productprop.data.images.data);
+  }
+
+  // Seller
+  if (productprop.data.seller?.data) {
+    setSeller(productprop.data.seller.data);
+  }
+}, [productprop]);
+
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(e.target.files || []);

@@ -5,7 +5,8 @@ import { JwtSellerAuthGuardFromCookie } from "src/auth/seller-jwt.guard";
 import { GetSeller } from "src/common/decorators/get-seller.decorator";
 import { GetUser } from "src/common/decorators/get-user.decorator";
 
-
+const urluser = 'http://localhost:3004'
+// const urlproduct = '${urlproduct}'
 @Controller('noti')
 export class Notification{
     constructor(
@@ -21,7 +22,9 @@ export class Notification{
         async AddNotiSeller(@Body() body:any){
             
             try {
-                const add:any = await this.httpService.post('http://localhost:3004/noti/addnoti',body).toPromise();
+                // const add:any = await this.httpService.post('http://localhost:3004/noti/addnoti',body).toPromise();
+                                const add:any = await this.httpService.post(`${urluser}/noti/addnoti`,body).toPromise();
+
                 return add.data
             } catch (error) {
                 return{
@@ -44,7 +47,9 @@ export class Notification{
             }
 
             try {
-                const data:any = await this.httpService.get(`http://localhost:3004/noti/notiseller/${seller.seller_id}`).toPromise()
+                // const data:any = await this.httpService.get(`http://localhost:3004/noti/notiseller/${seller.seller_id}`).toPromise()
+                                const data:any = await this.httpService.get(`${urluser}/noti/notiseller/${seller.seller_id}`).toPromise()
+
 
                 return data.data
              } catch (error) {
@@ -68,7 +73,9 @@ export class Notification{
             }
 
             try {
-                const data:any = await this.httpService.get(`http://localhost:3004/noti/notiuser/${user.id}`).toPromise()
+                // const data:any = await this.httpService.get(`http://localhost:3004/noti/notiuser/${user.id}`).toPromise()
+                                const data:any = await this.httpService.get(`${urluser}/noti/notiuser/${user.id}`).toPromise()
+
 
                 return data.data
             } catch (error) {
@@ -83,7 +90,9 @@ export class Notification{
         @Post('updatenoti/:id')
         async UpdateNotiUser(@Param('id') id:number){
             try {
-                const data:any = await this.httpService.post(`http://localhost:3004/noti/updatenoti/${id}`).toPromise()
+                // const data:any = await this.httpService.post(`http://localhost:3004/noti/updatenoti/${id}`).toPromise()
+                                const data:any = await this.httpService.post(`${urluser}/noti/updatenoti/${id}`).toPromise()
+
 
                 return data.data
             } catch (error) {

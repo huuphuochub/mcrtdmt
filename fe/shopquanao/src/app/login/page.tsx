@@ -5,6 +5,12 @@ import Button from "@/component/ui/button";
 import { Postloginuser } from "@/service/userservice";
 export default function Loginuser(){
     const [error,setError] = useState('');
+    const [userTest,setUserTest] = useState(false);
+      const [selectedOption, setSelectedOption] = useState<string>("");
+    const TEST_ACCOUNT = {
+    phone: "0852517046",
+    password: "11111111",
+  };
     const [formData,setFormdata] = useState<{
         phone:string,
         password:string,
@@ -14,6 +20,23 @@ export default function Loginuser(){
         phone:'',
         password:'',
     })
+
+      const handleRadioChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.id;
+    setSelectedOption(value);
+
+    if (value === "test-account-login") {
+      // gán dữ liệu test
+      setFormdata(TEST_ACCOUNT);
+    } else {
+      // reset lại form nếu chọn loại khác
+      setFormdata({
+        phone: "",
+        password: "",
+      });
+    }
+  };
+
     const handlechange=(e: React.ChangeEvent<HTMLInputElement>)=>{
         const {name,value} = e.target;
         setFormdata((prev)=>({
@@ -85,6 +108,36 @@ export default function Loginuser(){
                                
                             </div>
                             {/* button */}
+
+                            <div className="flex  relative items-center space-x-2 p-3 border border-gray-300 rounded-lg bg-white hover:bg-gray-50 transition duration-150 ease-in-out cursor-pointer w-fit">
+                                <input 
+                                    type="radio"
+                                    id="test-account-login" 
+                                    name="login-option"
+                                    checked={selectedOption === "test-account-login"}
+                                    onChange={handleRadioChange}
+                                    className="
+                                        form-radio 
+                                        h-4 w-4 
+                                        text-blue-600 
+                                        border-gray-300 
+                                        focus:ring-blue-500 
+                                        cursor-pointer
+                                    "
+                                />
+                                <label 
+                                    htmlFor="test-account-login" 
+                                    className="
+                                        text-sm 
+                                        font-medium 
+                                        text-gray-700 
+                                        select-none 
+                                        cursor-pointer
+                                    "
+                                >
+                                    Đăng nhập bằng tài khoản thử nghiệm
+                                </label>
+                            </div>
         
                            <div className="flex justify-between">
                                  <Button variant="primary">dang nhap</Button>

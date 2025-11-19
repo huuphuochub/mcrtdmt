@@ -55,7 +55,7 @@ useEffect(() => {
  useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 800) {
-        setPos({ x: -100, y: -50 });
+        setPos({ x: -80, y: -60 });
       } else {
         setPos({ x: -500, y: -100 });
       }
@@ -146,7 +146,7 @@ const quickchat = (value:string) =>{
                         left: pos.x,
                         top: pos.y,
                         zIndex:100,
-                        width: 400,
+                        width: 370,
                         border: "1px solid gray",
                         borderRadius: "8px",
                         background: "white",

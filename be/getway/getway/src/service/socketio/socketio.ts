@@ -10,10 +10,15 @@ import { HttpService } from '@nestjs/axios';
 import { log } from 'console';
 import { JwtService } from '@nestjs/jwt';
 import * as cookie from 'cookie';
-
+const urluser = 'http://localhost:3004'
+// const urlproduct = '${urlproduct}'
 @WebSocketGateway({
   cors: {
-    origin: 'http://localhost:3000', // NextJS
+    origin: [
+      'http://localhost:3000',
+      'http://frontend:3000',
+      'http://127.0.0.1:3000',
+    ],
     credentials: true,
   },
 })
@@ -105,7 +110,9 @@ public processAndEmit(newmessage: any) {
   @SubscribeMessage('watch_mess')
   async handleMessage(client: Socket, payload: any) {
     try {
-        const ok =  await this.httpService.post('http://localhost:3004/chat/watchitem',payload).toPromise()
+        // const ok =  await this.httpService.post('http://localhost:3004/chat/watchitem',payload).toPromise()
+                const ok =  await this.httpService.post(`${urluser}/chat/watchitem`,payload).toPromise()
+
 
     } catch (error) {
       
@@ -117,7 +124,9 @@ public processAndEmit(newmessage: any) {
     @SubscribeMessage('watchitem_click')
   async handlewatchitemclick(client: Socket, payload: any) {
     try {
-        const ok =  await this.httpService.post('http://localhost:3004/chat/watchitemclick',payload).toPromise()
+        // const ok =  await this.httpService.post('http://localhost:3004/chat/watchitemclick',payload).toPromise()
+                const ok =  await this.httpService.post(`${urluser}/chat/watchitemclick`,payload).toPromise()
+
 
     } catch (error) {
       

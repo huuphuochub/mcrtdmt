@@ -109,4 +109,54 @@ export class SizeService {
   }
     
   }
+
+
+ async upsertProductVariants(variants: {
+      product_id: number;
+      size_id: number;
+      color_id: number;
+      quantity: number;
+    }[],
+  ) {
+    const results: ProductVariants[] = [];
+
+    for (const v of variants) {
+      // Kiểm tra xem biến thể đã tồn tại chưa
+      const exist = await this.productVariantsrepo.findOne({
+        where: {
+          product: { id: v.product_id },
+          size: { id: v.size_id },
+          color: { id: v.color_id },
+        },
+        relations: ["product", "size", "color"], // để tránh lỗi entity quan hệ undefined
+      });
+
+      if (exist) {
+        // Nếu tồn tại → cập nhật số lượng
+        exist.quantity = v.quantity;
+        const saved = await this.productVariantsrepo.save(exist);
+        results.push(saved);
+      } else {
+        // Nếu chưa tồn tại → tạo mới
+        const newVariant = this.productVariantsrepo.create({
+          product: { id: v.product_id },
+          size: { id: v.size_id },
+          color: { id: v.color_id },
+          quantity: v.quantity,
+        });
+
+        const saved = await this.productVariantsrepo.save(newVariant);
+        results.push(saved);
+      }
+    }
+
+    return {
+      message: "Upsert variants success",
+      count: results.length,
+      data: results,
+      success:true,
+    };
+  }
+
+
 }

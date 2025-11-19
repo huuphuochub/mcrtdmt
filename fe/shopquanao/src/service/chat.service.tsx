@@ -86,7 +86,7 @@ const SendMessage = async(formdata:FormData) =>{
 }
 const CreateRoomchat= async(seller_id:number) =>{
   try {
-    const room = await axiosClient.post('chat/creatroom',{seller_id:seller_id})
+    const room = await axiosClient.post('/chat/creatroom',{seller_id:seller_id})
     return room
   } catch (error) {
     return{

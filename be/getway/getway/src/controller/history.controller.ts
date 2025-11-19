@@ -3,7 +3,8 @@ import { HttpService } from '@nestjs/axios';
 
 
 import { firstValueFrom } from 'rxjs';
-
+// const urluser = '${urluser}'
+const urlproduct = 'http://localhost:3002'
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
@@ -27,7 +28,9 @@ export class HistoryController {
 
             try {
                 const {data} = await firstValueFrom(
-                    this.httpService.post('http://localhost:3002/historysearch/add',body,{
+                    // this.httpService.post('http://localhost:3002/historysearch/add',body,{
+                                        this.httpService.post(`${urlproduct}/historysearch/add`,body,{
+
                         headers:{
                             Authorization:`Bearer ${token}`,
                         }

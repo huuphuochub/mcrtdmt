@@ -34,8 +34,8 @@ dotenv.config();
         name: 'UPLOAD_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
-            //  urls: ['amqp://rabbitmq:5672'],
+          // urls: ['amqp://localhost:5672'],
+             urls: ['amqp://rabbitmq:5672'],
 
           queue: 'upload_queue',
           queueOptions: { durable: false },
@@ -45,8 +45,8 @@ dotenv.config();
         name: 'SEND_MAIL_ORDER',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
-            //  urls: ['amqp://rabbitmq:5672'],
+          // urls: ['amqp://localhost:5672'],
+             urls: ['amqp://rabbitmq:5672'],
 
           queue: 'mailer_order',
           queueOptions: { durable: false }, 
@@ -57,8 +57,8 @@ dotenv.config();
         name: 'SEND_OTP_EMAIL',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
-            //  urls: ['amqp://rabbitmq:5672'],
+          // urls: ['amqp://localhost:5672'],
+             urls: ['amqp://rabbitmq:5672'],
 
           queue: 'send_otp_email',
           queueOptions: { durable: false }, 
@@ -68,8 +68,8 @@ dotenv.config();
         name: 'SUBIMG_SERVICE',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
-          //  urls: ['amqp://rabbitmq:5672'],
+          // urls: ['amqp://localhost:5672'],
+           urls: ['amqp://rabbitmq:5672'],
 
           queue: 'subimg_queue',
           queueOptions: { durable: false },
@@ -80,8 +80,8 @@ dotenv.config();
         name: 'IMG_SENDMESS',
         transport: Transport.RMQ,
         options: {
-          urls: ['amqp://localhost:5672'],
-          //  urls: ['amqp://rabbitmq:5672'],
+          // urls: ['amqp://localhost:5672'],
+           urls: ['amqp://rabbitmq:5672'],
 
           queue: 'img_sendmess',
           queueOptions: { durable: false },

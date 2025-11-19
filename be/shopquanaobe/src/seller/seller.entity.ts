@@ -3,6 +3,7 @@ import { User } from 'src/users/user.entity';
 import { CommentSeller } from './commentseller.entity';
 import { Notification } from 'src/noti/noti.entity';
 import { OrderItem } from 'src/order/orderitem.entity';
+import { Wallet } from 'src/wallet/wallet.entity';
 @Entity('sellers') // 👈 bảng tên là 'users'
 export class Seller {
   @PrimaryGeneratedColumn()
@@ -87,4 +88,7 @@ export class Seller {
 
    @OneToMany(() => Notification, (noti) => noti.seller)
     notifications: Notification[];
+
+    @OneToOne(() => Wallet, wallet => wallet.seller)
+    wallet:Wallet
 }

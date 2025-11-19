@@ -1,7 +1,8 @@
 import { HttpService } from '@nestjs/axios';
 import { Controller, Post, Body } from '@nestjs/common';
 import { GeminiService } from 'src/service/geminiai';
-
+// const urluser = '${urluser}'
+const urlproduct = 'http://localhost:3002'
 @Controller('gemini')
 export class GeminiController {
   constructor(private readonly geminiService: GeminiService,        private readonly httpService: HttpService,
@@ -43,7 +44,9 @@ export class GeminiController {
   case 'product_search':
     // Gọi service tìm DB
     try {
-      const products:any = await this.httpService.post('http://localhost:3002/product/searchproductchatai',{
+      // const products:any = await this.httpService.post('http://localhost:3002/product/searchproductchatai',{
+            const products:any = await this.httpService.post(`${urlproduct}/product/searchproductchatai`,{
+
       keyword: response.product,
       category: response.category,
       minprice: response.minprice,

@@ -1,7 +1,8 @@
 import { Controller, Get, Param, Req, UnauthorizedException, UseGuards } from '@nestjs/common';
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
-
+// const urluser = '${urluser}'
+const urlproduct = 'http://localhost:3002'
 
 @Controller('subcategory')
 export class Subcategorycontroller {
@@ -14,8 +15,9 @@ export class Subcategorycontroller {
   
     try {
       const { data } = await firstValueFrom(
-        this.httpService.get(`http://localhost:3002/subcategory/${id}`, {
-                  // this.httpService.get(`http://user:3004/subcategory/${id}`, {
+        // this.httpService.get(`http://localhost:3002/subcategory/${id}`, {
+                this.httpService.get(`${urlproduct}/subcategory/${id}`, {
+
 
           
         }),

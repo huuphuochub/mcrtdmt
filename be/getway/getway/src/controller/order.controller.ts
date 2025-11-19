@@ -11,6 +11,9 @@ import { ViettelpostService } from "src/service/viettelpost.service";
 interface RequestWithCookies extends Request {
   cookies: Record<string, string>;
 }
+
+const urluser = 'http://localhost:3004'
+const urlproduct = 'http://localhost:3002'
 @Controller('order')
 export class OrderController {
   constructor(private readonly httpService: HttpService,
@@ -38,7 +41,9 @@ const sellerIds = Object.keys(grouped).map(id => parseInt(id));
 
 
 // lấy thông tin chi tiết các seller từ id_user
-const sellers:any = await this.httpService.post('http://localhost:3004/seller/inforseller', { sellerIds }).toPromise();
+// const sellers:any = await this.httpService.post('http://localhost:3004/seller/inforseller', { sellerIds }).toPromise();
+const sellers:any = await this.httpService.post(`${urluser}/seller/inforseller`, { sellerIds }).toPromise();
+
 
 
 // gom product và seller thành các mảng dựa theo id_seller
@@ -200,8 +205,9 @@ const orderforviettel = results.map(seller => {
   async createpayos(@Body() orderData: any) {
     // Xử lý dữ liệu đơn hàng và gọi API tạo đơn hàng
     const response = await firstValueFrom(
-            this.httpService.post('http://localhost:3004/order/createpaymentlink', orderData, {
-                      // this.httpService.post('http://user:3004/users/login', body, {
+            // this.httpService.post('http://localhost:3004/order/createpaymentlink', orderData, {
+                        this.httpService.post(`${urluser}/order/createpaymentlink`, orderData, {
+
     
               // withCredentials: true, // Gửi và nhận cookie
             }),
@@ -214,8 +220,9 @@ const orderforviettel = results.map(seller => {
   async checkOrderCode(@Body() body: any) {
     
     const response = await firstValueFrom(
-      this.httpService.post('http://localhost:3004/order/checkordercode', body, {
-        // this.httpService.post('http://user:3004/users/login', body, {
+      // this.httpService.post('http://localhost:3004/order/checkordercode', body, {
+            this.httpService.post(`{urluser}/order/checkordercode`, body, {
+
 
         // withCredentials: true, // Gửi và nhận cookie
       }),
@@ -225,7 +232,9 @@ const orderforviettel = results.map(seller => {
     if(response.data.result.success){
       if(response.data.result.data.status === 'PAID'){
         await firstValueFrom(
-          this.httpService.post('http://localhost:3004/order/updatestatus',{
+          // this.httpService.post('http://localhost:3004/order/updatestatus',{
+                    this.httpService.post(`${urluser}/order/updatestatus`,{
+
             ordercode:body.ordercode,
             status:1,
             payable_amount:body.payable_amount,
@@ -252,8 +261,9 @@ const orderforviettel = results.map(seller => {
   }
         try {
           const { data } = await firstValueFrom(
-            this.httpService.post('http://localhost:3004/order/createorder',body, {
-                    // this.httpService.get('http://user:3004/users/me', {
+            // this.httpService.post('http://localhost:3004/order/createorder',body, {
+                        this.httpService.post(`${urluser}/order/createorder`,body, {
+
 
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -290,8 +300,9 @@ const orderforviettel = results.map(seller => {
 
               try {
           const { data } = await firstValueFrom(
-            this.httpService.get(`http://localhost:3004/order/getorderitem/${ordercode}`, {
-                    // this.httpService.get('http://user:3004/users/me', {
+            // this.httpService.get(`http://localhost:3004/order/getorderitem/${ordercode}`, {
+                        this.httpService.get(`${urluser}/order/getorderitem/${ordercode}`, {
+
 
               headers: {
                 Authorization: `Bearer ${token}`,
@@ -317,7 +328,9 @@ const orderforviettel = results.map(seller => {
     async updatestatus(@Body() body: any) {
       try {
         const response = await firstValueFrom(
-          this.httpService.post('http://localhost:3004/order/updatestatus', body)
+          // this.httpService.post('http://localhost:3004/order/updatestatus', body)
+                    this.httpService.post(`${urluser}/order/updatestatus`, body)
+
         );
 
         // chỉ trả về data cho FE
@@ -347,7 +360,9 @@ const orderforviettel = results.map(seller => {
       }
       try {
         const response = await firstValueFrom(
-          this.httpService.get(`http://localhost:3004/order/getorderitembyid/${id}`,{
+          // this.httpService.get(`http://localhost:3004/order/getorderitembyid/${id}`,{
+                    this.httpService.get(`${urluser}/order/getorderitembyid/${id}`,{
+
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -389,7 +404,9 @@ const orderforviettel = results.map(seller => {
       }
             try {
         const response = await firstValueFrom(
-          this.httpService.get(`http://localhost:3004/order/getallorder/${page}/${parsedStatus}/?month=${month}`,{
+          // this.httpService.get(`http://localhost:3004/order/getallorder/${page}/${parsedStatus}/?month=${month}`,{
+                    this.httpService.get(`${urluser}/order/getallorder/${page}/${parsedStatus}/?month=${month}`,{
+
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -428,7 +445,9 @@ const orderforviettel = results.map(seller => {
     @Post('updateordermail')
     async updateordermail(@Body() body:any){ 
     try {
-            const response:any =   await this.httpService.post('http://localhost:3004/order/updateordermail',body)
+            // const response:any =   await this.httpService.post('http://localhost:3004/order/updateordermail',body)
+                        const response:any =   await this.httpService.post(`${urluser}/order/updateordermail`,body)
+
       return{
         success:true,
         data:response.data,
@@ -457,7 +476,9 @@ const orderforviettel = results.map(seller => {
       }
             try {
         const response = await firstValueFrom(
-          this.httpService.get(`http://localhost:3004/order/hasbought/${product_id}`,{
+          // this.httpService.get(`http://localhost:3004/order/hasbought/${product_id}`,{
+                    this.httpService.get(`${urluser}/order/hasbought/${product_id}`,{
+
             headers: {
                 Authorization: `Bearer ${token}`,
               },
@@ -493,7 +514,9 @@ const orderforviettel = results.map(seller => {
       }
 
       try {
-        const data:any = await this.httpService.post('http://localhost:3004/order/GetOrderByUserWithSeller',{seller_id:body.seller_id,user_id:user.id}).toPromise()
+        // const data:any = await this.httpService.post('http://localhost:3004/order/GetOrderByUserWithSeller',{seller_id:body.seller_id,user_id:user.id}).toPromise()
+                const data:any = await this.httpService.post(`${urluser}/order/GetOrderByUserWithSeller`,{seller_id:body.seller_id,user_id:user.id}).toPromise()
+
         return data.data
       } catch (error) {
         return{
@@ -516,7 +539,9 @@ const orderforviettel = results.map(seller => {
       }
     }
     try {
-        const data:any = await this.httpService.post('http://localhost:3004/order/orderitembyseller',{seller_id:seller.seller_id,page:body.page,limit:body.limit,month:body.month,year:body.year}).toPromise()
+        // const data:any = await this.httpService.post('http://localhost:3004/order/orderitembyseller',{seller_id:seller.seller_id,page:body.page,limit:body.limit,month:body.month,year:body.year}).toPromise()
+                const data:any = await this.httpService.post(`${urluser}/order/orderitembyseller`,{seller_id:seller.seller_id,page:body.page,limit:body.limit,month:body.month,year:body.year}).toPromise()
+
         return{
           success:true,
           data:data.data.data,
@@ -543,7 +568,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const order:any = await this.httpService.post('http://localhost:3004/order/orderdetailbyseller',{order_id:body.order_id,seller_id:seller.seller_id}).toPromise()
+      // const order:any = await this.httpService.post('http://localhost:3004/order/orderdetailbyseller',{order_id:body.order_id,seller_id:seller.seller_id}).toPromise()
+            const order:any = await this.httpService.post(`${urluser}/order/orderdetailbyseller`,{order_id:body.order_id,seller_id:seller.seller_id}).toPromise()
+
       return order.data
     } catch (error) {
       return{
@@ -566,11 +593,19 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const up:any = await this.httpService.post('http://localhost:3004/order/updatestatusorderitem',{order_id:body.order_id,seller_id:seller.seller_id,status:body.status,cancelReason:body.cancelReason}).toPromise()
+      // const up:any = await this.httpService.post('http://localhost:3004/order/updatestatusorderitem',{order_id:body.order_id,seller_id:seller.seller_id,status:body.status,cancelReason:body.cancelReason}).toPromise()
+            const up:any = await this.httpService.post(`${urluser}/order/updatestatusorderitem`,{order_id:body.order_id,seller_id:seller.seller_id,status:body.status,cancelReason:body.cancelReason}).toPromise()
+
       if(body.status === 3){
-        const updatevariant = await this.httpService.post('http://localhost:3002/size/updatevariant',{variant:body.variant}).toPromise()
-        const updatequantiryproduct = await this.httpService.post('http://localhost:3002/product/updatequantity',{variant:body.variant}).toPromise()
-        const updatetotalsold = await this.httpService.post('http://localhost:3004/seller/updatetotalsold',{seller_id:seller.seller_id,variant:body.variant}).toPromise();
+        // const updatevariant = await this.httpService.post('http://localhost:3002/size/updatevariant',{variant:body.variant}).toPromise()
+                const updatevariant = await this.httpService.post(`${urlproduct}/size/updatevariant`,{variant:body.variant}).toPromise()
+
+        // const updatequantiryproduct = await this.httpService.post('http://localhost:3002/product/updatequantity',{variant:body.variant}).toPromise()
+                const updatequantiryproduct = await this.httpService.post(`${urlproduct}/product/updatequantity`,{variant:body.variant}).toPromise()
+
+        // const updatetotalsold = await this.httpService.post('http://localhost:3004/seller/updatetotalsold',{seller_id:seller.seller_id,variant:body.variant}).toPromise();
+                const updatetotalsold = await this.httpService.post(`${urluser}/seller/updatetotalsold`,{seller_id:seller.seller_id,variant:body.variant}).toPromise();
+
           
       }
       return up.data
@@ -596,7 +631,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/order/conutorder',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      // const data:any = await this.httpService.post('http://localhost:3004/order/conutorder',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+            const data:any = await this.httpService.post(`${urluser}/order/conutorder`,{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+
       return data.data
     } catch (error) {
       return{
@@ -619,7 +656,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/order/countcustomer',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      // const data:any = await this.httpService.post('http://localhost:3004/order/countcustomer',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+            const data:any = await this.httpService.post(`${urluser}/order/countcustomer`,{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+
       return data.data
     } catch (error) {
       return{
@@ -643,7 +682,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/order/countrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      // const data:any = await this.httpService.post('http://localhost:3004/order/countrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+            const data:any = await this.httpService.post(`${urluser}/order/countrevenue`,{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+
       return data.data
     } catch (error) {
       return{
@@ -667,7 +708,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/order/countproduct',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      // const data:any = await this.httpService.post('http://localhost:3004/order/countproduct',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+            const data:any = await this.httpService.post(`${urluser}/order/countproduct`,{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+
       return data.data
     } catch (error) {
       return{
@@ -690,7 +733,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/order/doashboardrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      // const data:any = await this.httpService.post('http://localhost:3004/order/doashboardrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+            const data:any = await this.httpService.post(`${urluser}/order/doashboardrevenue`,{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+
       return data.data
     } catch (error) {
       return{
@@ -714,7 +759,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/order/doashboardtopproductsell',{seller_id:seller.seller_id,month:body.month,year:body.year,limit:body.limit}).toPromise()
+      // const data:any = await this.httpService.post('http://localhost:3004/order/doashboardtopproductsell',{seller_id:seller.seller_id,month:body.month,year:body.year,limit:body.limit}).toPromise()
+            const data:any = await this.httpService.post(`${urluser}/order/doashboardtopproductsell`,{seller_id:seller.seller_id,month:body.month,year:body.year,limit:body.limit}).toPromise()
+
       return data.data
     } catch (error) {
       return{
@@ -736,7 +783,9 @@ const orderforviettel = results.map(seller => {
     }
 
     try {
-      const data:any = await this.httpService.post('http://localhost:3004/order/doashboardtopproductrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+      // const data:any = await this.httpService.post('http://localhost:3004/order/doashboardtopproductrevenue',{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+            const data:any = await this.httpService.post(`${urluser}/order/doashboardtopproductrevenue`,{seller_id:seller.seller_id,month:body.month,year:body.year}).toPromise()
+
       return data.data
     } catch (error) {
       return{

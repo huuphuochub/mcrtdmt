@@ -61,5 +61,17 @@ export class SizeController {
     async UpdateQuantityVariants(@Body() body:any){
         return await this.sizeService.UpdateQuantityVariant(body);
     }
+
+    @Post('addvariant')
+    async upsertProductVariants(@Body()  body: {
+      product_id: number;
+      size_id: number;
+      color_id: number;
+      quantity: number;
+    }[]){
+        console.log(body);
+        
+        return await this.sizeService.upsertProductVariants(body);
+    }
 }
  

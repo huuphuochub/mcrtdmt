@@ -24,6 +24,7 @@ import {
 } from "lucide-react";
 import { AddKeywordSearch } from "@/service/product.service";
 import NotificationHeader from "./notification/notioficationheader";
+import { useSmokeStore } from "@/app/context/smoke";
 // import React, { useRef } from "react";
 interface Carts {
   product_id: number;
@@ -57,6 +58,8 @@ export default function Header() {
   const [keyword, setKeyword] = useState("");
   const [open, setOpen] = useState(false);
   const [openmenumobile, setOpenmenumobile] = useState(false);
+  const { isOn, setIsOn } = useSmokeStore();
+
 
   useEffect(() => {
     fetchCategorys();
@@ -67,6 +70,14 @@ export default function Header() {
     setIsopenprofile(false);
   };
 
+
+  //  const toggleSwitch = () => {
+  //   const newState = !isOn;
+  //   setIsOn(newState);
+  //   localStorage.setItem("smoke", newState.toString());
+  //     window.dispatchEvent(new Event("smoke-change")); // 🔥 phát tín hiệu cho component khác
+
+  // };
    useEffect(() => {
     if (openmenumobile) {
       // Khóa cuộn trang
@@ -192,6 +203,8 @@ export default function Header() {
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
+
+  
   return (
     <header
       className={`fixed top-0 z-20 left-0 w-full bg-white shadow transition-transform duration-300 
@@ -526,6 +539,50 @@ export default function Header() {
                           <Link href="/order">Lịch sử đơn hàng</Link>
                         </span>
                       </div>
+
+                    <div className="flex items-center gap-2 px-4 py-2 rounded-lg hover:bg-gray-100 cursor-pointer">
+                        <svg
+                          xmlns="http://www.w3.org/2000/svg"
+                          className="h-5 w-5"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                          stroke="currentColor"
+                        >
+                          <path
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth={2}
+                            d="M9 17v-6a2 2 0 012-2h4m0 0l-2-2m2 2l-2 2m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                          />
+                        </svg>
+                        <span className="text-[15px]">
+                          <Link href="/order">Smoke</Link>
+                        </span>
+
+                        <div className="  ">
+                        
+                        <div
+                          onClick={() => setIsOn(!isOn)}
+                          className={`relative w-8 h-4 rounded-full cursor-pointer transition-colors duration-300 ${
+                            isOn ? "bg-green-500" : "bg-gray-500"
+                          }`}
+                        >
+                          <div
+                            className={`absolute top-1 left-1 w-2 h-2 bg-white rounded-full shadow-md transform transition-transform duration-300 ${
+                              isOn ? "translate-x-4" : "translate-x-0"
+                            }`}
+                          ></div>
+                        </div>
+
+                       
+                        
+                      </div>
+
+                        
+                      </div>
+                     
+
+
                     </div>
                   </div>
                 )}

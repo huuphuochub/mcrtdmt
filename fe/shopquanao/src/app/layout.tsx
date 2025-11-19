@@ -4,12 +4,13 @@ import "./globals.css";
 import { CartProvider } from "./context/cartcontext";
 import { UserProvider } from "./context/usercontext";
 import Script from "next/script";
-import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
+// import FluidSimulation from "@/component/FluidSimulation/FluidSimulation";
 import { Toaster } from "react-hot-toast";
 import QueryProvider from "./QueryProvider";
 import Chat from "@/component/chat/chat";
 import { ChatProvider } from "./context/chat.context";
 import ClientLayout from "./ClientLayout";
+import FluidSimulations from "@/components/ui/FluidSimulation";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -44,12 +45,7 @@ export default function RootLayout({
         <UserProvider>
         <CartProvider>
         <ChatProvider>
-          <div className="" >
-          <div id="Particles">
-            <canvas id="fluid"></canvas>
-              <FluidSimulation/>  
-          </div>
-        </div>
+          <FluidSimulations/>
         <ClientLayout>{children}</ClientLayout>
         <Toaster position="top-right" reverseOrder={false} />
         </ChatProvider>

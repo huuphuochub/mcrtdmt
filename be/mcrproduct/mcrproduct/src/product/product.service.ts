@@ -455,6 +455,8 @@ async SearchPrdSeller(keyword:string,page:number,seller_id:number){
 
     const [products, total] = await this.productRepo
       .createQueryBuilder('product')
+      // .leftJoinAndSelect("product.variants", "variants")
+
       .where(
         `unaccent(lower(product.name)) LIKE unaccent(lower(:keyword))`,
         { keyword: `%${keyword}%` },
@@ -496,6 +498,8 @@ async Filterproduct(category: number, status: number, seller_id: number, quantit
     let query = this.productRepo
       .createQueryBuilder("product")
       .where("product.idSeller = :seller_id", { seller_id })
+      .leftJoinAndSelect("product.variants", "variants")
+
       // .andWhere("product.idCategory = :category", { category });
 
     // Filter theo status
@@ -519,6 +523,7 @@ async Filterproduct(category: number, status: number, seller_id: number, quantit
       .take(take)
       .getManyAndCount();
 
+      
     return {
       success: true,
       data: products,

@@ -2,15 +2,20 @@ import { Controller, Get, Param, Query, Req, UnauthorizedException, UseGuards } 
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 
-
+const urluser = '${urluser}'
+const urlproduct = 'http://localhost:3002'
 @Controller('category')
 export class Categorycontroller {
       constructor(private readonly httpService: HttpService) {}
 
+      
+
    @Get('getall')
   async getProfile() {
     const response = await this.httpService
-    .get('http://localhost:3002/category/getall')
+    // .get('${urlproduct}/category/getall')
+        .get('${urlproduct}/category/getall')
+
     .toPromise();
   
   return response!.data;  
@@ -43,7 +48,9 @@ export class Categorycontroller {
   }
     
   
-    const response = await this.httpService.get(`http://localhost:3002/category/getbyid/${id}`)
+    // const response = await this.httpService.get(`${urlproduct}/category/getbyid/${id}`)
+        const response = await this.httpService.get(`${urlproduct}/category/getbyid/${id}`)
+
     .toPromise()
     if(!response){
       return{
@@ -58,11 +65,17 @@ export class Categorycontroller {
     const [subcatess,allcate,products] = 
     await Promise.allSettled([
       this.httpService
-      .get(`http://localhost:3002/subcategory/${id}`).toPromise(),
+      // .get(`${urlproduct}/subcategory/${id}`).toPromise(),
+            .get(`${urlproduct}/subcategory/${id}`).toPromise(),
+
       this.httpService
-      .get(`http://localhost:3002/category/getall`).toPromise(),
+      // .get(`${urlproduct}/category/getall`).toPromise(),
+            .get(`${urlproduct}/category/getall`).toPromise(),
+
       this.httpService
-      .post(`http://localhost:3002/product/filteruser`,body).toPromise()
+      // .post(`${urlproduct}/product/filteruser`,body).toPromise()
+            .post(`${urlproduct}/product/filteruser`,body).toPromise()
+
     ])
 
 
@@ -111,7 +124,9 @@ export class Categorycontroller {
     // category:Number(id),
   }
   
-    const response = await this.httpService.get(`http://localhost:3002/subcategory/getsubcategorybyid/${id}`)
+    // const response = await this.httpService.get(`${urlproduct}/subcategory/getsubcategorybyid/${id}`)
+        const response = await this.httpService.get(`${urlproduct}/subcategory/getsubcategorybyid/${id}`)
+
     .toPromise()
     if(!response){
       return{
@@ -126,13 +141,21 @@ export class Categorycontroller {
     const [catedetail,allcate,products,allsubcate] = 
     await Promise.allSettled([
       this.httpService
-      .get(`http://localhost:3002/category/getbyid/${response.data.data.categoryId}`).toPromise(),
+      // .get(`${urlproduct}/category/getbyid/${response.data.data.categoryId}`).toPromise(),
+            .get(`${urlproduct}/category/getbyid/${response.data.data.categoryId}`).toPromise(),
+
       this.httpService
-      .get(`http://localhost:3002/category/getall`).toPromise(),
+      // .get(`${urlproduct}/category/getall`).toPromise(),
+            .get(`${urlproduct}/category/getall`).toPromise(),
+
       this.httpService
-      .post(`http://localhost:3002/product/filteruser`,body).toPromise(),
+      // .post(`${urlproduct}/product/filteruser`,body).toPromise(),
+            .post(`${urlproduct}/product/filteruser`,body).toPromise(),
+
       this.httpService
-      .get(`http://localhost:3002/subcategory/${response.data.data.categoryId}`).toPromise(),
+      // .get(`${urlproduct}/subcategory/${response.data.data.categoryId}`).toPromise(),
+            .get(`${urlproduct}/subcategory/${response.data.data.categoryId}`).toPromise(),
+
     ])
 
    
