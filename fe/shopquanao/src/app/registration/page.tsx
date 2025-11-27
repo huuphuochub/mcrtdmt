@@ -10,14 +10,16 @@ export default function Registration(){
         username:string,
         phone:string,
         password:string,
-        confirmPassword:string
+        confirmPassword:string,
+        avatarUrl:string,
 
 
     }>({
         username:"",
         phone:"",
         password:"",
-        confirmPassword:""
+        confirmPassword:"",
+        avatarUrl:'https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png'
 
     });
     const handlechange=(e: React.ChangeEvent<HTMLInputElement>)=>{
@@ -42,8 +44,10 @@ export default function Registration(){
             return
         }
         setError('')
+        // console.log(formData);
+        
         const response = await Registrationuser(formData)
-        console.log(response.data);
+        console.log(response);
         if(response.data.success === false){
             setError(response.data.message);
         }else{

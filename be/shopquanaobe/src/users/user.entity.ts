@@ -16,7 +16,7 @@ export class User {
   @Column()
   phone: string;
 
-  @Column({default:null})
+  @Column({default:'https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png'})
   avatarUrl: string;
 
   @Column()

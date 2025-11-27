@@ -48,6 +48,10 @@ import { WalletModule } from './wallet/wallet.module';
 import { Wallet } from './wallet/wallet.entity';
 import { Bank } from './wallet/bank.entity';
 import { History } from './wallet/hisstory.entity';
+import { OutboxController } from './outbox/outbox.controller';
+import { OutboxService } from './outbox/outbox.service';
+import { OutboxModule } from './outbox/outbox.module';
+import { Outbox } from './outbox/outbox.entity';
 
 
 @Module({
@@ -69,14 +73,14 @@ import { History } from './wallet/hisstory.entity';
       username:process.env.DB_USERNAME, 
       password:process.env.DB_PASSWORD,
       database:process.env.DB_NAME,
-      entities:[User,Seller,Cart,CartItem,ChatItem, Order,Wallet,OrderItem,Bank,History,Roomchat, CommentSeller,HistorySearch,Follower,Notification,Admin],
+      entities:[User,Seller,Cart,CartItem,ChatItem, Order,Wallet,OrderItem,Bank,History,Roomchat, CommentSeller,HistorySearch,Follower,Notification,Admin,Outbox],
       synchronize:true,
             ssl: { rejectUnauthorized: false }
 
     }),
     UsersModule, 
      
-    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule, FollowerModule, ChatModule, NotiModule, AdminModule, WalletModule
+    SellerModule, AuthModule, CartModule, OrderModule, HistorysearchModule, CookiesuserModule, FollowerModule, ChatModule, NotiModule, AdminModule, WalletModule, OutboxModule
   
   ],
   controllers: [AppController],

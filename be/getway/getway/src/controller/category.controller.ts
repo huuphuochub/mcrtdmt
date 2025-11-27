@@ -2,7 +2,7 @@ import { Controller, Get, Param, Query, Req, UnauthorizedException, UseGuards } 
 import { firstValueFrom } from 'rxjs';
 import { HttpService } from '@nestjs/axios';
 
-const urluser = '${urluser}'
+const urluser = 'http://localhost:3004'
 const urlproduct = 'http://localhost:3002'
 @Controller('category')
 export class Categorycontroller {
@@ -14,7 +14,7 @@ export class Categorycontroller {
   async getProfile() {
     const response = await this.httpService
     // .get('${urlproduct}/category/getall')
-        .get('${urlproduct}/category/getall')
+        .get(`${urlproduct}/category/getall`)
 
     .toPromise();
   

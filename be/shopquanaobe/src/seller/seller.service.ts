@@ -5,6 +5,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Seller } from './seller.entity';
 import { In, Repository } from 'typeorm';
 import { CommentSeller } from './commentseller.entity';
+import { Wallet } from 'src/wallet/wallet.entity';
 
 @Injectable()
 export class SellerService {
@@ -13,13 +14,45 @@ export class SellerService {
         private sellerRepo:Repository<Seller>,
         @InjectRepository(CommentSeller)
         private CmtsellerRepo:Repository<CommentSeller>,
+
+        @InjectRepository(Wallet)
+        private WalletRepo:Repository<Wallet>,
+
+        
     ){}
   async Registerseller(user_id:number,usernameseller:string,  email:string, provinceId:number, districtId:number, wardsId:number, address:string){
-    const newUser = this.sellerRepo.create({
+    const iseller =await this.sellerRepo.findOneBy({user_id});
+    if(iseller) {
+        return{
+          success:false,
+          data:null,
+          message:'tài khoản đã đc đăng kí bán hàng'
+        }
+    }
+    try {
+      const newUser = this.sellerRepo.create({
         user_id,usernameseller,email,provinceId,districtId,wardsId,address,status:0
     });
     const result =  await this.sellerRepo.save(newUser);
-    return result;
+      const wallet = this.WalletRepo.create({
+    seller: result,
+    availableBalance: 0,
+  });
+
+  await this.WalletRepo.save(wallet);
+      return {
+        data:result,
+        success:true,
+        message:'thanh cong',
+      };
+
+    } catch (error) {
+      return {
+        success:false,
+        data:null,
+        message:error.message
+      }
+    }
   }
   async Getsellerbyiduser(id:number){
     try {

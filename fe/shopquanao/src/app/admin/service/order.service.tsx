@@ -32,9 +32,9 @@ const getOrderDetailbySeller = async(order_id:number) =>{
     }
 }
 
-const UpdateStatusOrderItem = async(order_id:number,status:number,variant:variants[],cancelReason:string) =>{
+const UpdateStatusOrderItem = async(order_id:number,status:number,variant:variants[],cancelReason:string,totalRevenue:number) =>{
     try {
-        const up = await axiosClient.post('order/updatestatusorderitem',{order_id:order_id,status:status,variant:variant,cancelReason:cancelReason})
+        const up = await axiosClient.post('order/updatestatusorderitem',{order_id:order_id,status:status,variant:variant,cancelReason:cancelReason,totalRevenue:totalRevenue})
         return up
     } catch (error) {
         return{

@@ -6,6 +6,7 @@ type RegisterInput = {
   phone: string;
   password: string;
   confirmPassword: string;
+  avatarUrl:string;
 };
 interface inforuser {
     // username: string;

@@ -24,7 +24,9 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://rabbitmq:5672'],
+      // urls: ['amqp://rabbitmq:5672'],
+            urls: ['amqp://localhost:5672'],
+
       queue: 'upload_queue',
       queueOptions: { durable: false },
     },
@@ -34,7 +36,10 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://rabbitmq:5672'],
+      // urls: ['amqp://rabbitmq:5672'],
+
+                  urls: ['amqp://localhost:5672'],
+
       queue: 'subimg_queue',
       queueOptions: { durable: false },
     },
@@ -43,7 +48,9 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://rabbitmq:5672'],
+      // urls: ['amqp://rabbitmq:5672'],
+                  urls: ['amqp://localhost:5672'],
+
       queue: 'mailer_order',
       queueOptions: { durable: false },
     },
@@ -52,7 +59,9 @@ async function bootstrap() {
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.RMQ,
     options: {
-      urls: ['amqp://rabbitmq:5672'],
+      // urls: ['amqp://rabbitmq:5672'],
+                  urls: ['amqp://localhost:5672'],
+
       queue: 'send_otp_email',
       queueOptions: { durable: false }, 
     },
@@ -61,7 +70,7 @@ async function bootstrap() {
   await app.startAllMicroservices();
   
   // Sử dụng port từ environment variable hoặc mặc định 3000
-  const port = process.env.PORT || 3000;
+  const port = process.env.PORT || 3003;
   await app.listen(port, '0.0.0.0');
   console.log(`✅ Cloundinary service started on port ${port}`);
 } 

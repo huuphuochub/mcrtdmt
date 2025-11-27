@@ -21,6 +21,7 @@ import { Notification } from './controller/notification.controller';
 import { GeminiController } from './controller/chatboxai.controller';
 import * as dotenv from 'dotenv';
 import { GeminiService } from './service/geminiai';
+import { WalletController } from './controller/wallet.comtroller';
 dotenv.config();
 
 
@@ -94,6 +95,6 @@ dotenv.config();
       exports: [ViettelpostService], // nếu muốn dùng ở chỗ khác
 
 
-  controllers: [ProductController,UserController,Notification,Categorycontroller,Subcategorycontroller,GeminiController,Cartcontroller,sellerController,OrderController ,CommentProductController,Chatcontroller,FolowerController]
+  controllers: [ProductController,UserController,Notification,Categorycontroller,Subcategorycontroller,GeminiController,Cartcontroller,sellerController,OrderController ,CommentProductController,Chatcontroller,FolowerController,WalletController]
 })
 export class AppModule {}

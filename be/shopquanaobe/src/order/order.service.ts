@@ -2,16 +2,20 @@ import { Injectable } from '@nestjs/common';
 // import { ConfigService } from '@nestjs/config';
 import { PayOS } from '@payos/node';
 import { Order } from './order.entity';
-import { Between, Repository } from 'typeorm';
+import { Between, DataSource, Or, Repository } from 'typeorm';
 import { InjectRepository } from '@nestjs/typeorm';
 import { OrderItem } from './orderitem.entity';
 import { Notification } from 'src/noti/noti.entity';
+import { Wallet } from 'src/wallet/wallet.entity';
+import { History } from 'src/wallet/hisstory.entity';
 
 @Injectable()
 export class OrderService {
   private payos: PayOS;
 
   constructor(
+             private dataSource: DataSource ,
+    
     @InjectRepository(Order)
     private orderRepo:Repository<Order>,
     @InjectRepository(OrderItem)
@@ -455,15 +459,21 @@ async countOrdersBySeller(
 }
 
 // cap nhat don hang item dua theo seller
-async UpdateStatusOrderItemBySeller(order_id:number,seller_id:number,status:number,cancelReason:string){
+async UpdateStatusOrderItemBySeller(order_id:number,seller_id:number,status:number,cancelReason:string,totalRevenue:number){
   try {
-    const up = await this.orderItemRepo.update({
+return await this.dataSource.transaction(async manager =>{
+        const up = await manager.update(OrderItem,{
       
       order:{id:order_id},
       seller:{id:seller_id},
     },
-    {status:status ,cancel_reason:cancelReason}
+    {status:status ,cancel_reason:cancelReason},
+    // {lock:{mode:"pessimistic_write"}}
+
+
   )
+
+
 const order = await this.orderRepo.findOne({where:{id:order_id}});
       if(!order){
         return{
@@ -493,6 +503,25 @@ const order = await this.orderRepo.findOne({where:{id:order_id}});
       order_id:order_id,
     });
         await this.notiRepo.save(noti);
+
+        const wallet = await manager.findOne(Wallet,{
+          where: {seller:{id:seller_id}},
+          lock :{mode:"pessimistic_write"}
+        })
+        if(!wallet){
+          throw new Error('Wallet không tồn tại');
+        }
+        wallet.availableBalance += totalRevenue;
+        await manager.save(wallet);
+
+        const history = manager.create(History,{
+          wallet:{id:wallet.id},
+          total_amount:totalRevenue,
+          type:2,      // 1 la nap tien
+          status:0
+
+        })
+        await manager.save(history);
   }else if(status === 4){
     // tao thong bao
     const noti = this.notiRepo.create({ 
@@ -509,10 +538,11 @@ const order = await this.orderRepo.findOne({where:{id:order_id}});
     message:'ok',
     data:up,
   }
+})
   } catch (error) {
     return{
       success:false,
-      message:'loi',
+      message:'loi service' + error.message,
       data:null,
     }
   }

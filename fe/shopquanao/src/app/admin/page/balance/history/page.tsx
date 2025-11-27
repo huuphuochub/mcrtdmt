@@ -1,8 +1,48 @@
-import React from "react";
-import { ArrowLeft, Filter, Download } from "lucide-react";
-// import { useNavigate } from "react-router-dom";
 
+"use client"
+import React, { useEffect } from "react";
+import { ArrowLeft, Filter, Download } from "lucide-react";
+import { GetHistory } from "@/service/wallet.service";
+// import { useNavigate } from "react-router-dom";
+type HistoryType = {
+    id:number;
+    type:number;  
+    total_amount:number;
+    status:number;
+    createdAt:string;
+}
 export default function BalanceHistoryPage() {
+  const [history, setHistory] = React.useState<HistoryType[]>([]);
+
+  const fetchHistory = async ()=>{
+    try {
+      const response = await GetHistory();
+      console.log(response);
+      if(response.data.success){
+        setHistory(response.data.data);
+      }
+      
+    } catch (error) {
+      
+    }
+  }
+
+  function formatVNDateTime(isoString:string) {
+  return new Date(isoString).toLocaleString("vi-VN", {
+    timeZone: "Asia/Ho_Chi_Minh",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  });
+}
+
+  useEffect(() =>{
+    fetchHistory();
+  },[])
 //   const navigate = useNavigate();
 
   const transactions = [
@@ -47,14 +87,25 @@ export default function BalanceHistoryPage() {
             </tr>
           </thead>
           <tbody>
-            {transactions.map((t) => (
+            {history.map((t) => (
               <tr key={t.id} className="border-b last:border-none hover:bg-gray-50 transition">
-                <td className="px-6 py-3">{t.date}</td>
-                <td className="px-6 py-3">{t.type}</td>
-                <td className={`px-6 py-3 text-right font-medium ${t.amount < 0 ? "text-red-600" : "text-green-600"}`}>
-                  {t.amount < 0 ? "-" : "+"}₫ {Math.abs(t.amount).toLocaleString()}
+                <td className="px-6 py-3">{formatVNDateTime(t.createdAt)}</td>
+                {t.type === 0 ? (
+                  <td className="px-6 py-3">nạp tiền</td>
+                ) : t.type === 1 ?(
+                  <td className="px-6 py-3">rút tiền</td>
+                ):(
+                  <td className="px-6 py-3">Thanh toán đơn hàng</td>
+                )}
+                
+                <td className={`px-6 py-3 text-right font-medium ${t.type ===1  ? "text-red-600" : "text-green-600"}`}>
+                  {t.type === 1 ? "-" : "+"}₫ {Math.abs(t.total_amount).toLocaleString()}
                 </td>
-                <td className="px-6 py-3">{t.status}</td>
+                {t.status === 0 ? (
+                  <td className="px-6 py-3 text-green-600 font-medium">Thành công</td>
+                ) : (
+                  <td className="px-6 py-3 text-red-600 font-medium">Thất bại</td>
+                ) }
               </tr>
             ))}
           </tbody>

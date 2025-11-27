@@ -317,7 +317,7 @@ const CheckRoom = async () => {
               <Image
                 width={96}
                 height={96}
-                src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748353867/qyrmbrtn9p6qminexg1n.jpg"
+                src={seller?.avatar || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png'}
                 alt="Shop Avatar"
                 className="w-24 h-24 rounded-full border-4 border-white object-cover"
               />
@@ -326,7 +326,7 @@ const CheckRoom = async () => {
                   {seller?.usernameseller}
                 </h1>
                 <p className="text-gray-600 text-sm">
-                  Ngayf tham gia :{formatteddate(seller?.createdAt || " ")}
+                  Ngày tham gia : {formatteddate(seller?.createdAt || " ")}
                 </p>
               </div>
             </div>

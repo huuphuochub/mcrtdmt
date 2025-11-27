@@ -6,10 +6,12 @@ import { Order } from './order.entity';
 import { OrderItem } from './orderitem.entity';
 import { AuthModule } from 'src/auth/auth.module';
 import { Notification } from 'src/noti/noti.entity';
+import { Wallet } from 'src/wallet/wallet.entity';
+import { History } from 'src/wallet/hisstory.entity';
 
 @Module({
 
-    imports: [TypeOrmModule.forFeature([Order, OrderItem,Notification]),
+    imports: [TypeOrmModule.forFeature([Order, OrderItem,Notification,Wallet,History]),
 AuthModule
 ],
    controllers: [OrderController],

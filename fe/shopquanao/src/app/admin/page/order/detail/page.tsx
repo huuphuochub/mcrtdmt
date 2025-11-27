@@ -46,6 +46,7 @@ export default function OrderDetailPage(){
   const [cancelReason, setCancelReason] = useState("");
   const [statusinput,setStatusinput] = useState(1);
   const [variantid,setVariantid] = useState<variants[]>([])
+  const [totalRevenue,setTotalRevenue] = useState<number>(0);
 
 
       const id = searchParams.get("id");
@@ -60,7 +61,6 @@ export default function OrderDetailPage(){
     console.log(newStatus);
     
 
-    // chỉ hiện input khi CHỌN Hủy, và status cũ KHÁC 3
     if (newStatus === 4 && status !== 4) {
       setShowCancelReason(true);
     } else {
@@ -82,7 +82,7 @@ export default function OrderDetailPage(){
     //     console.log(status);
     // console.log(statusinput);
     try {
-        const upda = await UpdateStatusOrderItem(Number(id),statusinput,variantid,cancelReason)
+        const upda = await UpdateStatusOrderItem(Number(id),statusinput,variantid,cancelReason,totalRevenue)
         console.log(upda);
         if(upda.data.success){
             toast.success('da cap nhat don hang')
@@ -102,6 +102,7 @@ export default function OrderDetailPage(){
             
             if(or.data.success){
                 setOrderdetails(or.data.data)
+                
             }else{
             setOrderdetails(undefined);
 
@@ -111,6 +112,12 @@ export default function OrderDetailPage(){
         }
       }
 
+      useEffect(() =>{
+        if(!orderdetails) return
+                const totalRevenue = orderdetails.items.reduce((total, item) =>  total + item.unitprice , 0) * 0.9
+                setTotalRevenue(totalRevenue);
+                
+      },[orderdetails])
 
   function isInPromotion(promo_start:string,promo_end:string) {
   const today = new Date(); // ngày hiện tại
@@ -312,7 +319,10 @@ export default function OrderDetailPage(){
 
             <div className="bg-white shadow rounded-2xl p-6">
                 <h2 className="text-lg font-semibold mb-4">Trạng thái : 
-                    <span>
+                   {loading ? (
+                        <span> Loading...</span>
+                   ) : (
+                     <span>
                         {status === 1
                             ? "Chờ xử lý"
                             : status === 2
@@ -321,8 +331,12 @@ export default function OrderDetailPage(){
                             ? "Hoàn thành"
                             : "Hủy"}
                         </span>
+                   )}
                         </h2>
-                <div className="flex items-center gap-4">
+                {loading ? (
+                    <p>Loading...</p>
+                ): (
+                    <div className="flex items-center gap-4">
                     
                 {status ===1 ? (
                      <select
@@ -374,6 +388,7 @@ export default function OrderDetailPage(){
                 </Button>
                 )}
                 </div>
+                )}
             </div>
         </div>
 

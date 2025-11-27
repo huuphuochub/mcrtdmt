@@ -221,7 +221,7 @@ const orderforviettel = results.map(seller => {
     
     const response = await firstValueFrom(
       // this.httpService.post('http://localhost:3004/order/checkordercode', body, {
-            this.httpService.post(`{urluser}/order/checkordercode`, body, {
+            this.httpService.post(`${urluser}/order/checkordercode`, body, {
 
 
         // withCredentials: true, // Gửi và nhận cookie
@@ -594,7 +594,7 @@ const orderforviettel = results.map(seller => {
 
     try {
       // const up:any = await this.httpService.post('http://localhost:3004/order/updatestatusorderitem',{order_id:body.order_id,seller_id:seller.seller_id,status:body.status,cancelReason:body.cancelReason}).toPromise()
-            const up:any = await this.httpService.post(`${urluser}/order/updatestatusorderitem`,{order_id:body.order_id,seller_id:seller.seller_id,status:body.status,cancelReason:body.cancelReason}).toPromise()
+            const up:any = await this.httpService.post(`${urluser}/order/updatestatusorderitem`,{order_id:body.order_id,seller_id:seller.seller_id,status:body.status,cancelReason:body.cancelReason,totalRevenue:body.totalRevenue}).toPromise()
 
       if(body.status === 3){
         // const updatevariant = await this.httpService.post('http://localhost:3002/size/updatevariant',{variant:body.variant}).toPromise()

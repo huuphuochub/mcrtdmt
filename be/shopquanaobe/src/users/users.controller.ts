@@ -39,11 +39,14 @@ export class UsersController {
         provinceId:number, 
         districId:number, 
         wardsId:number, 
+        avatarUrl:string,
  },
     ){
         // const avatarUrl = await this.uploadservice.uploadImage(file)
+        console.log(body);
         
-        return this.usersService.Registersuser(body.username,body.password,body.phone,body.provinceId,body.districId,body.wardsId)
+        
+        return this.usersService.Registersuser(body.username,body.password,body.phone,body.provinceId,body.districId,body.wardsId,body.avatarUrl)
     }
 
     @Post("login")

@@ -97,7 +97,7 @@ const Headeradmin1 =({ onToggleMenu }: { onToggleMenu: () => void }) =>{
             <Image
             width={35}
             height={35}
-            src="https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png"
+            src={seller?.avatar || 'https://res.cloudinary.com/dnjakwi6l/image/upload/v1748839286/snapedit_1748839238470_wz5cdf.png'}
             alt="User avatar"
             className="rounded-full border border-gray-300 cursor-pointer hover:scale-105 transition"
           />

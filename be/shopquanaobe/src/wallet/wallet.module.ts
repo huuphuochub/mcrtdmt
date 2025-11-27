@@ -5,9 +5,10 @@ import { History } from './hisstory.entity';
 import { Bank } from './bank.entity';
 import { WalletController } from './wallet.controller';
 import { WalletService } from './wallet.service';
+import { Seller } from 'src/seller/seller.entity';
 
 @Module({
-    imports:[TypeOrmModule.forFeature([Wallet,History,Bank])],
+    imports:[TypeOrmModule.forFeature([Wallet,History,Bank,Seller])],
     controllers:[WalletController],
     providers:[WalletService],
 })

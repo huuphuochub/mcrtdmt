@@ -20,7 +20,7 @@ export class UsersService {
         
         @Inject(CACHE_MANAGER) private cache: Cache,
     ){}
-  async Registersuser(username:string, password:string, phone:string, provinceId:number, districtId:number, wardsId:number){
+  async Registersuser(username:string, password:string, phone:string, provinceId:number, districtId:number, wardsId:number,avatarUrl:string){
     const existingUser = await this.userRepo.findOne({where:{phone}});
     if(existingUser){
         return({ success:false,

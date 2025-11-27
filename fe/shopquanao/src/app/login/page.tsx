@@ -3,8 +3,11 @@ import React,{useState} from "react";
 import FooterPage from "@/component/footer";
 import Button from "@/component/ui/button";
 import { Postloginuser } from "@/service/userservice";
+import { useRouter } from "next/navigation";
+
 export default function Loginuser(){
     const [error,setError] = useState('');
+    const router =useRouter();
     const [userTest,setUserTest] = useState(false);
       const [selectedOption, setSelectedOption] = useState<string>("");
     const TEST_ACCOUNT = {
@@ -69,6 +72,10 @@ export default function Loginuser(){
 
         
         
+    }
+
+    const Submitregistration =( ) =>{
+        router.push('/registration')
     }
     return(
                <div>
@@ -141,7 +148,7 @@ export default function Loginuser(){
         
                            <div className="flex justify-between">
                                  <Button variant="primary">dang nhap</Button>
-                                <Button variant="secondary">dang ki</Button>
+                                <Button type="button" variant="secondary" onClick={() =>Submitregistration()} >dang ki</Button>
                            </div>
         
                         </form>

@@ -122,7 +122,7 @@ export class OrderController {
     @Post('updatestatusorderitem')
     async UpdateStatusOrderItem(@Body() body:any){
         
-        return await this.orderService.UpdateStatusOrderItemBySeller(body.order_id,body.seller_id,body.status,body.cancelReason);
+        return await this.orderService.UpdateStatusOrderItemBySeller(body.order_id,body.seller_id,body.status,body.cancelReason,body.totalRevenue);
     }
 
 
